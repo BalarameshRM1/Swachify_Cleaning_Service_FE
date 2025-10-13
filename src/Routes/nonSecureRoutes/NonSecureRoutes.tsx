@@ -1,5 +1,25 @@
-import React from "react"
+import { useEffect } from 'react';
+import { Routes, Route } from "react-router-dom";
+import Login from "../../pages/login/Login";
+import { getUserDetails } from "../../utils/helpers/storage"
+import { useNavigate } from "react-router-dom";
 
-export const NonSecureRoutes = () =>{
-    return <div>NonSecureRoutes</div>
+
+export const NonSecureRoutes = () => {
+    const navigate = useNavigate()
+    
+        useEffect(()=>{
+            let userData:any = getUserDetails()
+    
+            if(userData == null){
+                navigate('/app/dashboard')
+            }else{
+                navigate('/login')
+            }
+    
+        },[])
+
+    return <Routes>
+        <Route path="/login" element={<Login />} />
+    </Routes>
 }
