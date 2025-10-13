@@ -6,6 +6,7 @@ import { selectPosts, selectLoading, selectError } from "./app/features/posts/po
 import './App.css'
 import { clearPosts } from "./app/features/posts/postsSlice.ts";
 import Dashboard from './pages/dashboard/Dashboard.tsx';
+import { AppRoutes } from './Routes/AppRoutes.tsx';
 
 
 function App() {
@@ -24,8 +25,9 @@ function App() {
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
 
   return (
-    <div>
-      <Dashboard />
+    <>
+    <AppRoutes />
+      {/* <Dashboard  /> */}
        {/* <div style={{ padding: "20px" }}>
         <h1>📄 Posts List</h1>
         <ul>
@@ -37,7 +39,7 @@ function App() {
           ))}
         </ul>
       </div> */}
-    </div>
+    </>
   )
 }
 
