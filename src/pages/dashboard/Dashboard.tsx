@@ -1,9 +1,149 @@
-import React from 'react'
+import React from "react";
+import { Card, Row, Col, Typography, Space, Empty } from "antd";
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  FileTextOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 
-function Dashboard() {
+const { Title, Text } = Typography;
+
+const Dashboard: React.FC = () => {
   return (
-    <div>Dashboard</div>
-  )
-}
+    <div style={{ padding: "24px" }}>
+      
+      <Title level={2}>Welcome Back! 👋</Title>
+      <Text type="secondary">Here's your cleaning business overview</Text>
 
-export default Dashboard
+      
+      <Row gutter={[16, 16]} style={{ marginTop: "24px" }}>
+        <Col xs={24} sm={12} lg={6}>
+          <Card
+            style={{
+              background: "linear-gradient(to bottom right, #14b8a6, #06b6d4)",
+              color: "white",
+              borderRadius: "16px",
+            }}
+            bordered={false}
+          >
+            <Space
+              align="start"
+              style={{ width: "100%", justifyContent: "space-between" }}
+            >
+              <Text style={{ color: "#ccfbf1" }}>Total Services</Text>
+              <CheckCircleOutlined style={{ fontSize: 28, color: "white" }} />
+            </Space>
+            <Title level={2} style={{ color: "white", marginTop: "8px" }}>
+              0
+            </Title>
+            <Text style={{ color: "#ccfbf1", fontSize: 12 }}>All time</Text>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={12} lg={6}>
+          <Card
+            bordered
+            style={{
+              borderColor: "#bfdbfe",
+              borderRadius: "16px",
+            }}
+          >
+            <Space
+              align="start"
+              style={{ width: "100%", justifyContent: "space-between" }}
+            >
+              <Text type="secondary">Active Bookings</Text>
+              <ClockCircleOutlined style={{ fontSize: 28, color: "#2563eb" }} />
+            </Space>
+            <Title level={2} style={{ color: "#2563eb", marginTop: "8px" }}>
+              0
+            </Title>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Pending assignment
+            </Text>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={12} lg={6}>
+          <Card
+            bordered
+            style={{
+              borderColor: "#a7f3d0",
+              borderRadius: "16px",
+            }}
+          >
+            <Space
+              align="start"
+              style={{ width: "100%", justifyContent: "space-between" }}
+            >
+              <Text type="secondary">Open Tickets</Text>
+              <FileTextOutlined style={{ fontSize: 28, color: "#059669" }} />
+            </Space>
+            <Title level={2} style={{ color: "#059669", marginTop: "8px" }}>
+              0
+            </Title>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              In progress
+            </Text>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={12} lg={6}>
+          <Card
+            bordered
+            style={{
+              borderColor: "#ddd6fe",
+              borderRadius: "16px",
+            }}
+          >
+            <Space
+              align="start"
+              style={{ width: "100%", justifyContent: "space-between" }}
+            >
+              <Text type="secondary">Employees</Text>
+              <TeamOutlined style={{ fontSize: 28, color: "#7c3aed" }} />
+            </Space>
+            <Title level={2} style={{ color: "#7c3aed", marginTop: "8px" }}>
+              8
+            </Title>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Available staff
+            </Text>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Recent Activity Section */}
+      <Row gutter={[16, 16]} style={{ marginTop: "24px" }}>
+        <Col xs={24} lg={12}>
+          <Card
+            title={<Title level={4}>Recent Bookings</Title>}
+            bordered
+            style={{ borderRadius: "16px" }}
+          >
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="No recent bookings"
+            />
+          </Card>
+        </Col>
+
+        <Col xs={24} lg={12}>
+          <Card
+            title={<Title level={4}>Active Tickets</Title>}
+            bordered
+            style={{ borderRadius: "16px" }}
+          >
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="No active tickets"
+            />
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
+export default Dashboard;
