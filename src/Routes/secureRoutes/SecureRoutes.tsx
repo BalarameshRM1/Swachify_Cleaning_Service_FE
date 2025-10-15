@@ -8,7 +8,7 @@ export const SecureRoutes = () => {
     
     return <Routes>
         <Route path="/" element={<LayoutComponent />}>
-            <Route path="dashboard" element={<Dashboard />} />
+           
             
             <Route path="settings" element={<Settings />} />
         </Route>
