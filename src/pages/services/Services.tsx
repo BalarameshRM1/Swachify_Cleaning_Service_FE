@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   Typography,
-  Grid,
   Row,
   Col,
   Form,
@@ -18,6 +17,39 @@ import {
     CalendarOutlined,
     ClockCircleOutlined,
 } from '@ant-design/icons';
+
+// --- IMAGE IMPORTS ---
+import cleaningImg from '../../assets/cleaning.jpg';
+import electricianImg from '../../assets/electrician.jpeg';
+import paintingImg from '../../assets/painting.png';
+import acRepairImg from '../../assets/ac-repair.jpg';
+
+import bedroomCleaningImg from '../../assets/images1/cleaning&pest control/bedroom-cleaning.jpg';
+import bathroomCleaningImg from '../../assets/images1/cleaning&pest control/bathroom cleaning.jpeg';
+import kitchenCleaningImg from '../../assets/images1/cleaning&pest control/kitchen cleaning.jpg';
+import livingAreaCleaningImg from '../../assets/images1/cleaning&pest control/living area cleaning.jpg';
+import sofaCleaningImg from '../../assets/images1/cleaning&pest control/sofa cleaning.jpg';
+import pestControlImg from '../../assets/images1/cleaning&pest control/pest control.jpg';
+
+import socketImg from '../../assets/images1/electrician/socket.jpg';
+import fanImg from '../../assets/images1/electrician/fan.jpg';
+import wiringImg from '../../assets/images1/electrician/wiring.jpg';
+import bathFittingImg from '../../assets/images1/electrician/bath.jpg';
+import sinkImg from '../../assets/images1/electrician/sink.jpg';
+import carpenterImg from '../../assets/images1/electrician/carpenter.jpg';
+
+import housePaintingImg from '../../assets/images1/painting/house.jpeg';
+import roomPaintingImg from '../../assets/images1/painting/room.png';
+import exteriorPaintingImg from '../../assets/images1/painting/exterior.png';
+import waterproofingImg from '../../assets/images1/painting/waterproof.webp';
+
+import acServiceImg from '../../assets/images1/AC/ac repair.jpg';
+import fridgeRepairImg from '../../assets/images1/AC/fridge.jpg';
+import washingMachineRepairImg from '../../assets/images1/AC/washin.jpeg';
+import microwaveRepairImg from '../../assets/images1/AC/oven.jpg';
+
+import swachifyGif from '../../assets/SWACHIFY gif.gif';
+
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -71,38 +103,38 @@ interface BookingFormViewProps {
 // --- DATA ---
 const servicesData: Record<string, Service[]> = {
   main: [
-    { id: 'cleaning', title: 'Cleaning & Pest Control', img: '/cleaning.jpg' },
-    { id: 'electrician', title: 'Electrician, Plumber & Carpenter', img: '/electrician.jpeg' },
-    { id: 'painting', title: 'Painting & Waterproofing', img: '/painting.png' },
-    { id: 'ac', title: 'AC & Appliances', img: '/ac-repair.jpg' },
+    { id: 'cleaning', title: 'Cleaning & Pest Control', img: cleaningImg },
+    { id: 'electrician', title: 'Electrician, Plumber & Carpenter', img: electricianImg },
+    { id: 'painting', title: 'Painting & Waterproofing', img: paintingImg },
+    { id: 'ac', title: 'AC & Appliances', img: acRepairImg },
   ],
   cleaning: [
-    { id: 'bedroom', title: 'Bedroom', img: '/images1/cleaning&pest control/bedroom-cleaning.jpg' },
-    { id: 'bathroom', title: 'Bathroom', img: '/images1/cleaning&pest control/bathroom cleaning.jpeg' },
-    { id: 'kitchen', title: 'Kitchen', img: '/images1/cleaning&pest control/kitchen cleaning.jpg' },
-    { id: 'living', title: 'Living Area', img: '/images1/cleaning&pest control/living area cleaning.jpg' },
-    { id: 'sofa', title: 'Sofa & Carpet', img: '/images1/cleaning&pest control/sofa cleaning.jpg' },
-    { id: 'pest', title: 'Pest Control', img: '/images1/cleaning&pest control/pest control.jpg' },
+    { id: 'bedroom', title: 'Bedroom', img: bedroomCleaningImg },
+    { id: 'bathroom', title: 'Bathroom', img: bathroomCleaningImg },
+    { id: 'kitchen', title: 'Kitchen', img: kitchenCleaningImg },
+    { id: 'living', title: 'Living Area', img: livingAreaCleaningImg },
+    { id: 'sofa', title: 'Sofa & Carpet', img: sofaCleaningImg },
+    { id: 'pest', title: 'Pest Control', img: pestControlImg },
   ],
   electrician: [
-      { id: 'sockets', title: 'Switch & Sockets', img: '/images1/electrician/socket.jpg' },
-      { id: 'fan', title: 'Fan', img: '/images1/electrician/fan.jpg' },
-      { id: 'wiring', title: 'Wiring', img: '/images1/electrician/wiring.jpg' },
-      { id: 'bath', title: 'Bath Fitting', img: '/images1/electrician/bath.jpg' },
-      { id: 'sink', title: 'Sink & Basin', img: '/images1/electrician/sink.jpg' },
-      { id: 'carpenter', title: 'Carpenter', img: '/images1/electrician/carpenter.jpg' },
+      { id: 'sockets', title: 'Switch & Sockets', img: socketImg },
+      { id: 'fan', title: 'Fan', img: fanImg },
+      { id: 'wiring', title: 'Wiring', img: wiringImg },
+      { id: 'bath', title: 'Bath Fitting', img: bathFittingImg },
+      { id: 'sink', title: 'Sink & Basin', img: sinkImg },
+      { id: 'carpenter', title: 'Carpenter', img: carpenterImg },
   ],
   painting: [
-      { id: 'full-house', title: 'Full House Painting', img: '/images1/painting/house.jpeg' },
-      { id: 'room', title: 'Room Painting', img: '/images1/painting/room.png' },
-      { id: 'exterior', title: 'Exterior Painting', img: '/images1/painting/exterior.png' },
-      { id: 'waterproofing', title: 'Waterproofing', img: '/images1/painting/waterproof.webp' },
+      { id: 'full-house', title: 'Full House Painting', img: housePaintingImg },
+      { id: 'room', title: 'Room Painting', img: roomPaintingImg },
+      { id: 'exterior', title: 'Exterior Painting', img: exteriorPaintingImg },
+      { id: 'waterproofing', title: 'Waterproofing', img: waterproofingImg },
   ],
   ac: [
-      { id: 'ac-repair', title: 'AC Service & Repair', img: '/images1/AC/ac repair.jpg' },
-      { id: 'fridge', title: 'Refrigerator Repair', img: '/images1/AC/fridge.jpg' },
-      { id: 'washing-machine', title: 'Washing Machine Repair', img: '/images1/AC/washin.jpeg' },
-      { id: 'microwave', title: 'Microwave Repair', img: '/images1/AC/oven.jpg' },
+      { id: 'ac-repair', title: 'AC Service & Repair', img: acServiceImg },
+      { id: 'fridge', title: 'Refrigerator Repair', img: fridgeRepairImg },
+      { id: 'washing-machine', title: 'Washing Machine Repair', img: washingMachineRepairImg },
+      { id: 'microwave', title: 'Microwave Repair', img: microwaveRepairImg },
   ]
 };
 
@@ -212,7 +244,7 @@ const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, b
                         position: 'sticky',
                         top: 20
                     }}>
-                         <img src="/SWACHIFY gif.gif" alt="Swachify" style={{ width: 96, height: 96, margin: '0 auto 16px' }} />
+                         <img src={swachifyGif} alt="Swachify" style={{ width: 96, height: 96, margin: '0 auto 16px' }} />
                         <Title level={4}>You're almost there!</Title>
                         <Paragraph type="secondary">
                             Complete the form to get a sparkling clean space. We guarantee you'll be satisfied with our professional service.
@@ -370,8 +402,12 @@ const Services: React.FC = () => {
             case 'pricing-bedroom':
             case 'pricing-generic':
                 return <PricingView navigateTo={navigateTo} goBack={goBack} type={currentStep.view} subCategory={currentStep.data.subCategory} />;
-            case 'booking-form':
-                 return <BookingFormView navigateTo={navigateTo} goBack={goBack} bookingDetails={currentStep.data} />;
+            case 'booking-form':return (<BookingFormView
+                                         navigateTo={navigateTo}
+                                         goBack={goBack}
+                                         bookingDetails={currentStep.data as { category?: string; subCategory: string; plan: string }}
+                                             />);
+
             case 'acknowledgement':
                 return <AcknowledgementView navigateTo={navigateTo} />;
             default:

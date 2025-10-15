@@ -5,7 +5,6 @@ import { getUserDetails } from "../../utils/helpers/storage"
 import { useNavigate } from "react-router-dom";
 import Register from '../../pages/register/Register';
 import ForgotPassword from '../../pages/forgotpassword/ForgotPassword';
-import Services from '../../pages/services/Services';
 import Dashboard from '../../pages/dashboard/Dashboard';
 
 
