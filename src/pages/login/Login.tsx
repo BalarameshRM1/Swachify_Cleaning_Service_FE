@@ -104,6 +104,7 @@ const Login: React.FC = () => {
             borderRadius: 20,
             fontWeight: "bold",
             height: 40,
+             color: "#f5f0f0ff",
           }}
           disabled
         >
@@ -169,7 +170,7 @@ const Login: React.FC = () => {
             <Checkbox>Remember me</Checkbox>
             <Text
               style={{ color: "#009688", fontWeight: 500, cursor: "pointer" }}
-              onClick={() => navigate("/forgot-password")}
+              onClick={() => navigate("/forgotpassword")}
             >
               Forgot password?
             </Text>

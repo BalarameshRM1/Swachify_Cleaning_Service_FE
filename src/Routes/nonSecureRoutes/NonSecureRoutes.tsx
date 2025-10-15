@@ -4,6 +4,7 @@ import Login from "../../pages/login/Login";
 import { getUserDetails } from "../../utils/helpers/storage"
 import { useNavigate } from "react-router-dom";
 import Register from '../../pages/register/Register';
+import ForgotPassword from '../../pages/forgotpassword/ForgotPassword';
 
 
 export const NonSecureRoutes = () => {
@@ -23,5 +24,6 @@ export const NonSecureRoutes = () => {
     return <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+         <Route path="/forgotpassword" element={<ForgotPassword />} />
     </Routes>
 }
