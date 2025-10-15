@@ -5,6 +5,7 @@ import { getUserDetails } from "../../utils/helpers/storage"
 import { useNavigate } from "react-router-dom";
 import Register from '../../pages/register/Register';
 import ForgotPassword from '../../pages/forgotpassword/ForgotPassword';
+import Dashboard from '../../pages/dashboard/Dashboard';
 
 
 export const NonSecureRoutes = () => {
@@ -13,8 +14,8 @@ export const NonSecureRoutes = () => {
         useEffect(()=>{
             let userData:any = getUserDetails()
     
-            if(userData != null){
-                navigate('/app/dashboard')
+            if(userData == null){
+                navigate('/app/employees')
             }else{
                 navigate('/login')
             }
@@ -25,5 +26,7 @@ export const NonSecureRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
          <Route path="/forgotpassword" element={<ForgotPassword />} />
+         <Route path="/dashboard" element={<Dashboard />} />
+         
     </Routes>
 }
