@@ -5,7 +5,7 @@ import Settings from "../../pages/settings/settings";
 import Register from "../../pages/register/Register";
 import Employees from "../../pages/employees/Employees";
 
-export const SecureRoutes = () => {
+export const SecureRoutes = () => { 
     
     return <Routes>
         <Route path="/" element={<LayoutComponent />}>

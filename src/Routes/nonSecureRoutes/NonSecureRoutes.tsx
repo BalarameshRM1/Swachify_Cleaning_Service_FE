@@ -15,7 +15,7 @@ export const NonSecureRoutes = () => {
             let userData:any = getUserDetails()
     
             if(userData == null){
-                navigate('/app/employees')
+                navigate('/app/settings')
             }else{
                 navigate('/login')
             }
