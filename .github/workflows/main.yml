@@ -1,0 +1,41 @@
+name: Deploy React App to Azure Web App
+
+on:
+  push:
+    branches:
+      - main  # triggers on push to main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build React app
+        working-directory: frontend
+        run: npm run build
+
+      # Optional: upload build as artifact (for debugging or later use)
+      - name: Upload production-ready build
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-build
+          path: frontend/build
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'SwachifyfinalProj'  # 👈 your Azure App Service name
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: frontend/build         # 👈 deploy build folder
