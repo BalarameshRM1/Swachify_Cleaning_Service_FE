@@ -10,24 +10,24 @@ import Dashboard from '../../pages/dashboard/Dashboard';
 
 export const NonSecureRoutes = () => {
     const navigate = useNavigate()
-    const location = useLocation()
-
-    useEffect(() => {
-        let userData: any = getUserDetails()
-
-        if (userData == null && !location.pathname.includes('/app')) {
-            navigate('/app/dashboard')
-        } else {
-            navigate('/login')
-        }
-
-    }, [])
+    
+        useEffect(()=>{
+            let userData:any = getUserDetails()
+    
+            if(userData == null){
+                navigate('/app/services')
+            }else{
+                navigate('/login')
+            }
+    
+        },[])
 
     return <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-
+        <Route path='/dashboard' element={<Dashboard/>} />
+        {/* <Route path="/services" element={<Services />} /> */}
+         
     </Routes>
 }

@@ -9,11 +9,11 @@ export const ProtectedRoutes = (prop:any) =>{
     // useEffect(()=>{
     //     let userData: any = getUserDetails()
 
-    //     if (userData == null && !location.pathname.includes('/app')) {
-    //         navigate('/app/dashboard')
-    //     } else {
-    //         navigate('/login')
-    //     }
+        if(userData == null){
+            navigate('/app/services')
+        }else{
+            navigate('/login')
+        }
 
     // },[])
 
