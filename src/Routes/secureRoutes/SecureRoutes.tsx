@@ -6,6 +6,7 @@ import Services from "../../pages/services/Services";
 import Employees from "../../pages/employees/Employees";
 
 
+import Profile from "../../pages/profile/Profile";
 export const SecureRoutes = () => {
     
     return <Routes>
@@ -14,6 +15,7 @@ export const SecureRoutes = () => {
             <Route path="settings" element={<Settings />} />
             <Route path="employees" element={<Employees />} />
             <Route path="services" element={<Services />} />
+            <Route path="profile" element={<Profile />} />
         </Route>
     </Routes>
 }

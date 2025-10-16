@@ -43,12 +43,12 @@ import roomPaintingImg from '../../assets/images1/painting/room.png';
 import exteriorPaintingImg from '../../assets/images1/painting/exterior.png';
 import waterproofingImg from '../../assets/images1/painting/waterproof.webp';
 
-import acServiceImg from '../../assets/images1/AC/ac repair.jpg';
+import acServiceImg from '../../assets/images1/AC/ac_repair.jpg';
 import fridgeRepairImg from '../../assets/images1/AC/fridge.jpg';
 import washingMachineRepairImg from '../../assets/images1/AC/washin.jpeg';
 import microwaveRepairImg from '../../assets/images1/AC/oven.jpg';
 
-import swachifyGif from '../../assets/SWACHIFY gif.gif';
+import swachifyGif from '../../assets/SWACHIFY_gif.gif';
 
 
 const { Title, Text, Paragraph } = Typography;
@@ -201,12 +201,12 @@ const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, b
 
                         <Title level={4} style={{ marginTop: 32 }}>Scheduling</Title>
                         <Row gutter={16}>
-                            <Col xs={24} sm={12}>
+                            <Col xs={24} sm={24} md={12}>
                                 <Form.Item name="date" rules={[{ required: true, message: 'Please select a date!' }]}>
                                     <DatePicker style={{ width: '100%' }} format="MMMM D, YYYY" placeholder="Select Date" suffixIcon={<CalendarOutlined />} />
                                 </Form.Item>
                             </Col>
-                            <Col xs={24} sm={12}>
+                            <Col xs={24} sm={24} md={12}>
                                 <Form.Item label={<><ClockCircleOutlined /> Preferred Time</>} required>
                                     <Row gutter={[8, 8]}>
                                         {timeSlots.map(time => (
@@ -265,7 +265,7 @@ const MainView: React.FC<ViewProps> = ({ navigateTo }) => {
         <Title level={2} style={{ marginBottom: 24 }}>What are you looking for?</Title>
         <Row gutter={[24, 24]}>
             {servicesData.main.map(service => (
-                <Col xs={24} sm={12} lg={6} key={service.id}>
+                <Col xs={24} sm={12} md={12} lg={6} key={service.id}>
                     <Card
                         hoverable
                         onMouseEnter={() => setHoveredId(service.id)}
@@ -299,7 +299,7 @@ const SubServicesView: React.FC<SubServicesViewProps> = ({ navigateTo, goBack, c
             <Title level={2} style={{ marginBottom: 8 }}>{category}</Title>
             <Row gutter={[16, 16]}>
                 {subServices.map((sub: Service) => (
-                    <Col xs={12} sm={8} lg={6} key={sub.id}>
+                    <Col xs={24} sm={12} md={8} lg={6} key={sub.id}>
                         <Card
                             hoverable
                             onMouseEnter={() => setHoveredId(sub.id)}
