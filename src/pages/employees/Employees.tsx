@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Col, Row, Select, Typography, Avatar, Tag, Button, Modal, Form, Input, message, Space, Divider } from 'antd';
-import { PhoneOutlined, EnvironmentOutlined, CheckCircleOutlined, ClockCircleOutlined, PlusOutlined, MailOutlined } from '@ant-design/icons';
+import { PhoneFilled, EnvironmentFilled, PlusOutlined, MailOutlined } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -47,7 +47,6 @@ const EmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => (
             <div>
                 <Title level={5} style={{ margin: 0 }}>{employee.name}</Title>
                 <Tag
-                    icon={employee.status === 'Available' ? <CheckCircleOutlined /> : <ClockCircleOutlined />}
                     color={employee.status === 'Available' ? 'success' : 'warning'}
                     style={{ marginTop: 4 }}
                 >
@@ -66,10 +65,10 @@ const EmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => (
                 ))}
             </div>
             <Paragraph style={{ margin: 0, color: '#6b7280' }}>
-                <EnvironmentOutlined style={{ marginRight: 8, color: '#14b8a6' }} /> {employee.location}
+                <EnvironmentFilled style={{ marginRight: 8, color: '#ef4444' }} /> {employee.location}
             </Paragraph>
             <Paragraph style={{ margin: 0, color: '#6b7280' }}>
-                <PhoneOutlined style={{ marginRight: 8, color: '#14b8a6' }} /> {employee.phone}
+                <PhoneFilled style={{ marginRight: 8, color: '#ef4444' }} /> {employee.phone}
             </Paragraph>
         </div>
     </Card>
@@ -112,7 +111,6 @@ const Employees: React.FC = () => {
         <Row justify="space-between" align="middle" style={{ paddingBottom: 24, flexWrap: 'wrap', gap: 16 }}>
             <Col>
                 <Title level={2} style={{ margin: 0 }}>Employees</Title>
-                <Text type="secondary">Manage your team members and their assignments.</Text>
             </Col>
             <Col>
                 <Space wrap>
