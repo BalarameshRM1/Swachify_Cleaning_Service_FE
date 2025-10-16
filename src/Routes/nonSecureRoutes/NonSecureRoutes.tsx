@@ -18,7 +18,7 @@ export const NonSecureRoutes = () => {
             if(userData != null){
                 navigate('/app/dashboard')
             }else{
-                // navigate('/landing')
+                // navigate('/landing')--- IGNORE ---
             }
     
         },[])
