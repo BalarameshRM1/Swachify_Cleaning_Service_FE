@@ -12,7 +12,7 @@ const MenuItems: any = [
     {
         menuIcon: UserOutlined, label: 'Dashboard',
     },
-    // { menuIcon: LaptopOutlined, label: 'Employees' },
+    { menuIcon: LaptopOutlined, label: 'Employees' },
     { menuIcon: LaptopOutlined, label: 'Settings'},
     { menuIcon: NotificationOutlined, label: 'Services'},
     { menuIcon: LogoutOutlined, label: 'Logout'},
@@ -44,7 +44,7 @@ const LayoutComponent: React.FC = () => {
 
     const onClick: MenuProps["onClick"] = (e) => {
         if (e.key === "Dashboard") navigate("/app/dashboard");
-        // if (e.key === "Employees") navigate("/app/employees");
+        if (e.key === "Employees") navigate("/app/employees");
         if (e.key === "Settings") navigate("/app/settings");
         if (e.key === "Services") navigate("/app/services");
 
@@ -89,7 +89,7 @@ const LayoutComponent: React.FC = () => {
                                 padding: 24,
                                 margin: 0,
                                 minHeight: 280,
-                                background: colorBgContainer,
+                                // background: colorBgContainer,
                                 borderRadius: borderRadiusLG,
                             }}
                         >
