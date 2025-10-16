@@ -3,38 +3,52 @@ import React from 'react';
 import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+
 
 const { Header, Content, Sider } = Layout;
 
-const items1: MenuProps['items'] = ['1', '2', '3'].map((key) => ({
-    key,
-    label: `nav ${key}`,
-}));
-
-const items2: MenuProps['items'] = [UserOutlined, LaptopOutlined, NotificationOutlined].map(
-    (icon, index) => {
-        const key = String(index + 1);
-
-        return {
-            key: `sub${key}`,
-            icon: React.createElement(icon),
-            label: `subnav ${key}`,
-            children: Array.from({ length: 4 }).map((_, j) => {
-                const subKey = index * 4 + j + 1;
-                return {
-                    key: subKey,
-                    label: `option${subKey}`,
-                };
-            }),
-        };
+const MenuItems: any = [
+    {
+        menuIcon: UserOutlined, label: 'Dashboard',
     },
-);
+    { menuIcon: LaptopOutlined, label: 'Employees' },
+    { menuIcon: NotificationOutlined, label: 'Settings',subMenu: [
+            { label: 'subnav 1' },
+            { label: 'subnav 2' },
+        ] },
+]
 
 const LayoutComponent: React.FC = () => {
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
+
+    const navigate = useNavigate()
+    const location = useLocation()
+    const items2: MenuProps['items'] = MenuItems.map(
+        (ele: any) => {
+
+            return {
+                key: ele.label,
+                icon: React.createElement(ele.menuIcon),
+                label: ele.label,
+                children: ele?.subMenu?.length > 0 && ele?.subMenu.map((ele: any) => {
+                    return {
+                        key: ele.label,
+                        label: ele.label,
+                    };
+                })
+            };
+        },
+    );
+
+    const onClick: MenuProps["onClick"] = (e) => {
+        console.log("click ", e);
+        if (e.key === "Dashboard") navigate("/app/dashboard");
+        if (e.key === "Employees") navigate("/app/Employees");
+        if (e.key === "Settings") navigate("/app/settings");
+    };
 
     return (
         <Layout style={{ height: '100vh' }}>
@@ -53,16 +67,17 @@ const LayoutComponent: React.FC = () => {
                     <Menu
                         mode="inline"
                         defaultSelectedKeys={['1']}
-                        defaultOpenKeys={['sub1']}
+                        // defaultOpenKeys={['sub1']}
+                        onClick={onClick}
                         style={{ height: '100%', borderInlineEnd: 0 }}
                         items={items2}
                     />
                 </Sider>
                 <Layout style={{ padding: '0 24px 24px' }}>
-                    {/* <Breadcrumb
-            items={[{ title: 'Home' }, { title: 'List' }, { title: 'App' }]}
+                    <Breadcrumb
+            items={[{ title: 'App' }, { title: location?.pathname?.split('/')[2] },]}
             style={{ margin: '16px 0' }}
-          /> */}
+          />
                     <div>
                         <Content
                             style={{
