@@ -3,7 +3,7 @@ name: Deploy React App to Azure Web App
 on:
   push:
     branches:
-      - main  # triggers on push to main branch
+      - main  # Trigger deployment when pushing to main
 
 jobs:
   build-and-deploy:
@@ -19,23 +19,20 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        working-directory: frontend
         run: npm ci
 
-      - name: Build React app
-        working-directory: frontend
+      - name: Build React (Vite) app
         run: npm run build
 
-      # Optional: upload build as artifact (for debugging or later use)
-      - name: Upload production-ready build
+      - name: Upload build artifact (optional)
         uses: actions/upload-artifact@v4
         with:
           name: react-build
-          path: frontend/build
+          path: dist
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'SwachifyfinalProj'  # 👈 your Azure App Service name
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: frontend/build         # 👈 deploy build folder
+          package: dist                  # 👈 Vite builds to 'dist' by default
