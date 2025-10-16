@@ -3,19 +3,18 @@ import { getUserDetails } from "../utils/helpers/storage"
 import { useNavigate, useLocation } from "react-router-dom";
 
 export const ProtectedRoutes = (prop:any) =>{
-    // const navigate = useNavigate()
-    // const location = useLocation()
+    const navigate = useNavigate()
 
-    // useEffect(()=>{
-    //     let userData: any = getUserDetails()
+    useEffect(()=>{
+        let userData:any = getUserDetails('user')
 
-        if(userData == null){
-            navigate('/app/services')
+        if(userData != null){
+            navigate('/app/dashboard')
         }else{
             navigate('/login')
         }
 
-    // },[])
+    },[])
 
     return <>{prop.children}</>
 }
