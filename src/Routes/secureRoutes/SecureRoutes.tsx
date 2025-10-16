@@ -10,6 +10,7 @@ import Bookings from "../../pages/bookings/Bookings";
 
 
 import Profile from "../../pages/profile/Profile";
+import Employees from "../../pages/employees/Employees";
 export const SecureRoutes = () => {
     
     return <Routes>
