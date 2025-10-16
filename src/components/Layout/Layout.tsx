@@ -16,6 +16,10 @@ const MenuItems: any = [
     { menuIcon: LaptopOutlined, label: 'Settings'},
     { menuIcon: NotificationOutlined, label: 'Services'},
     { menuIcon: LogoutOutlined, label: 'Logout'},
+    { menuIcon: LogoutOutlined, label: 'Bookings'},
+    { menuIcon: LogoutOutlined, label: 'Tickets'},
+
+
 ]
 
 const LayoutComponent: React.FC = () => {
@@ -47,6 +51,11 @@ const LayoutComponent: React.FC = () => {
         // if (e.key === "Employees") navigate("/app/employees");
         if (e.key === "Settings") navigate("/app/settings");
         if (e.key === "Services") navigate("/app/services");
+        if (e.key === "Bookings") navigate("/app/bookings");
+        if (e.key === "Tickets") navigate("/app/Tickets");
+
+
+
 
         if( e.key === "Logout") {
             localStorage.removeItem('user')
