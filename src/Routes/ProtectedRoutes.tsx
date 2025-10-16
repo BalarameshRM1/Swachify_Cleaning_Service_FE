@@ -1,20 +1,21 @@
 import React, { useEffect} from "react"
 import { getUserDetails } from "../utils/helpers/storage"
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const ProtectedRoutes = (prop:any) =>{
-    const navigate = useNavigate()
+    // const navigate = useNavigate()
+    // const location = useLocation()
 
-    useEffect(()=>{
-        let userData:any = getUserDetails()
+    // useEffect(()=>{
+    //     let userData: any = getUserDetails()
 
-        if(userData == null){
-            navigate('/app/employees')
-        }else{
-            navigate('/login')
-        }
+    //     if (userData == null && !location.pathname.includes('/app')) {
+    //         navigate('/app/dashboard')
+    //     } else {
+    //         navigate('/login')
+    //     }
 
-    },[])
+    // },[])
 
     return <>{prop.children}</>
 }
