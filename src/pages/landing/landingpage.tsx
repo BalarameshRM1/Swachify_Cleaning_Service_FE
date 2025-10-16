@@ -281,7 +281,7 @@ const findUser = (email: string) => {
     }}
   >
     <img
-      src="/SWACHIFY gif.gif"
+      src=".\src\assets\SWACHIFY_gif.gif"
       alt="Swachify Logo"
       style={{
         width: '100%',  // 👈 adjust size as needed
