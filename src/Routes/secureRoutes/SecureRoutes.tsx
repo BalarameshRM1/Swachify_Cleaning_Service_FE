@@ -3,10 +3,14 @@ import Dashboard from "../../pages/dashboard/Dashboard";
 import LayoutComponent from "../../components/Layout/Layout";
 import Settings from "../../pages/settings/settings";
 import Services from "../../pages/services/Services";
-import Employees from "../../pages/employees/Employees";
+import Tickets from "../../pages/tickets/Tickets";
+import Bookings from "../../pages/bookings/Bookings";
+
+
 
 
 import Profile from "../../pages/profile/Profile";
+import Employees from "../../pages/employees/Employees";
 export const SecureRoutes = () => {
     
     return <Routes>
@@ -15,7 +19,10 @@ export const SecureRoutes = () => {
             <Route path="settings" element={<Settings />} />
             <Route path="employees" element={<Employees />} />
             <Route path="services" element={<Services />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="tickets" element={<Tickets />} />
+            <Route path="bookings" element={<Bookings />} />
+
+
         </Route>
     </Routes>
 }

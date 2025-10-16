@@ -3,8 +3,8 @@ import { getUserDetails } from "../utils/helpers/storage"
 import { useNavigate } from "react-router-dom";
 
 export const ProtectedRoutes = (prop:any) =>{
-    const navigate = useNavigate()
-
+     const navigate = useNavigate()
+    
         useEffect(()=>{
             let userData:any = getUserDetails('user')
     
@@ -15,6 +15,7 @@ export const ProtectedRoutes = (prop:any) =>{
             }
     
         },[])
+        
 
     return <>{prop.children}</>
 }
