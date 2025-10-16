@@ -13,50 +13,56 @@ import {
   CrownOutlined,
   TrophyOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import { getUserDetails, setUserDetails } from '../utils/helpers/storage';
 
 const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loginForm] = Form.useForm();
-  const [registerForm] = Form.useForm();
+const [registerForm] = Form.useForm();
+const [users, setUsers] = useState<any[]>([]);  // ✅ Added persistent storage
+const [currentUser, setCurrentUser] = useState<any>(null);  // ✅ Track logged-in user
+const navigate = useNavigate();
 
   // Storage management
-  const getUsers = () => {
-    const users:any = [];
-    return users;
-  };
+  
 
   const saveUser = (user: any) => {
-    const users = getUsers();
-    users.push(user);
-  };
+  setUsers(prevUsers => [...prevUsers, user]);  // ✅ Properly updates state
+};
 
-  const findUser = (email: string) => {
-    const users = getUsers();
-    return users.find((u: any) => u.email === email);
-  };
-
+const findUser = (email: string) => {
+  return users.find((u: any) => u.email === email);  // ✅ Reads from actual state
+};
   // Auth handlers
-  const handleLogin = (values: any) => {
-    const user = findUser(values.email.toLowerCase());
-    
-    if (!user) {
-      message.error('No account found with this email.');
-      return;
-    }
-    
-    if (user.password !== values.password) {
-      message.error('Incorrect password.');
-      return;
-    }
+ const handleLogin = (values: any) => {
+  // const user = findUser(values.email.toLowerCase());
+  const userData = getUserDetails('registerUser');
 
-    message.success(`Welcome ${user.name}! Redirecting...`);
-    setTimeout(() => {
-      setAuthModalOpen(false);
-      // Redirect to dashboard
-    }, 1000);
-  };
+  const user = userData && (userData);
+  if (!user?.email) {
+    message.error('No account found with this email.');
+    return;
+  }
+
+  if (user.password !== values.password) {
+    message.error('Incorrect password.');
+    return;
+  }
+  setUserDetails('user',user);
+
+  setCurrentUser(user);
+  message.success(`Welcome back, ${user.name}!`);
+
+  setTimeout(() => {
+    setAuthModalOpen(false);
+    loginForm.resetFields();
+    // navigate('/app/dashboard');  // ✅ Correct way
+  }, 1000);
+};
+
 
   const handleRegister = (values: any) => {
     const existingUser = findUser(values.email.toLowerCase());
@@ -75,6 +81,8 @@ const Landing = () => {
       role: 'Customer',
       createdAt: new Date().toISOString()
     };
+
+    setUserDetails('registerUser',newUser);
 
     saveUser(newUser);
     message.success('Account created! Please login to continue.');
