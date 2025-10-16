@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
+import { LaptopOutlined, NotificationOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Divider, Breadcrumb, Layout, Menu, theme } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 
@@ -12,11 +12,10 @@ const MenuItems: any = [
     {
         menuIcon: UserOutlined, label: 'Dashboard',
     },
-    { menuIcon: LaptopOutlined, label: 'Employees' },
-    { menuIcon: NotificationOutlined, label: 'Settings',subMenu: [
-            { label: 'subnav 1' },
-            { label: 'subnav 2' },
-        ] },
+    // { menuIcon: LaptopOutlined, label: 'Employees' },
+    { menuIcon: LaptopOutlined, label: 'Settings'},
+    { menuIcon: NotificationOutlined, label: 'Services'},
+    { menuIcon: LogoutOutlined, label: 'Logout'},
 ]
 
 const LayoutComponent: React.FC = () => {
@@ -44,10 +43,15 @@ const LayoutComponent: React.FC = () => {
     );
 
     const onClick: MenuProps["onClick"] = (e) => {
-        console.log("click ", e);
         if (e.key === "Dashboard") navigate("/app/dashboard");
-        if (e.key === "Employees") navigate("/app/Employees");
+        // if (e.key === "Employees") navigate("/app/employees");
         if (e.key === "Settings") navigate("/app/settings");
+        if (e.key === "Services") navigate("/app/services");
+
+        if( e.key === "Logout") {
+            localStorage.removeItem('user')
+            navigate('/landing')
+        }
     };
 
     return (
@@ -72,6 +76,7 @@ const LayoutComponent: React.FC = () => {
                         style={{ height: '100%', borderInlineEnd: 0 }}
                         items={items2}
                     />
+                    {/* <Divider /> */}
                 </Sider>
                 <Layout style={{ padding: '0 24px 24px' }}>
                     <Breadcrumb

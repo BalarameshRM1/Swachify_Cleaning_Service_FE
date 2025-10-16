@@ -8,8 +8,8 @@ export const ProtectedRoutes = (prop:any) =>{
     useEffect(()=>{
         let userData:any = getUserDetails()
 
-        if(userData == null){
-            navigate('/app/services')
+        if(userData != null){
+            navigate('/app/dashboard')
         }else{
             navigate('/login')
         }
