@@ -9,7 +9,7 @@ export const ProtectedRoutes = (prop:any) =>{
         let userData:any = getUserDetails()
 
         if(userData == null){
-            navigate('/app/services')
+            navigate('/app/profile')
         }else{
             navigate('/login')
         }
