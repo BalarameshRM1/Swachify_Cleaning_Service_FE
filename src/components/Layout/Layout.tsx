@@ -2,7 +2,7 @@ import React from 'react';
 
 import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Divider, Layout, Menu, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
 
 const { Header, Content, Sider } = Layout;
@@ -57,6 +57,7 @@ const LayoutComponent: React.FC = () => {
                         style={{ height: '100%', borderInlineEnd: 0 }}
                         items={items2}
                     />
+                    {/* <Divider /> */}
                 </Sider>
                 <Layout style={{ padding: '0 24px 24px' }}>
                     {/* <Breadcrumb

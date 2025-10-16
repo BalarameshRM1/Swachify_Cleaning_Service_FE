@@ -14,7 +14,7 @@ import {
   TrophyOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { getUserDetails, setUserDetails } from '../utils/helpers/storage';
+import { getUserDetails, setUserDetails } from '../../utils/helpers/storage';
 
 const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -38,11 +38,9 @@ const findUser = (email: string) => {
 };
   // Auth handlers
  const handleLogin = (values: any) => {
-  // const user = findUser(values.email.toLowerCase());
-  const userData = getUserDetails('registerUser');
+  const user = getUserDetails('registerUser');
 
-  const user = userData && (userData);
-  if (!user?.email) {
+  if (user?.email !== values.email) {
     message.error('No account found with this email.');
     return;
   }
@@ -59,7 +57,7 @@ const findUser = (email: string) => {
   setTimeout(() => {
     setAuthModalOpen(false);
     loginForm.resetFields();
-    // navigate('/app/dashboard');  // ✅ Correct way
+    navigate('/app/dashboard');  // ✅ Correct way
   }, 1000);
 };
 
