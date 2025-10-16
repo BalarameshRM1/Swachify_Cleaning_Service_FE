@@ -2,123 +2,61 @@ import React from 'react';
 import {
   Card,
   Typography,
-  Row,
-  Col,
   Form,
   Input,
-  Button,
-  Avatar,
-  Switch,
-  Tabs,
   message,
-  Upload,
+  Switch,
 } from 'antd';
-import {
-  UserOutlined,
-  MailOutlined,
-  LockOutlined,
-  BellOutlined,
-  ShopOutlined,
-  UploadOutlined,
-  SaveOutlined,
-} from '@ant-design/icons';
-//import { Color } from 'antd/es/color-picker';
 
 const { Title } = Typography;
-const { TabPane } = Tabs;
 
-const ProfileSettings: React.FC = () => {
-  const onFinish = (values: any) => {
-    console.log('Profile settings saved:', values);
-    message.success('Profile updated successfully!');
-  };
-
+const CustomSwitch: React.FC<{ defaultChecked?: boolean }> = ({ defaultChecked }) => {
   return (
-    <Card>
-      <Row gutter={[32, 16]} align="middle">
-        <Col xs={24} sm={6} style={{ textAlign: 'center' }}>
-          <Avatar
-            size={100}
-            icon={<UserOutlined />}
-            src="https://placehold.co/100x100/14b8a6/FFFFFF?text=A"
-          />
-          <Upload showUploadList={false}>
-            <Button icon={<UploadOutlined />} style={{ marginTop: 16 }}>
-              Change Photo
-            </Button>
-          </Upload>
-        </Col>
-        <Col xs={24} sm={18}>
-          <Form
-            layout="vertical"
-            onFinish={onFinish}
-            initialValues={{ name: 'Admin User', email: 'admin@swachify.com' }}
-          >
-            <Form.Item name="name" label="Full Name" rules={[{ required: true }]}>
-              <Input prefix={<UserOutlined />} placeholder="Full Name" />
-            </Form.Item>
-            <Form.Item
-              name="email"
-              label="Email Address"
-              rules={[{ required: true, type: 'email' }]}
-            >
-              <Input prefix={<MailOutlined />} placeholder="Email Address" />
-            </Form.Item>
-            <Form.Item name="password" label="New Password">
-              <Input.Password
-                prefix={<LockOutlined />}
-                placeholder="Leave blank to keep current password"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                icon={<SaveOutlined />}
-                style={{ backgroundColor: '#14b8a6', borderColor: '#14b8a6' }}
-              >
-                Save Profile
-              </Button>
-            </Form.Item>
-          </Form>
-        </Col>
-      </Row>
-    </Card>
+    <Switch
+      defaultChecked={defaultChecked}
+      style={{
+        backgroundColor: defaultChecked ? '#14b8a6' : '#ffffff',
+        border: defaultChecked ? 'none' : '1px solid #d9d9d9',
+      }}
+      onChange={(checked, e) => {
+        const target = e.target as HTMLButtonElement;
+        target.style.backgroundColor = checked ? '#14b8a6' : '#ffffff';
+        target.style.border = checked ? 'none' : '1px solid #d9d9d9';
+      }}
+    />
   );
 };
 
 const NotificationSettings: React.FC = () => {
+  const renderRow = (
+    label: string,
+    help: string,
+    defaultChecked: boolean = false
+  ) => (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '12px 0',
+        borderBottom: '1px solid #f0f0f0',
+      }}
+    >
+      <div>
+        <div style={{ fontWeight: 600, fontSize: 16 }}>{label}</div>
+        <div style={{ color: '#64748b' }}>{help}</div>
+      </div>
+      <CustomSwitch defaultChecked={defaultChecked} />
+    </div>
+  );
+
   return (
-    <Card>
+    <Card style={{ marginBottom: 24, borderRadius: 16 }}>
       <Title level={4} style={{ marginBottom: 24 }}>
         Notification Settings
       </Title>
-      <Form layout="vertical">
-        <Form.Item
-          label="New Booking Alerts"
-          help="Get notified when a new service is booked."
-        >
-          <Switch defaultChecked />
-        </Form.Item>
-        <Form.Item
-          label="Ticket Status Updates"
-          help="Receive alerts when a ticket's status changes."
-        >
-          <Switch defaultChecked />
-        </Form.Item>
-        <Form.Item
-          label="Employee Assignments"
-          help="Get notified when an employee is assigned to a booking."
-        >
-          <Switch />
-        </Form.Item>
-        <Form.Item
-          label="Weekly Summary"
-          help="Receive a summary of your business activity every week."
-        >
-          <Switch defaultChecked />
-        </Form.Item>
-      </Form>
+      {renderRow('New Booking Alerts', 'Get notified when new bookings arrive', true)}
+      {renderRow('Ticket Updates', 'Notifications for ticket status changes', true)}
     </Card>
   );
 };
@@ -130,9 +68,9 @@ const BusinessSettings: React.FC = () => {
   };
 
   return (
-    <Card>
+    <Card style={{ borderRadius: 16 }}>
       <Title level={4} style={{ marginBottom: 24 }}>
-        Business Information
+        Business Settings
       </Title>
       <Form
         layout="vertical"
@@ -142,25 +80,19 @@ const BusinessSettings: React.FC = () => {
           supportEmail: 'support@swachify.com',
         }}
       >
-        <Form.Item name="businessName" label="Business Name" rules={[{ required: true }]}>
-          <Input placeholder="Your Business Name" />
+        <Form.Item
+          name="businessName"
+          label="Business Name"
+          rules={[{ required: true }]}
+        >
+          <Input size="large" />
         </Form.Item>
         <Form.Item
           name="supportEmail"
           label="Support Email"
           rules={[{ required: true, type: 'email' }]}
         >
-          <Input placeholder="customer.support@example.com" />
-        </Form.Item>
-        <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            icon={<SaveOutlined />}
-            style={{ backgroundColor: '#14b8a6', borderColor: '#14b8a6' }}
-          >
-            Save Business Info
-          </Button>
+          <Input size="large" />
         </Form.Item>
       </Form>
     </Card>
@@ -169,101 +101,67 @@ const BusinessSettings: React.FC = () => {
 
 const Settings: React.FC = () => {
   return (
-    <div style={{ animation: 'fadeIn 0.5s' }}>
-      <Title level={2} style={{ marginBottom: 24 }}>
-        Settings
-      </Title>
-      <Tabs defaultActiveKey="1" tabPosition="left" className="custom-tabs">
-        <TabPane
-          tab={
-            <span style={{ color: '#14b8a6' }}>
-              <UserOutlined />
-              Profile
-            </span>
-          }
-          key="1"
-        >
-          <ProfileSettings />
-        </TabPane>
-        <TabPane
-          tab={
-            <span style={{ color: '#14b8a6' }}>
-  <BellOutlined />
-  Notifications
-</span>
+    <div
+      style={{
+        width: '100%',
+        maxWidth: 800,
+        margin: '0 auto',
+        backgroundColor: '#f9fbfc',
+        borderRadius: 16,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+        overflow: 'hidden',
+        height: '600px', 
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+   
+      <div
+        style={{
+          padding: '24px',
+          backgroundColor: '#f9fbfc',
+          borderBottom: '1px solid #e8e8e8',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+        }}
+      >
+        <Title level={2} style={{ margin: 0 }}>
+          Settings
+        </Title>
+      </div>
 
-          }
-          key="2"
-        >
-          <NotificationSettings />
-        </TabPane>
-        <TabPane
-          tab={
-            <span style={{ color: '#14b8a6' }}>
-              <ShopOutlined />
-              Business
-            </span>
-          }
-          key="3"
-        >
-          <BusinessSettings />
-        </TabPane>
-      </Tabs>
+      
+      <div
+        style={{
+          padding: '24px',
+          overflowY: 'auto',
+          flex: 1,
+        }}
+      >
+        <NotificationSettings />
+        <BusinessSettings />
+      </div>
 
+     
       <style>{`
-        
-        .custom-tabs.ant-tabs-vertical > .ant-tabs-nav .ant-tabs-tab.ant-tabs-tab-active {
-          color: #14b8a6 !important;
-        }
-        .custom-tabs .ant-tabs-ink-bar {
-          background-color: #14b8a6 !important;
-        }
-
-        
-        .custom-tabs.ant-tabs-vertical > .ant-tabs-nav .ant-tabs-tab:hover {
-          color: #14b8a6 !important;
-          cursor: pointer;
-          background-color: transparent !important;
+        .ant-input:hover,
+        .ant-input:focus,
+        .ant-input-affix-wrapper:hover,
+        .ant-input-affix-wrapper:focus,
+        .ant-btn:hover,
+        .ant-btn:focus {
+          border-color: #14b8a6 !important;
           box-shadow: none !important;
         }
 
-        .custom-tabs.ant-tabs-vertical > .ant-tabs-nav .ant-tabs-tab:hover svg {
-          color: #14b8a6 !important;
-          fill: #14b8a6 !important;
+        .ant-switch:not(.ant-switch-checked) {
+          background-color: #ffffff !important;
+          border: 1px solid #d9d9d9 !important;
         }
 
-        
         .ant-switch-checked {
           background-color: #14b8a6 !important;
-          border-color: #14b8a6 !important;
-        }
-
-  
-        .ant-btn-primary:hover,
-        .ant-btn-primary:focus {
-          background-color: #0f807c !important;
-          border-color: #0f807c !important;
-        }
-
-        
-        .ant-input:hover, 
-        .ant-input:focus, 
-        .ant-input-focused,
-        .ant-input-affix-wrapper:hover,
-        .ant-input-affix-wrapper:focus,
-        .ant-input-affix-wrapper-focused {
-          border-color: #14b8a6 !important;
-          box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2) !important;
-          outline: none !important;
-        }
-
-        
-        .ant-input-password:hover,
-        .ant-input-password:focus,
-        .ant-input-password-focused {
-          border-color: #14b8a6 !important;
-          box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2) !important;
-          outline: none !important;
         }
       `}</style>
     </div>
