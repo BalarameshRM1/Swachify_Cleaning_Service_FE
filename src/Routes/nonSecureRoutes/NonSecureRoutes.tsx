@@ -15,7 +15,7 @@ export const NonSecureRoutes = () => {
         useEffect(()=>{
             let userData:any = getUserDetails('user')
     
-            if(userData != null){
+            if(userData == null){
                 // navigate('/app/dashboard')
             }else{
                 // navigate('/landing')
