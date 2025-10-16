@@ -509,7 +509,7 @@ const findUser = (email: string) => {
                   fontSize: 120
                 }}>
                    <img
-      src="/painting.png"
+      src=".\src\assets\service.jpg"
       alt="Swachify Logo"
       style={{
         width: '100%',  // 👈 adjust size as needed
