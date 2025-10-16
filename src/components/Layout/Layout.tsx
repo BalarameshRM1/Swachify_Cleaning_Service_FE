@@ -63,7 +63,7 @@ const LayoutComponent: React.FC = () => {
         /> */}
             </Header>
             <Layout>
-                <Sider width={200} style={{ background: colorBgContainer }}>
+                <Sider width={200} style={{ background: colorBgContainer }} breakpoint="lg" collapsedWidth="0">
                     <Menu
                         mode="inline"
                         defaultSelectedKeys={['1']}
