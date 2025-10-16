@@ -6,27 +6,29 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Register from '../../pages/register/Register';
 import ForgotPassword from '../../pages/forgotpassword/ForgotPassword';
 import Dashboard from '../../pages/dashboard/Dashboard';
+import Landing from '../../pages/landing/landingpage';
 
 
 export const NonSecureRoutes = () => {
     const navigate = useNavigate()
     
         useEffect(()=>{
-            let userData:any = getUserDetails()
+            let userData:any = getUserDetails('user')
     
-            if(userData == null){
+            if(userData != null){
                 navigate('/app/dashboard')
             }else{
-                navigate('/login')
+                navigate('/landing')
             }
     
         },[])
 
     return <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/landing" element={<Landing />} />
+        {/* <Route path="/login" element={<Login />} /> */}
+        {/* <Route path="/register" element={<Register />} /> */}
         <Route path="/forgotpassword" element={<ForgotPassword />} />
-        <Route path='/dashboard' element={<Dashboard/>} />
+        {/* <Route path='/dashboard' element={<Dashboard/>} /> */}
         {/* <Route path="/services" element={<Services />} /> */}
          
     </Routes>
