@@ -16,9 +16,9 @@ import {
     PhoneOutlined,
     CalendarOutlined,
     ClockCircleOutlined,
+    MailOutlined,
 } from '@ant-design/icons';
 
-// --- IMAGE IMPORTS ---
 import cleaningImg from '../../assets/cleaning.jpg';
 import electricianImg from '../../assets/electrician.jpeg';
 import paintingImg from '../../assets/painting.png';
@@ -53,7 +53,6 @@ import swachifyGif from '../../assets/SWACHIFY gif.gif';
 
 const { Title, Text, Paragraph } = Typography;
 
-// --- TYPE DEFINITIONS ---
 interface Service {
   id: string;
   title: string;
@@ -100,7 +99,6 @@ interface BookingFormViewProps {
 }
 
 
-// --- DATA ---
 const servicesData: Record<string, Service[]> = {
   main: [
     { id: 'cleaning', title: 'Cleaning & Pest Control', img: cleaningImg },
@@ -152,7 +150,6 @@ const pricingData: Record<string, Plan[]> = {
 };
 
 
-// --- VIEWS ---
 
 const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, bookingDetails }) => {
     const [form] = Form.useForm();
@@ -194,6 +191,9 @@ const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, b
                         </Form.Item>
                         <Form.Item name="phone" rules={[{ required: true, message: 'Please enter your phone number!' }]}>
                             <Input prefix={<PhoneOutlined />} placeholder="Phone Number" />
+                        </Form.Item>
+                        <Form.Item name="email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>    
+                            <Input prefix={<MailOutlined />} placeholder="Email" />
                         </Form.Item>
                         <Form.Item name="address" rules={[{ required: true, message: 'Please enter your address!' }]}>
                             <Input.TextArea rows={3} placeholder="Full Address" />
