@@ -33,6 +33,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'SwachifyfinalProj'  # 👈 your Azure App Service name
+          app-name: 'SWACHIFYDEMOFE'  # 👈 your Azure App Service name
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           package: dist                  # 👈 Vite builds to 'dist' by default
