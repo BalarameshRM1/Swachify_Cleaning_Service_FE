@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { Card, Row, Col, Button, Typography, Empty } from "antd";
 import { UserOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
 
@@ -24,15 +24,6 @@ const sampleTickets: Ticket[] = [
     time: "16/10/2025 at 9:00 AM - 11:00 AM",
     status: "completed",
   },
-  // {
-  //   id: 101357,
-  //   service: "Floor Polishing",
-  //   employee: "Mike",
-  //   customerName: "Alice",
-  //   address: "H No 12-45/6, Green Park, Hyderabad",
-  //   time: "17/10/2025 at 10:00 AM - 12:00 PM",
-  //   status: "open",
-  // },
   {
     id: 101358,
     service: "Window Cleaning",
@@ -44,7 +35,7 @@ const sampleTickets: Ticket[] = [
   },
 ];
 
-// Function to generate a 6-digit demo OTP
+
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
 const Tickets: React.FC = () => {
@@ -72,16 +63,12 @@ const Tickets: React.FC = () => {
   return (
     <div style={{ padding: "24px", backgroundColor: "#f9fafb", minHeight: "100vh" }}>
       <Title level={2}>Service Tickets</Title>
-
-      {/* Filter Tabs */}
       <Row gutter={[8, 8]} style={{ marginBottom: "24px" }}>
         <Col>{tabButton("all", "All")}</Col>
         <Col>{tabButton("open", "Open")}</Col>
         <Col>{tabButton("in-progress", "In Progress")}</Col>
         <Col>{tabButton("completed", "Completed")}</Col>
       </Row>
-
-      {/* Tickets List */}
       <Row gutter={[16, 16]}>
         {filteredTickets.length === 0 ? (
           <Col span={24}>

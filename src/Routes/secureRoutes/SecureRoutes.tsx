@@ -5,11 +5,7 @@ import Settings from "../../pages/settings/settings";
 import Services from "../../pages/services/Services";
 import Tickets from "../../pages/tickets/Tickets";
 import Bookings from "../../pages/bookings/Bookings";
-
-
-
-
-import Profile from "../../pages/profile/Profile";
+// import Profile from "../../pages/profile/Profile";
 import Employees from "../../pages/employees/Employees";
 export const SecureRoutes = () => {
     

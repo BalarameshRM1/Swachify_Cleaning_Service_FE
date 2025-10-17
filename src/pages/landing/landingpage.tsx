@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Modal, Form, Input, Checkbox, Tabs, message, Menu, Drawer } from 'antd';
 import { 
   PhoneOutlined, 
@@ -6,12 +6,12 @@ import {
   EnvironmentOutlined, 
   ClockCircleOutlined,
   MenuOutlined,
-  StarFilled,
-  CheckCircleOutlined,
-  SafetyOutlined,
-  ThunderboltOutlined,
-  CrownOutlined,
-  TrophyOutlined
+  // StarFilled,
+  // CheckCircleOutlined,
+  // SafetyOutlined,
+  // ThunderboltOutlined,
+  // CrownOutlined,
+  // TrophyOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getUserDetails, setUserDetails } from '../../utils/helpers/storage';
@@ -23,7 +23,7 @@ const Landing = () => {
   const [loginForm] = Form.useForm();
 const [registerForm] = Form.useForm();
 const [users, setUsers] = useState<any[]>([]);  // ✅ Added persistent storage
-const [currentUser, setCurrentUser] = useState<any>(null);  // ✅ Track logged-in user
+const [setCurrentUser] = useState<any>(null);  // ✅ Track logged-in user
 const navigate = useNavigate();
 
   // Storage management

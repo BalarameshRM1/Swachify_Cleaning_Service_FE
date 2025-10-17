@@ -2,12 +2,12 @@ import React from 'react';
 
 import { LaptopOutlined, NotificationOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Divider, Breadcrumb, Layout, Menu, theme } from 'antd';
+import {Breadcrumb, Layout, Menu, theme } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import HeaderBar from '../header/header';
 
 
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 const MenuItems: any = [
     {

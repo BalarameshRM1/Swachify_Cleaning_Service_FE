@@ -48,7 +48,7 @@ import fridgeRepairImg from '../../assets/images1/AC/fridge.jpg';
 import washingMachineRepairImg from '../../assets/images1/AC/washin.jpeg';
 import microwaveRepairImg from '../../assets/images1/AC/oven.jpg';
 
-import swachifyGif from '../../assets/SWACHIFY_gif.gif';
+// import swachifyGif from '../../assets/SWACHIFY_gif.gif';
 
 
 const { Title, Text, Paragraph } = Typography;
@@ -223,7 +223,7 @@ const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, b
           <Col flex="1 1 0" style={{ minWidth: 0 }}>
             <Card
               size="small"
-              bordered
+              // bordered
               style={{ height: '100%', borderRadius: 12 }}
               bodyStyle={{ padding: 14 }}
             >
