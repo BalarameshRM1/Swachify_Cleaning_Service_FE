@@ -3,10 +3,10 @@ import React from 'react';
 import { LaptopOutlined, NotificationOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import HeaderBar from '../header/header';
 
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 const MenuItems: any = [
   { menuIcon: UserOutlined, label: 'Dashboard' },
@@ -24,7 +24,7 @@ const LayoutComponent: React.FC = () => {
   } = theme.useToken();
 
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
 
   const items2: MenuProps['items'] = MenuItems.map((ele: any) => {
     return {
