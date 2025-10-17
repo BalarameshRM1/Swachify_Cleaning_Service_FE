@@ -1,18 +1,18 @@
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from "./app/hooks.ts";
 import { fetchPosts } from "./app/features/posts/postsSlice.ts";
-import { selectPosts, selectLoading, selectError } from "./app/features/posts/postsSelectors";
+import {selectLoading, selectError } from "./app/features/posts/postsSelectors";
 
 import './App.css'
 import { clearPosts } from "./app/features/posts/postsSlice.ts";
-import Dashboard from './pages/dashboard/Dashboard.tsx';
+// import Dashboard from './pages/dashboard/Dashboard.tsx';
 import { AppRoutes } from './Routes/AppRoutes.tsx';
 
 
 function App() {
 
   const dispatch = useAppDispatch();
-  const posts = useAppSelector(selectPosts);
+  // const posts = useAppSelector(selectPosts);
   const loading = useAppSelector(selectLoading);
   const error = useAppSelector(selectError);
 
@@ -42,5 +42,4 @@ function App() {
     </>
   )
 }
-
 export default App

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Col, Row, Select, Typography, Avatar, Tag, Button, Modal, Form, Input, message, Space, Divider } from 'antd';
-import { PhoneFilled, EnvironmentFilled, PlusOutlined, MailOutlined } from '@ant-design/icons';
+import { PhoneFilled, EnvironmentFilled, PlusOutlined} from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;
 

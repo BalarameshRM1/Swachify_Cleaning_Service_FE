@@ -1,4 +1,4 @@
-import React, { useEffect} from "react"
+import { useEffect} from "react"
 import { getUserDetails } from "../utils/helpers/storage"
 import { useNavigate } from "react-router-dom";
 
