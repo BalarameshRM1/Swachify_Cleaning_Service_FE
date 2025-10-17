@@ -18,7 +18,7 @@ import {
     ClockCircleOutlined,
     MailOutlined,
 } from '@ant-design/icons';
-
+import dayjs, { Dayjs } from 'dayjs';
 import cleaningImg from '../../assets/cleaning.jpg';
 import electricianImg from '../../assets/electrician.jpeg';
 import paintingImg from '../../assets/painting.png';
@@ -177,83 +177,188 @@ const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, b
 
     const timeSlots = ["9am - 11am", "11am - 1pm", "1pm - 3pm", "3pm - 5pm"];
 
-    return (
-        <div style={{ animation: 'fadeIn 0.5s' }}>
-            <Button icon={<ArrowLeftOutlined />} onClick={goBack} style={{ marginBottom: 16 }}>Back</Button>
-            <Title level={2} style={{ marginBottom: 8 }}>Booking Details</Title>
+   return (
+  <div
+    style={{
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'flex-start',      
+    justifyContent: 'center',
+    background: 'transparent',
+    padding: 0,
+  }}
+  >
+    <Card
+      bordered={false}
+      style={{
+        width: 'min(100%, 980px)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
+        borderRadius: 16,
+      }}
+      bodyStyle={{ padding: 20 }}
+    >
+      <Row align="middle" wrap={false} gutter={12} style={{ marginBottom: 8 }}>
+        <Col flex="32px">
+          <Button
+            icon={<ArrowLeftOutlined />}
+            type="text"
+            onClick={goBack}
+            aria-label="Go back"
+          />
+        </Col>
+        <Col flex="auto">
+          <Title level={4} style={{ margin: 0 }}>Booking details</Title>
+          
+        </Col>
+      </Row>
 
-            <Row gutter={[48, 24]}>
-                <Col xs={24} lg={14} style={{ maxHeight: 'calc(100vh - 350px)', overflowY: 'auto', paddingRight: '24px' }}>
-                    <Form form={form} layout="vertical" onFinish={onFinish} size="large">
-                        <Title level={4}>Your Information</Title>
-                        <Form.Item name="name" rules={[{ required: true, message: 'Please enter your full name!' }]}>
-                            <Input prefix={<UserOutlined />} placeholder="Full Name" />
-                        </Form.Item>
-                        <Form.Item name="phone" rules={[{ required: true, message: 'Please enter your phone number!' }]}>
-                            <Input prefix={<PhoneOutlined />} placeholder="Phone Number" />
-                        </Form.Item>
-                        <Form.Item name="email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>    
-                            <Input prefix={<MailOutlined />} placeholder="Email" />
-                        </Form.Item>
-                        <Form.Item name="address" rules={[{ required: true, message: 'Please enter your address!' }]}>
-                            <Input.TextArea rows={3} placeholder="Full Address" />
-                        </Form.Item>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        style={{ marginTop: 8 }}
+        requiredMark={false}
+      >
+        <Row gutter={16} wrap={false}>
+          <Col flex="1 1 0" style={{ minWidth: 0 }}>
+            <Card
+              size="small"
+              bordered
+              style={{ height: '100%', borderRadius: 12 }}
+              bodyStyle={{ padding: 14 }}
+            >
+              <Title level={5} style={{ marginTop: 0 }}>Your information</Title>
 
-                        <Title level={4} style={{ marginTop: 32 }}>Scheduling</Title>
-                        <Row gutter={16}>
-                            <Col xs={24} sm={24} md={12}>
-                                <Form.Item name="date" rules={[{ required: true, message: 'Please select a date!' }]}>
-                                    <DatePicker style={{ width: '100%' }} format="MMMM D, YYYY" placeholder="Select Date" suffixIcon={<CalendarOutlined />} />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} sm={24} md={12}>
-                                <Form.Item label={<><ClockCircleOutlined /> Preferred Time</>} required>
-                                    <Row gutter={[8, 8]}>
-                                        {timeSlots.map(time => (
-                                            <Col span={12} key={time}>
-                                                <Button
-                                                    block
-                                                    type={selectedTime === time ? 'primary' : 'default'}
-                                                    onClick={() => setSelectedTime(time)}
-                                                    style={selectedTime === time ? { backgroundColor: '#14b8a6', borderColor: '#14b8a6', color: 'white' } : {}}
-                                                >
-                                                    {time}
-                                                </Button>
-                                            </Col>
-                                        ))}
-                                    </Row>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Form.Item style={{ marginTop: 16 }}>
-                            <Button type="primary" htmlType="submit" block size="large" style={{ backgroundColor: '#14b8a6', height: 50, fontSize: 18 }}>
-                                Confirm & Place Order
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Col>
-                <Col xs={0} lg={10}>
-                    <div style={{
-                        background: 'linear-gradient(135deg, #f0fdfa, #f0f9ff)',
-                        borderRadius: 16,
-                        padding: 32,
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        position: 'sticky',
-                        top: 20
-                    }}>
-                         <img src={swachifyGif} alt="Swachify" style={{ width: 96, height: 96, margin: '0 auto 16px' }} />
-                        <Title level={4}>You're almost there!</Title>
-                        <Paragraph type="secondary">
-                            Complete the form to get a sparkling clean space. We guarantee you'll be satisfied with our professional service.
-                        </Paragraph>
-                    </div>
-                </Col>
-            </Row>
-        </div>
-    );
+              <Form.Item
+                name="name"
+                label="Full name"
+                rules={[{ required: true, message: 'Enter your full name' }]}
+                style={{ marginBottom: 10 }}
+              >
+                <Input prefix={<UserOutlined />} placeholder="e.g., Jane Doe" />
+              </Form.Item>
+
+              <Form.Item
+                name="phone"
+                label="Phone"
+                rules={[
+                  { required: true, message: 'Enter your phone number' },
+                  { pattern: /^[0-9+\-\s]{8,}$/, message: 'Enter a valid phone' },
+                ]}
+                style={{ marginBottom: 10 }}
+              >
+                <Input prefix={<PhoneOutlined />} placeholder="+91 98765 43210" />
+              </Form.Item>
+
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { type: 'email', message: 'Enter a valid email' },
+                  { required: true, message: 'Enter your email' },
+                ]}
+                style={{ marginBottom: 10 }}
+              >
+                <Input prefix={<MailOutlined />} placeholder="name@example.com" />
+              </Form.Item>
+
+              <Form.Item
+                name="address"
+                label="Address"
+                rules={[{ required: true, message: 'Enter your address' }]}
+                style={{ marginBottom: 0 }}
+              >
+                <Input.TextArea rows={3} placeholder="Flat, street, landmark" />
+              </Form.Item>
+            </Card>
+          </Col>
+
+          {/* Right column - Scheduling */}
+          <Col flex="1 1 0" style={{ minWidth: 0 }}>
+            <Card
+              size="small"
+              bordered
+              style={{ height: '100%', borderRadius: 12 }}
+              bodyStyle={{ padding: 14 }}
+            >
+              <Title level={5} style={{ marginTop: 0 }}>Scheduling</Title>
+
+              <Form.Item
+                name="date"
+                label="Preferred date"
+                rules={[{ required: true, message: 'Pick a date' }]}
+                style={{ marginBottom: 12 }}
+              >
+                <DatePicker
+                  style={{ width: '100%' }}
+                  placeholder="Select date"
+                  suffixIcon={<CalendarOutlined />}
+                  disabledDate={(d: Dayjs) => d && !d.isAfter(dayjs().subtract(1, 'day').endOf('day'))}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Preferred time"
+                required
+                validateStatus={!selectedTime ? 'error' : undefined}
+                help={!selectedTime ? 'Select a time slot' : undefined}
+                style={{ marginBottom: 14 }}
+              >
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {timeSlots.map((time) => {
+                    const active = selectedTime === time;
+                    return (
+                      <Button
+                        key={time}
+                        icon={<ClockCircleOutlined />}
+                        onClick={() => setSelectedTime(time)}
+                        style={{
+                          height: 40,
+                          justifyContent: 'flex-start',
+                          borderColor: active ? '#14b8a6' : '#d9d9d9',
+                          color: active ? '#14b8a6' : 'inherit',
+                          background: active ? 'rgba(20,184,166,0.08)' : 'white',
+                        }}
+                        block
+                      >
+                        {time}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </Form.Item>
+
+              <div
+                style={{
+                  padding: 12,
+                  border: '1px dashed #e6f4f2',
+                  borderRadius: 10,
+                  background: '#f6fffc',
+                  color: '#14665b',
+                  marginBottom: 12,
+                }}
+              >
+                <Text>
+                  {`${bookingDetails?.category || ''} ${bookingDetails?.subCategory ? '• ' + bookingDetails.subCategory : ''} ${bookingDetails?.plan ? '• ' + bookingDetails.plan : ''}`.trim()}
+                </Text>
+              </div>
+
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                style={{ height: 44, background: '#14b8a6', borderColor: '#14b8a6' }}
+              >
+                Confirm & place order
+              </Button>
+            </Card>
+          </Col>
+        </Row>
+      </Form>
+    </Card>
+  </div>
+);
+
 };
 
 
