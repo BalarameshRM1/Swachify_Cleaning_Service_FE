@@ -4,6 +4,7 @@ import { LaptopOutlined, NotificationOutlined, UserOutlined, LogoutOutlined } fr
 import type { MenuProps } from 'antd';
 import { Divider, Breadcrumb, Layout, Menu, theme } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import HeaderBar from '../header/header';
 
 
 const { Header, Content, Sider } = Layout;
@@ -12,12 +13,12 @@ const MenuItems: any = [
     {
         menuIcon: UserOutlined, label: 'Dashboard',
     },
-    { menuIcon: LaptopOutlined, label: 'Employees' },
-    { menuIcon: LaptopOutlined, label: 'Settings'},
     { menuIcon: NotificationOutlined, label: 'Services'},
-    { menuIcon: LogoutOutlined, label: 'Logout'},
     { menuIcon: LogoutOutlined, label: 'Bookings'},
     { menuIcon: LogoutOutlined, label: 'Tickets'},
+    { menuIcon: LaptopOutlined, label: 'Employees' },
+    { menuIcon: LaptopOutlined, label: 'Settings'},
+    { menuIcon: LogoutOutlined, label: 'Logout'},
 
 
 ]
@@ -65,16 +66,8 @@ const LayoutComponent: React.FC = () => {
 
     return (
         <Layout style={{ height: '100vh' }}>
-            <Header style={{ display: 'flex', alignItems: 'center' }}>
-                <div className="demo-logo" />
-                {/* <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={['2']}
-          items={items1}
-          style={{ flex: 1, minWidth: 0 }}
-        /> */}
-            </Header>
+            <HeaderBar />
+          
             <Layout>
                 <Sider width={200} style={{ background: colorBgContainer }} breakpoint="lg" collapsedWidth="0">
                     <Menu
@@ -89,7 +82,7 @@ const LayoutComponent: React.FC = () => {
                 </Sider>
                 <Layout style={{ padding: '0 24px 24px' }}>
                     <Breadcrumb
-            items={[{ title: 'App' }, { title: location?.pathname?.split('/')[2] },]}
+            items={[{ title: 'Menu' }, { title: location?.pathname?.split('/')[2] },]}
             style={{ margin: '16px 0' }}
           />
                     <div>
