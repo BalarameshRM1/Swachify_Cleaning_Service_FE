@@ -137,7 +137,7 @@ const Employees: React.FC = () => {
                         onChange={setLocationFilter}
                         options={locationOptions} 
                     />
-                    <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                    <Button className='color' icon={<PlusOutlined />} onClick={showModal}>
                         Add Employee
                     </Button>
                 </Space>
