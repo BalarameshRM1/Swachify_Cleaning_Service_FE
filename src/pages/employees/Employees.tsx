@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import type { SelectProps } from 'antd';
 import { Card, Col, Row, Select, Typography, Avatar, Tag, Button, Modal, Form, Input, message, Space, Divider } from 'antd';
-import { PhoneFilled, EnvironmentFilled, PlusOutlined} from '@ant-design/icons';
+import { PhoneFilled, EnvironmentFilled, PlusOutlined } from '@ant-design/icons'; 
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -29,6 +30,20 @@ const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
 const allServices = [
   'Home Cleaning', 'Kitchen', 'Bathroom', 'Office Cleaning', 'Sofa & Carpet', 'Pest Control', 'Deep Cleaning', 'Painting', 'AC Service', 'Appliance Repair'
 ];
+
+const LocationPinIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    fill="currentColor"
+    viewBox="0 0 16 16"
+    {...props}
+  >
+    <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+  </svg>
+);
+
 
 const EmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => (
     <Card
@@ -105,6 +120,19 @@ const Employees: React.FC = () => {
     message.success('Employee added successfully!');
     handleCancel();
   };
+  
+  const locationOptions: SelectProps['options'] = [
+    {
+        value: 'All Locations',
+        label: (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <EnvironmentFilled style={{ color: '#ef4444', fontSize: '16px' }} />
+                <span>All Locations</span>
+            </div>
+        )
+    },
+    ...locations.map(loc => ({ label: loc, value: loc }))
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', animation: 'fadeIn 0.5s' }}>
@@ -118,7 +146,7 @@ const Employees: React.FC = () => {
                         defaultValue="All Locations"
                         style={{ width: 180 }}
                         onChange={setLocationFilter}
-                        options={[{ label: 'All Locations', value: 'All Locations' }, ...locations.map(loc => ({ label: loc, value: loc }))]}
+                        options={locationOptions} 
                     />
                     <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
                         Add Employee
@@ -189,4 +217,3 @@ const Employees: React.FC = () => {
 };
 
 export default Employees;
-
