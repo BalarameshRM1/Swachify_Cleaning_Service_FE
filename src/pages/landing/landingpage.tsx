@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Modal, Form, Input, Checkbox, message, Menu, Drawer } from 'antd';
 import { 
   PhoneOutlined, 
@@ -23,8 +23,12 @@ const Landing = () => {
   const [loginForm] = Form.useForm();
 const [registerForm] = Form.useForm();
 const [users, setUsers] = useState<any[]>([]);  // ✅ Added persistent storage
-const [setCurrentUser] = useState<any>(null);  // ✅ Track logged-in user
+// const [currentUserData, setCurrentUserData] = useState<any>(null);  // ✅ Track logged-in user
 const navigate = useNavigate();
+
+useEffect(() => {
+
+}, []);
 
   // Storage management
   
@@ -51,7 +55,7 @@ const findUser = (email: string) => {
   }
   setUserDetails('user',user);
 
-  setCurrentUser(user);
+  // setCurrentUserData(user);
   message.success(`Welcome back, ${user.name}!`);
 
   setTimeout(() => {
@@ -509,10 +513,10 @@ const findUser = (email: string) => {
                   fontSize: 120
                 }}>
                    <img
-      src=".\src\assets\service.jpg"
+      src="../src/assets/service.jpg"
       alt="Swachify Logo"
       style={{
-        width: '100%',  // 👈 adjust size as needed
+        width: '100%',  
         height: '100%',
         objectFit: 'contain',
       }}
