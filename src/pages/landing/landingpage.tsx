@@ -1202,142 +1202,220 @@ const findUser = (email: string) => {
       </footer>
 
       {/* Auth Modal */}
-      <Modal
-        open={authModalOpen}
-        onCancel={() => setAuthModalOpen(false)}
-        footer={null}
-        width={480}
-        centered
-      >
-        <div style={{ padding: '24px 0' }}>
-          <h3 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24 }}>Book Your Cleaning</h3>
+          <Modal
+      open={authModalOpen}
+      onCancel={() => setAuthModalOpen(false)}
+      footer={null}
+      width={480}
+      centered
+    >
+      <div style={{ padding: '24px 0' }}>
+        <h3 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, textAlign: 'center' }}>
+          Book Your Cleaning
+        </h3>
 
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            items={[
-              {
-                key: 'login',
-                label: 'Login',
-                children: (
-                  <Form form={loginForm} onFinish={handleLogin} layout="vertical">
-                    <Form.Item
-                      label="Email Address"
-                      name="email"
-                      rules={[
-                        { required: true, message: 'Please enter your email' },
-                        { type: 'email', message: 'Please enter a valid email' }
-                      ]}
-                    >
-                      <Input size="large" placeholder="your@email.com" />
-                    </Form.Item>
+        {/* ---------- Custom Button Tabs ---------- */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 12,
+            marginBottom: 32,
+          }}
+        >
+          <Button
+            type="primary"
+            onClick={() => setActiveTab('login')}
+            style={{
+              flex: 1,
+              height: 46,
+              fontSize: 16,
+              fontWeight: 600,
+              borderRadius: 12,
+              background:
+                activeTab === 'login'
+                  ? 'linear-gradient(135deg, #06b6d4 0%, #14b8a6 100%)'
+                  : '#f1f5f9',
+              color: activeTab === 'login' ? '#fff' : '#475569',
+              border: 'none',
+              transition: 'all 0.3s ease',
+              boxShadow:
+                activeTab === 'login'
+                  ? '0 3px 10px rgba(20, 184, 166, 0.3)'
+                  : 'none',
+            }}
+          >
+            Login
+          </Button>
 
-                    <Form.Item
-                      label="Password"
-                      name="password"
-                      rules={[{ required: true, message: 'Please enter your password' }]}
-                    >
-                      <Input.Password size="large" placeholder="Enter password" />
-                    </Form.Item>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-                      <Form.Item name="remember" valuePropName="checked" noStyle>
-                        <Checkbox>Remember me</Checkbox>
-                      </Form.Item>
-                      <Button type="link" onClick={handleForgotPassword} style={{ padding: 0 }}>
-                        Forgot password?
-                      </Button>
-                    </div>
-
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      size="large"
-                      block
-                      style={{
-                        background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                        border: 'none',
-                        height: 48,
-                        fontSize: 16,
-                        fontWeight: 600
-                      }}
-                    >
-                      Sign In
-                    </Button>
-                  </Form>
-                )
-              },
-              {
-                key: 'register',
-                label: 'Register',
-                children: (
-                  <Form form={registerForm} onFinish={handleRegister} layout="vertical">
-                    <Form.Item
-                      label="Full Name"
-                      name="name"
-                      rules={[{ required: true, message: 'Please enter your name' }]}
-                    >
-                      <Input size="large" placeholder="Your name" />
-                    </Form.Item>
-
-                    <Form.Item
-                      label="Email Address"
-                      name="email"
-                      rules={[
-                        { required: true, message: 'Please enter your email' },
-                        { type: 'email', message: 'Please enter a valid email' }
-                      ]}
-                    >
-                      <Input size="large" placeholder="your@email.com" />
-                    </Form.Item>
-
-                    <Form.Item
-                      label="Phone Number"
-                      name="phone"
-                      rules={[{ required: true, message: 'Please enter your phone number' }]}
-                    >
-                      <Input size="large" placeholder="+91 98765 43210" />
-                    </Form.Item>
-
-                    <Form.Item
-                      label="Password"
-                      name="password"
-                      rules={[
-                        { required: true, message: 'Please enter your password' },
-                        { min: 6, message: 'Password must be at least 6 characters' }
-                      ]}
-                    >
-                      <Input.Password size="large" placeholder="Min 6 characters" />
-                    </Form.Item>
-
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      size="large"
-                      block
-                      style={{
-                        background: 'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)',
-                        border: 'none',
-                        height: 48,
-                        fontSize: 16,
-                        fontWeight: 600
-                      }}
-                    >
-                      Create Account
-                    </Button>
-                  </Form>
-                )
-              }
-            ]}
-          />
-
-          <p style={{ marginTop: 24, textAlign: 'center', fontSize: 12, color: '#94a3b8' }}>
-            By continuing, you agree to our{' '}
-            <a href="#" style={{ color: '#14b8a6' }}>Terms</a> and{' '}
-            <a href="#" style={{ color: '#14b8a6' }}>Privacy Policy</a>.
-          </p>
+          <Button
+            type="primary"
+            onClick={() => setActiveTab('register')}
+            style={{
+              flex: 1,
+              height: 46,
+              fontSize: 16,
+              fontWeight: 600,
+              borderRadius: 12,
+              background:
+                activeTab === 'register'
+                   ? 'linear-gradient(135deg, #06b6d4 0%, #14b8a6 100%)'
+                  : '#f1f5f9',
+              color: activeTab === 'register' ? '#fff' : '#475569',
+              border: 'none',
+              transition: 'all 0.3s ease',
+              boxShadow:
+                activeTab === 'register'
+                  ? '0 3px 10px rgba(20, 184, 166, 0.3)'
+                  : 'none',
+            }}
+          >
+            Register
+          </Button>
         </div>
-      </Modal>
+
+        {/* ---------- Login Form ---------- */}
+        {activeTab === 'login' && (
+          <Form form={loginForm} onFinish={handleLogin} layout="vertical">
+            <Form.Item
+              label="Email Address"
+              name="email"
+              rules={[
+                { required: true, message: 'Please enter your email' },
+                { type: 'email', message: 'Please enter a valid email' },
+              ]}
+            >
+              <Input size="large" placeholder="your@email.com" />
+            </Form.Item>
+
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[{ required: true, message: 'Please enter your password' }]}
+            >
+              <Input.Password size="large" placeholder="Enter password" />
+            </Form.Item>
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: 24,
+              }}
+            >
+              <Form.Item name="remember" valuePropName="checked" noStyle>
+                <Checkbox>Remember me</Checkbox>
+              </Form.Item>
+              <Button
+                type="link"
+                onClick={handleForgotPassword}
+                style={{ padding: 0 }}
+              >
+                Forgot password?
+              </Button>
+            </div>
+
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              block
+              style={{
+                background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
+                border: 'none',
+                height: 48,
+                fontSize: 16,
+                fontWeight: 600,
+                borderRadius: 12,
+              }}
+            >
+              Sign In
+            </Button>
+          </Form>
+        )}
+
+        {/* ---------- Register Form ---------- */}
+        {activeTab === 'register' && (
+          <Form form={registerForm} onFinish={handleRegister} layout="vertical">
+            <Form.Item
+              label="Full Name"
+              name="name"
+              rules={[{ required: true, message: 'Please enter your name' }]}
+            >
+              <Input size="large" placeholder="Your name" />
+            </Form.Item>
+
+            <Form.Item
+              label="Email Address"
+              name="email"
+              rules={[
+                { required: true, message: 'Please enter your email' },
+                { type: 'email', message: 'Please enter a valid email' },
+              ]}
+            >
+              <Input size="large" placeholder="your@email.com" />
+            </Form.Item>
+
+            <Form.Item
+              label="Phone Number"
+              name="phone"
+              rules={[
+                { required: true, message: 'Please enter your phone number' },
+              ]}
+            >
+              <Input size="large" placeholder="+91 98765 43210" />
+            </Form.Item>
+
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                { required: true, message: 'Please enter your password' },
+                { min: 6, message: 'Password must be at least 6 characters' },
+              ]}
+            >
+              <Input.Password size="large" placeholder="Min 6 characters" />
+            </Form.Item>
+
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              block
+              style={{
+                background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
+                border: 'none',
+                height: 48,
+                fontSize: 16,
+                fontWeight: 600,
+                borderRadius: 12,
+              }}
+            >
+              Create Account
+            </Button>
+          </Form>
+        )}
+
+        <p
+          style={{
+            marginTop: 24,
+            textAlign: 'center',
+            fontSize: 12,
+            color: '#94a3b8',
+          }}
+        >
+          By continuing, you agree to our{' '}
+          <a href="#" style={{ color: '#14b8a6' }}>
+            Terms
+          </a>{' '}
+          and{' '}
+          <a href="#" style={{ color: '#14b8a6' }}>
+            Privacy Policy
+          </a>
+          .
+        </p>
+      </div>
+    </Modal>
 
       <style>{`
         @keyframes float {
