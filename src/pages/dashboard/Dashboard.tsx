@@ -11,10 +11,8 @@ const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   return (
-    <div style={{ padding: "24px" }}>
-      
-      <Title level={2}>Welcome Back! 👋</Title>
-      <Text type="secondary">Here's your cleaning business overview</Text>
+    <div className="dashboard-wrap">
+      <Title level={2} style={{ marginTop: 0 }}>Welcome Back! 👋</Title>
 
       
       <Row gutter={[16, 16]} style={{ marginTop: "24px" }}>
