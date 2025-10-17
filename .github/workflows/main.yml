@@ -3,7 +3,7 @@ name: Deploy React App to Azure Web App
 on:
   push:
     branches:
-      - main  # Trigger deployment when pushing to main
+      - main
 
 jobs:
   build-and-deploy:
@@ -35,4 +35,4 @@ jobs:
         with:
           app-name: 'SWACHIFYDEMOFE'  # 👈 your Azure App Service name
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: dist                  # 👈 Vite builds to 'dist' by default
+          package: dist                  # 👈 Vite to 'dist' by default
