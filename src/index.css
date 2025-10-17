@@ -13,9 +13,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 .ant-menu-light .ant-menu-item-selected, :where(.css-dev-only-do-not-override-1odpy5d).ant-menu-light>.ant-menu .ant-menu-item-selected {
-    color: red !important;
+    color: white !important;
 }
-.ant-menu-light:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):active, :where(.css-dev-only-do-not-override-1odpy5d).ant-menu-light>.ant-menu:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):active
-{
-  background-color: #385f69;
+.ant-menu-light .ant-menu-item-selected, :where(.css-dev-only-do-not-override-1odpy5d).ant-menu-light>.ant-menu .ant-menu-item-selected {
+     background: linear-gradient(90deg, rgb(13, 148, 136), rgb(20, 184, 166));
 }
+
+
+
