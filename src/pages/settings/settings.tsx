@@ -10,6 +10,7 @@ import {
 
 const { Title } = Typography;
 
+
 const CustomSwitch: React.FC<{ defaultChecked?: boolean }> = ({ defaultChecked }) => {
   return (
     <Switch
@@ -28,31 +29,33 @@ const CustomSwitch: React.FC<{ defaultChecked?: boolean }> = ({ defaultChecked }
 };
 
 const NotificationSettings: React.FC = () => {
-  const renderRow = (
-    label: string,
-    help: string,
-    defaultChecked: boolean = false
-  ) => (
+  const renderRow = (label: string, help: string, defaultChecked: boolean = false) => (
     <div
       style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '12px 0',
+        padding: '0px 0',
         borderBottom: '1px solid #f0f0f0',
       }}
     >
       <div>
-        <div style={{ fontWeight: 600, fontSize: 16 }}>{label}</div>
-        <div style={{ color: '#64748b' }}>{help}</div>
+        <div style={{ fontWeight: 600, fontSize: 15 }}>{label}</div>
+        <div style={{ color: '#64748b', fontSize: 13 }}>{help}</div>
       </div>
       <CustomSwitch defaultChecked={defaultChecked} />
     </div>
   );
 
   return (
-    <Card style={{ marginBottom: 24, borderRadius: 16 }}>
-      <Title level={4} style={{ marginBottom: 24 }}>
+    <Card
+      style={{
+        marginBottom: 10, // reduced space between cards
+        borderRadius: 10,
+        // padding: '10px 14px', // reduced inner padding
+      }}
+    >
+      <Title level={4} style={{ marginBottom: 8, fontSize: 17 }}>
         Notification Settings
       </Title>
       {renderRow('New Booking Alerts', 'Get notified when new bookings arrive', true)}
@@ -60,7 +63,6 @@ const NotificationSettings: React.FC = () => {
     </Card>
   );
 };
-
 const BusinessSettings: React.FC = () => {
   const onFinish = (values: any) => {
     console.log('Business settings saved:', values);
@@ -68,8 +70,13 @@ const BusinessSettings: React.FC = () => {
   };
 
   return (
-    <Card style={{ borderRadius: 16 }}>
-      <Title level={4} style={{ marginBottom: 24 }}>
+    <Card
+      style={{
+        borderRadius: 10,
+        padding: '10px 14px', // reduced inner padding
+      }}
+    >
+      <Title level={4} style={{ marginBottom: 8, fontSize: 17 }}>
         Business Settings
       </Title>
       <Form
@@ -84,6 +91,7 @@ const BusinessSettings: React.FC = () => {
           name="businessName"
           label="Business Name"
           rules={[{ required: true }]}
+          style={{ marginBottom: 10 }}
         >
           <Input size="large" />
         </Form.Item>
@@ -91,6 +99,7 @@ const BusinessSettings: React.FC = () => {
           name="supportEmail"
           label="Support Email"
           rules={[{ required: true, type: 'email' }]}
+          style={{ marginBottom: 0 }}
         >
           <Input size="large" />
         </Form.Item>
@@ -104,46 +113,29 @@ const Settings: React.FC = () => {
     <div
       style={{
         width: '100%',
-        maxWidth: 800,
-        margin: '0 auto',
+        maxWidth: 700,
+        margin: '20px auto', 
         backgroundColor: '#f9fbfc',
         borderRadius: 16,
         boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-        overflow: 'hidden',
-        height: '600px', 
-        display: 'flex',
-        flexDirection: 'column',
+        padding: '16px 20px', 
       }}
     >
-   
       <div
         style={{
-          padding: '24px',
-          backgroundColor: '#f9fbfc',
+          marginBottom: 12,
           borderBottom: '1px solid #e8e8e8',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1,
+          paddingBottom: 6,
         }}
       >
-        <Title level={2} style={{ margin: 0 }}>
+        <Title level={2} style={{ margin: 0, fontSize: 23 }}>
           Settings
         </Title>
       </div>
 
-      
-      <div
-        style={{
-          padding: '24px',
-          overflowY: 'auto',
-          flex: 1,
-        }}
-      >
-        <NotificationSettings />
-        <BusinessSettings />
-      </div>
+      <NotificationSettings />
+      <BusinessSettings />
 
-     
       <style>{`
         .ant-input:hover,
         .ant-input:focus,
