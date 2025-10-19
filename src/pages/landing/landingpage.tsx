@@ -15,6 +15,8 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getUserDetails, setUserDetails } from '../../utils/helpers/storage';
+import ServicesImg from '../../assets/service.jpg';
+import BrandLogo from '../../assets/SWACHIFY_gif.gif';
 
 const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -285,7 +287,7 @@ const findUser = (email: string) => {
     }}
   >
     <img
-      src=".\src\assets\SWACHIFY_gif.gif"
+      src={BrandLogo}
       alt="Swachify Logo"
       style={{
         width: '100%',  // 👈 adjust size as needed
@@ -513,12 +515,13 @@ const findUser = (email: string) => {
                   fontSize: 120
                 }}>
                    <img
-      src="../src/assets/service.jpg"
+      src={ServicesImg}
       alt="Swachify Logo"
       style={{
         width: '100%',  
         height: '100%',
-        objectFit: 'contain',
+        objectFit: 'cover',
+        borderRadius:10
       }}
     />
                 </div>
