@@ -16,7 +16,7 @@ export const NonSecureRoutes = () => {
             let userData:any = getUserDetails('user')
     
             if(userData != null){
-                navigate('/app/dashboard')
+                navigate('/landing')
             }else{
                 navigate('/landing')
             }
