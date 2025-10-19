@@ -21,6 +21,7 @@ import {
     SettingOutlined,
     MenuOutlined,
 } from "@ant-design/icons";
+import BrandLogo from '../../assets/SWACHIFY_gif.gif';
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -123,7 +124,7 @@ const HeaderBar: React.FC = () => {
             {/* LEFT: Logo + Name */}
             <Space align="center" style={{ gap: screens.xs ? 8 : 12 }}>
                 <img
-                    src="../src/assets/SWACHIFY_gif.gif"
+                    src={BrandLogo}
                     alt="Logo"
                     style={{
                         width: screens.xs ? 36 : 48, // increased size
@@ -134,6 +135,7 @@ const HeaderBar: React.FC = () => {
                         verticalAlign:"middle",
                     }}
                 />
+        
                 {!screens.xs && (
                     <Text
                         style={{
