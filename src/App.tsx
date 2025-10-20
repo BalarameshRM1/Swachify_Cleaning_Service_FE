@@ -7,7 +7,7 @@ import './App.css'
 import { clearPosts } from "./app/features/posts/postsSlice.ts";
 // import Dashboard from './pages/dashboard/Dashboard.tsx';
 import { AppRoutes } from './Routes/AppRoutes.tsx';
-
+import WhatsAppButton from './components/WhatsAppButton/WhatsAppButton';
 
 function App() {
 
@@ -27,6 +27,7 @@ function App() {
   return (
     <>
     <AppRoutes />
+    <WhatsAppButton />
       {/* <Dashboard  /> */}
        {/* <div style={{ padding: "20px" }}>
         <h1>📄 Posts List</h1>
