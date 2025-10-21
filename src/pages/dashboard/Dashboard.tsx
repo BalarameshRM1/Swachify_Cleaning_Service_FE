@@ -10,6 +10,11 @@ import {
 const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
+
+  React.useEffect(() => {
+    document.title = "Dashboard - Swachify Admin Panel";
+    
+  }, []);
   return (
     <div className="dashboard-wrap">
       <Title level={2} style={{ marginTop: 0 }}>Welcome Back! 👋</Title>
@@ -33,7 +38,7 @@ const Dashboard: React.FC = () => {
               <CheckCircleOutlined style={{ fontSize: 28, color: "white" }} />
             </Space>
             <Title level={2} style={{ color: "white", marginTop: "8px" }}>
-              0
+              4
             </Title>
             <Text style={{ color: "#ccfbf1", fontSize: 12 }}>All time</Text>
           </Card>

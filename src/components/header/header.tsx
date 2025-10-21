@@ -24,6 +24,7 @@ import {
 } from "@ant-design/icons";
 import BrandLogo from '../../assets/SWACHIFY_gif.gif';
 import { useAppSelector } from "../../app/hooks";
+import { getUserDetails } from "../../utils/helpers/storage";
 import { useNavigate } from "react-router-dom";
 
 const { Header } = Layout;
@@ -40,12 +41,12 @@ const HeaderBar: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAppSelector((state) => state.user);
 
-    const [userData, setUserData] = useState<any>(user);
+    const [userData,setUserData] = useState<any>(null);
 
-    useEffect(() => {
-        let userDetails = localStorage.getItem('user');
-        if (userDetails) {
-            setUserData(JSON.parse(userDetails));
+    useEffect(()=>{
+        let userDetails = getUserDetails('user');
+        if(userDetails){
+            setUserData(userDetails);
         }
     }, []);
 
@@ -75,7 +76,12 @@ const HeaderBar: React.FC = () => {
             message.success("You have been logged out.");
             navigate("/landing");
         }
+        if(key=="settings")
+        {
+            navigate('/app/settings');
+        }
     };
+    
 
     
     const userMenu = (
@@ -83,7 +89,7 @@ const HeaderBar: React.FC = () => {
             onClick={handleMenuClick}
             items={[
                 { key: "profile", icon: <UserOutlined />, label: "Profile" },
-                { key: "settings", icon: <SettingOutlined />, label: "Settings" },
+                { key: "settings", icon: <SettingOutlined />, label: "Settings"},
                 { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
             ]}
         />
@@ -314,12 +320,12 @@ const HeaderBar: React.FC = () => {
                                         color: "#0f172a",
                                     }}
                                 >
-                                    {user?.first_name || "Admin User"}
+                                    {userData?.first_name || "Admin User"}
                                 </Text>
                                 <Text type="secondary" style={{ fontSize: screens.md ? 12 : 10 }}>
-                                    {userData?.role == 1
+                                    {userData?.id == 1
                                         ? "Super Admin"
-                                        : userData?.role == 2
+                                        : userData?.id == 2
                                             ? "Admin"
                                             : "Employee"}
                                 </Text>

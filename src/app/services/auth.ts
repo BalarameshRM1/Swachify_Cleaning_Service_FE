@@ -111,23 +111,50 @@ export const otpVerify = async(mobileNumber:any,otp:any) =>{
     }
 }
 
-export const createEmployee = async(first_name:any ,last_name:any ,email:any ,mobile:any ,location:any ,services:any) =>{
-    try {
-        const options:any = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ first_name ,last_name ,email ,mobile ,location ,services }),
-        }
-        const response = await fetch(`${baseUrl}/User/createemployee`,options);
-        if (!response.ok) throw new Error("Failed to createEmployee");
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error createEmployee:", error);
+export const createEmployee = async (
+  first_name: string,
+  last_name: string,
+  email: string,
+  mobile: string,
+  dept_id: number,
+  role_id: number,
+  location_id: number,
+  services: string[]
+) => {
+  try {
+    const payload = {
+      empCommandDto: {
+        first_name,
+        last_name,
+        email,
+        mobile,
+        dept_id,
+        role_id,
+        location_id,
+        services
+      }
+    };
+
+    const response = await fetch(`${baseUrl}/User/createemployee`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      console.error("❌ Server validation error:", err);
+      throw new Error("Failed to createEmployee");
     }
-}
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error createEmployee:", error);
+    throw error;
+  }
+};
+
 
 export const serviceForm = async(bookingId:any ,deptId:any ,serviceId:any,slotId:any,createdBy:any,first_name:any ,modifiedBy:any ,email:any ,mobile:any ,location:any ,services:any,isActive:any, preferredDate:any, ) =>{
     try {
