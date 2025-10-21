@@ -10,7 +10,6 @@ import {
     DatePicker,
     message,
     Table,
-    Tag
 } from 'antd';
 import {
     ArrowLeftOutlined,
@@ -121,87 +120,188 @@ const pricingData: Record<string, Plan[]> = {
 
 
 const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, bookingDetails }) => {
-    const [form] = Form.useForm();
-    const [selectedTime, setSelectedTime] = React.useState<string | null>(null);
+  const [form] = Form.useForm();
+  const [selectedTime, setSelectedTime] = React.useState<string | null>(null);
+  const [submitting, setSubmitting] = React.useState(false);
 
-    const onFinish = (values: any) => {
-        if (!selectedTime) {
-            message.error('Please select a time slot!');
-            return;
-        }
+  const timeSlots = ["9am - 11am", "11am - 1pm", "1pm - 3pm", "3pm - 5pm"];
 
-        message.success('Booking placed successfully!');
+  const parseTimeWindow = (slot: string) => {
+    const to24 = (t: string) => {
+      const [raw, ampm] = t.trim().split(/(am|pm)/i);
+      let [h, m] = raw.split(':');
+      if (!m) m = '00';
+      let hour = parseInt(h, 10);
+      const isPM = /pm/i.test(ampm);
+      if (isPM && hour !== 12) hour += 12;
+      if (!isPM && hour === 12) hour = 0;
+      return `${hour.toString().padStart(2, '0')}:${m}`;
+    };
+    const [start, end] = slot.split('-').map(s => s.trim());
+    return { start: to24(start), end: to24(end) };
+  };
 
-        const newBooking = {
-            id: Date.now(),
-            service: `${bookingDetails.category} (${bookingDetails.plan})`,
-            ...values,
-            date: values.date.format('YYYY-MM-DD'),
-            time: selectedTime
-        };
-        console.log("New Booking:", newBooking);
+  const onFinish = async (values: any) => {
+    if (!selectedTime) {
+      message.error('Please select a time slot!');
+      return;
+    }
 
-        navigateTo('acknowledgement');
+    const { start, end } = parseTimeWindow(selectedTime);
+    const payload = {
+      customerName: values.name,
+      customerPhone: values.phone,
+      customerEmail: values.email,
+      address: values.address,
+      serviceCategory: bookingDetails?.category ?? '',
+      subCategory: bookingDetails?.subCategory ?? '',
+      plan: bookingDetails?.plan,
+      preferredDate: values.date.format('YYYY-MM-DD'),
+      preferredTimeStart: start,        
+      preferredTimeEnd: end,            
+      timeSlotLabel: selectedTime,      
+      serviceLabel: `${bookingDetails?.category ?? ''} (${bookingDetails?.plan})`,
+      notes: values.notes ?? '',
+      
+      source: 'web',                    
     };
 
-    const timeSlots = ["9am - 11am", "11am - 1pm", "1pm - 3pm", "3pm - 5pm"];
+    setSubmitting(true);
+    try {
+      const res = await fetch('https://swachifydemo-bfh4c3azdbd7bpdt.centralindia-01.azurewebsites.net/api/Booking', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
 
-    return (
-        <div style={{  padding: '0', minHeight: '100vh' }}>
-            <Card style={{ maxWidth: 980, margin: '0 auto', borderRadius: 16 }}>
-                <Row align="middle" gutter={12} style={{ marginBottom: 24 }}>
-                    <Col>
-                        <Button icon={<ArrowLeftOutlined />} type="text" onClick={goBack} aria-label="Go back" />
-                    </Col>
-                    <Col>
-                        <Title level={4} style={{ margin: 0 }}>Booking details</Title>
-                    </Col>
-                </Row>
+      const text = await res.text();
+      let data: any = null;
+      try { data = text ? JSON.parse(text) : null; } catch { }
 
-                <Form form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
-                    <Row gutter={24}>
-                        <Col xs={24} md={12}>
-                            <Title level={5}>Your Information</Title>
-                            <Form.Item name="name" label="Full name" rules={[{ required: true, message: 'Enter your full name' }]}>
-                                <Input prefix={<UserOutlined />} placeholder="e.g., Jane Doe" />
-                            </Form.Item>
-                            <Form.Item name="phone" label="Phone" rules={[{ required: true, message: 'Enter your phone number' }, { pattern: /^[0-9+\-\s]{8,}$/, message: 'Enter a valid phone' }]}>
-                                <Input prefix={<PhoneOutlined />} placeholder="+91 98765 43210" />
-                            </Form.Item>
-                             <Form.Item name="email" label="Email" rules={[{ type: 'email', message: 'Enter a valid email' },{ required: true, message: 'Enter your email' }]}>
-                                <Input prefix={<MailOutlined />} placeholder="name@example.com" />
-                            </Form.Item>
-                            <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Enter your address' }]}>
-                                <Input.TextArea rows={3} placeholder="Flat, street, landmark" />
-                            </Form.Item>
-                        </Col>
-                        <Col xs={24} md={12}>
-                             <Title level={5}>Scheduling</Title>
-                            <Form.Item name="date" label="Preferred date" rules={[{ required: true, message: 'Pick a date' }]}>
-                                <DatePicker style={{ width: '100%' }} placeholder="Select date" suffixIcon={<CalendarOutlined />} disabledDate={(d: Dayjs) => d && !d.isAfter(dayjs().subtract(1, 'day').endOf('day'))} />
-                            </Form.Item>
-                            <Form.Item label="Preferred time" required>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                                    {timeSlots.map((time) => (
-                                        <Button key={time} icon={<ClockCircleOutlined />} onClick={() => setSelectedTime(time)} type={selectedTime === time ? 'primary' : 'default'} style={selectedTime === time ? { background: '#14b8a6', borderColor: '#14b8a6' } : {}}>
-                                            {time}
-                                        </Button>
-                                    ))}
-                                </div>
-                            </Form.Item>
-                             <div style={{ padding: 12, border: '1px dashed #e6f4f2', borderRadius: 8, background: '#f6fffc', color: '#14665b', marginBottom: 24, textAlign: 'center' }}>
-                                <Text strong>{`${bookingDetails?.category} • ${bookingDetails?.plan}`}</Text>
-                             </div>
-                             <Button type="primary" htmlType="submit" block size="large" style={{ background: '#14b8a6', borderColor: '#14b8a6' }}>
-                                Confirm & Place Order
-                             </Button>
-                        </Col>
-                    </Row>
-                </Form>
-            </Card>
-        </div>
-    );
+      if (!res.ok) {
+        const serverMsg =
+          (data && (data.message || data.error || data.title)) ||
+          (text || `Request failed with status ${res.status}`);
+        message.error(`Booking failed: ${serverMsg}`);
+        return;
+      }
+
+      message.success('Booking placed successfully!');
+     
+      navigateTo('acknowledgement');
+    } catch (err: any) {
+      message.error(`Network error while placing booking: ${err.message}`);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div style={{ padding: '0', minHeight: '100vh' }}>
+      <Card style={{ maxWidth: 980, margin: '0 auto', borderRadius: 16 }}>
+        <Row align="middle" gutter={12} style={{ marginBottom: 24 }}>
+          <Col>
+            <Button icon={<ArrowLeftOutlined />} type="text" onClick={goBack} aria-label="Go back" />
+          </Col>
+          <Col>
+            <Title level={4} style={{ margin: 0 }}>Booking details</Title>
+          </Col>
+        </Row>
+
+        <Form form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
+          <Row gutter={24}>
+            <Col xs={24} md={12}>
+              <Title level={5}>Your Information</Title>
+              <Form.Item name="name" label="Full name" rules={[{ required: true, message: 'Enter your full name' }]}>
+                <Input prefix={<UserOutlined />} placeholder="e.g., Jane Doe" />
+              </Form.Item>
+              <Form.Item
+                name="phone"
+                label="Phone"
+                rules={[
+                  { required: true, message: 'Enter your phone number' },
+                  { pattern: /^[0-9+\-\s]{8,}$/, message: 'Enter a valid phone' },
+                ]}
+              >
+                <Input prefix={<PhoneOutlined />} placeholder="+91 98765 43210" />
+              </Form.Item>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[{ type: 'email', message: 'Enter a valid email' }, { required: true, message: 'Enter your email' }]}
+              >
+                <Input prefix={<MailOutlined />} placeholder="name@example.com" />
+              </Form.Item>
+              <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Enter your address' }]}>
+                <Input.TextArea rows={3} placeholder="Flat, street, landmark" />
+              </Form.Item>
+              <Form.Item name="notes" label="Notes (optional)">
+                <Input.TextArea rows={2} placeholder="Any specific instructions" />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Title level={5}>Scheduling</Title>
+              <Form.Item name="date" label="Preferred date" rules={[{ required: true, message: 'Pick a date' }]}>
+                <DatePicker
+                  style={{ width: '100%' }}
+                  placeholder="Select date"
+                  suffixIcon={<CalendarOutlined />}
+                  disabledDate={(d: Dayjs) => d && !d.isAfter(dayjs().subtract(1, 'day').endOf('day'))}
+                />
+              </Form.Item>
+
+              <Form.Item label="Preferred time" required>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {timeSlots.map((time) => (
+                    <Button
+                            key={time}
+                            icon={<ClockCircleOutlined />}
+                            onClick={() => setSelectedTime(time)}
+                            type={selectedTime === time ? 'primary' : 'default'}
+                            style={selectedTime === time ? { background: '#14b8a6', borderColor: '#14b8a6' } : {}}
+                            >
+                            {time}
+                    </Button>
+
+                  ))}
+                </div>
+              </Form.Item>
+
+              <div
+                style={{
+                  padding: 12,
+                  border: '1px dashed #e6f4f2',
+                  borderRadius: 8,
+                  background: '#f6fffc',
+                  color: '#14665b',
+                  marginBottom: 24,
+                  textAlign: 'center',
+                }}
+              >
+                <Text strong>{`${bookingDetails?.category} • ${bookingDetails?.plan}`}</Text>
+              </div>
+
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                size="large"
+                loading={submitting}
+                style={{ background: '#14b8a6', borderColor: '#14b8a6' }}
+              >
+                Confirm & Place Order
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Card>
+    </div>
+  );
 };
+
 
 const PlanTableView: React.FC<PlanTableViewProps> = ({ navigateTo, goBack, category }) => {
     const categoryData = planDetailsData[category as keyof typeof planDetailsData];

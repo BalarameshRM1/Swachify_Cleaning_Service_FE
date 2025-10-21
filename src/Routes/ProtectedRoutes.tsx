@@ -1,6 +1,6 @@
 import { useEffect} from "react"
-import { getUserDetails } from "../utils/helpers/storage"
 import { useNavigate } from "react-router-dom";
+import { getUserDetails } from "../utils/helpers/storage";
 
 export const ProtectedRoutes = (prop:any) =>{
      const navigate = useNavigate()

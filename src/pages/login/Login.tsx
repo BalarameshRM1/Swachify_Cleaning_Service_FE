@@ -35,41 +35,42 @@ const Login: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const onFinish = (values: { email: string; password: string; remember: boolean }) => {
-    const email = values.email.trim().toLowerCase();
-    const password = values.password;
+const onFinish = (values: { email: string; password: string; remember: boolean }) => {
+  const email = values.email.trim().toLowerCase();
+  const password = values.password.trim(); 
 
-    if (!email || !password) {
-      message.error("Please enter email and password.");
-      return;
-    }
+  if (!email || !password) {
+    message.error("Please enter email and password.");
+    return;
+  }
 
-    const users = getUsers();
-    const user = users.find((u) => u.email === email);
+  const users = getUsers();
+  const user = users.find((u) => u.email === email);
 
-    if (!user) {
-      message.error("No account found with this email.");
-      return;
-    }
+  if (!user) {
+    message.error("No account found with this email.");
+    return;
+  }
 
-    if (user.password !== password) {
-      message.error("Incorrect password.");
-      return;
-    }
+  if (user.password !== password) {
+    message.error("Incorrect password.");
+    return;
+  }
 
-    user.lastLogin = new Date().toISOString();
+  user.lastLogin = new Date().toISOString();
 
-    const userIndex = users.findIndex((u) => u.id === user.id);
-    users[userIndex] = user;
-    saveUsers(users);
-    setCurrentUser(user);
+  const userIndex = users.findIndex((u) => u.id === user.id);
+  users[userIndex] = user;
+  saveUsers(users);
+  setCurrentUser(user);
 
-    message.success(`✓ Welcome ${user.name}! Redirecting...`);
+  message.success(`✓ Welcome ${user.name}! Redirecting...`);
 
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 1000);
-  };
+  setTimeout(() => {
+    navigate("/dashboard");
+  }, 1000);
+};
+
 
   return (
     <div
