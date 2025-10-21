@@ -11,6 +11,7 @@ import {
     Avatar,
     Grid,
     Button,
+    message,
 } from "antd";
 import {
     BellOutlined,
@@ -23,6 +24,7 @@ import {
 } from "@ant-design/icons";
 import BrandLogo from '../../assets/SWACHIFY_gif.gif';
 import { useAppSelector } from "../../app/hooks";
+import { useNavigate } from "react-router-dom";
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -35,16 +37,17 @@ const HeaderBar: React.FC = () => {
     const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
     const [menuVisible, setMenuVisible] = useState(false);
     const screens = useBreakpoint();
+    const navigate = useNavigate();
     const { user } = useAppSelector((state) => state.user);
 
-    const [userData,setUserData] = useState<any>(user);
+    const [userData, setUserData] = useState<any>(user);
 
-    useEffect(()=>{
+    useEffect(() => {
         let userDetails = localStorage.getItem('user');
-        if(userDetails){
-            setUserData((userDetails));
+        if (userDetails) {
+            setUserData(JSON.parse(userDetails));
         }
-    },[])
+    }, []);
 
     const fetchSearchSuggestions = async (value: string) => {
         if (!value) {
@@ -65,8 +68,19 @@ const HeaderBar: React.FC = () => {
         console.log("Searching:", value);
     };
 
+
+    const handleMenuClick = ({ key }: { key: string }) => {
+        if (key === "logout") {
+            localStorage.removeItem("user");
+            message.success("You have been logged out.");
+            navigate("/landing");
+        }
+    };
+
+    
     const userMenu = (
         <Menu
+            onClick={handleMenuClick}
             items={[
                 { key: "profile", icon: <UserOutlined />, label: "Profile" },
                 { key: "settings", icon: <SettingOutlined />, label: "Settings" },
@@ -75,8 +89,10 @@ const HeaderBar: React.FC = () => {
         />
     );
 
+    
     const mobileMenu = (
         <Menu
+            onClick={handleMenuClick}
             style={{ borderRadius: 8 }}
             items={[
                 {
@@ -100,7 +116,7 @@ const HeaderBar: React.FC = () => {
                     key: "user",
                     label: (
                         <div style={{ textAlign: "center" }}>
-                            <Text strong>Admin User</Text>
+                            <Text strong>{user?.first_name || "Admin User"}</Text>
                             <br />
                             <Text type="secondary" style={{ fontSize: 12 }}>
                                 Administrator
@@ -127,36 +143,33 @@ const HeaderBar: React.FC = () => {
                 top: 0,
                 zIndex: 1000,
                 height: "64px",
-                lineHeight:"64px",
+                lineHeight: "64px",
                 flexWrap: "wrap",
             }}
         >
-            {/* LEFT: Logo + Name */}
-            {/* LEFT: Logo + Name */}
+            
             <Space align="center" style={{ gap: screens.xs ? 8 : 12 }}>
                 <img
                     src={BrandLogo}
                     alt="Logo"
                     style={{
-                        width: screens.xs ? 36 : 48, // increased size
-                        height: screens.xs ? 36 : 48, // increased size
+                        width: screens.xs ? 36 : 48,
+                        height: screens.xs ? 36 : 48,
                         borderRadius: "50%",
                         objectFit: "cover",
-                        // marginTop: "15%",
-                        verticalAlign:"middle",
+                        verticalAlign: "middle",
                     }}
                 />
-        
+
                 {!screens.xs && (
                     <Text
                         style={{
-                            fontSize: screens.lg ? 28: 24, // increased font size
+                            fontSize: screens.lg ? 28 : 24,
                             fontWeight: 700,
                             background: "linear-gradient(90deg, #0D9488, #14b8a6)",
                             WebkitBackgroundClip: "text",
                             color: "transparent",
-                            // lineHeight: "1",
-                            verticalAlign:"middle",
+                            verticalAlign: "middle",
                         }}
                     >
                         Swachify
@@ -164,8 +177,7 @@ const HeaderBar: React.FC = () => {
                 )}
             </Space>
 
-
-            {/* MOBILE VIEW (320px–767px): Menu Icon only */}
+            
             {screens.xs ? (
                 <Dropdown
                     overlay={mobileMenu}
@@ -180,9 +192,8 @@ const HeaderBar: React.FC = () => {
                     />
                 </Dropdown>
             ) : (
-                // DESKTOP/TABLET VIEW (>=768px)
                 <Space align="center" size="large">
-                    {/* SEARCH BAR */}
+                   
                     <AutoComplete
                         options={searchSuggestions.map((item) => ({
                             value: item,
@@ -216,12 +227,12 @@ const HeaderBar: React.FC = () => {
                                 fontWeight: 500,
                                 color: "#334155",
                                 height: "36px",
-                                verticalAlign:"middle",
+                                verticalAlign: "middle",
                             }}
                         />
                     </AutoComplete>
 
-                    {/* LOCATION DROPDOWN WITH ICON INSIDE PLACEHOLDER */}
+                   
                     <div
                         style={{
                             display: "flex",
@@ -252,7 +263,7 @@ const HeaderBar: React.FC = () => {
                         </Select>
                     </div>
 
-                    {/* NOTIFICATION */}
+                    {/* NOTIFICATIONS */}
                     <Dropdown
                         overlay={
                             <Menu
@@ -273,12 +284,12 @@ const HeaderBar: React.FC = () => {
                                 fontSize: 20,
                                 color: "#475569",
                                 cursor: "pointer",
-                                verticalAlign:"middle",
+                                verticalAlign: "middle",
                             }}
                         />
                     </Dropdown>
 
-                    {/* USER PROFILE */}
+                    {/* USER MENU */}
                     <Dropdown overlay={userMenu} trigger={["click"]}>
                         <Space
                             style={{
@@ -306,7 +317,11 @@ const HeaderBar: React.FC = () => {
                                     {user?.first_name || "Admin User"}
                                 </Text>
                                 <Text type="secondary" style={{ fontSize: screens.md ? 12 : 10 }}>
-                                    {userData?.role == 1 ? "Super Admin" : userData?.role == 2 ? "Admin" : "Employe"}
+                                    {userData?.role == 1
+                                        ? "Super Admin"
+                                        : userData?.role == 2
+                                            ? "Admin"
+                                            : "Employee"}
                                 </Text>
                             </div>
                             <Avatar
@@ -315,7 +330,10 @@ const HeaderBar: React.FC = () => {
                                     fontWeight: "bold",
                                 }}
                             >
-                                {(userData?.first_name ? userData.first_name.charAt(0) : "A").toUpperCase()}
+                                {(userData?.first_name
+                                    ? userData.first_name.charAt(0)
+                                    : "A"
+                                ).toUpperCase()}
                             </Avatar>
                         </Space>
                     </Dropdown>

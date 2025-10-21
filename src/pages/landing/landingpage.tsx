@@ -1181,6 +1181,7 @@ const handleLogin = async (values: any) => {
             <Form.Item
               label="Email Address"
               name="email"
+              normalize={(value) => value.trim()}
               rules={[
                 { required: true, message: 'Please enter your email' },
                 { type: 'email', message: 'Please enter a valid email' },
