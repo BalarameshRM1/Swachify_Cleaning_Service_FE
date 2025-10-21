@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { SelectProps } from 'antd';
 import { Card, Col, Row, Select, Typography, Avatar, Tag, Button, Modal, Form, Input, message, Space, Divider } from 'antd';
 import { PhoneFilled, EnvironmentFilled, PlusOutlined } from '@ant-design/icons'; 
+import { getAllUsers } from "../../app/services/auth";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -85,7 +86,24 @@ const Employees: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
+  const getAllUsersApi = async() =>{
+    const res = await getAllUsers()
+    const usersWithFullName = res.map((res:any) => ({...res,
+      name: `${res.first_name} ${res.last_name}`,
+    }));
+    console.log('__res1, ', usersWithFullName)
+  }
+
+
+
+
+
+
+
   useEffect(() => {
+
+    getAllUsersApi()
+
     let employeesToFilter = employees;
     if (locationFilter !== 'All Locations') {
       employeesToFilter = employees.filter(emp => emp.location === locationFilter);

@@ -6,7 +6,7 @@ import React from 'react';
 const WhatsAppButton: React.FC = () => {
   // --- CONFIGURATION ---
   // Replace with your full phone number in international format (e.g., 919876543210 for India)
-  const phoneNumber = "919177010175"; 
+  const phoneNumber = "+1(905)588-2122"; 
   
   // Optional: Pre-filled message that users will see.
   const message = "Hello! I'm visiting Swachify and have a question about your cleaning services."; 
