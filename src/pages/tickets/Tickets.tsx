@@ -1,6 +1,7 @@
-import  { useState } from "react";
+import  React, { useState } from "react";
 import { Card, Row, Col, Button, Typography, Empty } from "antd";
 import { UserOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import { getallBookings } from "../../app/services/auth";
 
 const { Text, Title } = Typography;
 
@@ -11,7 +12,7 @@ interface Ticket {
   customerName: string;
   address: string;
   time: string;
-  status: "open" | "in-progress" | "completed";
+  status: "open" | "pending" | "in-progress" | "completed";
 }
 
 const sampleTickets: Ticket[] = [
@@ -39,10 +40,12 @@ const sampleTickets: Ticket[] = [
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
 const Tickets: React.FC = () => {
-  const [filter, setFilter] = useState<"all" | "open" | "in-progress" | "completed">("all");
+  const [filter, setFilter] = useState<"all" | "open" | "pending" | "in-progress" | "completed">("all");
 
-  const filteredTickets =
-    filter === "all" ? sampleTickets : sampleTickets.filter(ticket => ticket.status === filter);
+  const [filteredTickets, setFilteredTickets] = useState<any>(filter === "all" ? sampleTickets : sampleTickets.filter(ticket => ticket.status === filter));
+
+  // const filteredTickets =
+  //   ;
 
   const tabButton = (tab: typeof filter, label: string) => (
     <Button
@@ -60,12 +63,31 @@ const Tickets: React.FC = () => {
     </Button>
   );
 
+  const getallBookingsApi = async () => {
+    // Placeholder for API call to fetch all bookings
+    // You can replace this with actual API integration
+    // return sampleTickets;
+    try {
+      const response = await getallBookings();
+      setFilteredTickets(response);
+      console.log("Bookings API Response:", response);      
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  }
+
+  React.useEffect(() => {
+    document.title = "Service Tickets - Swachify Admin Panel";
+    getallBookingsApi();
+    ()=> getallBookingsApi();
+  }, []);
+
   return (
     <div style={{ padding: "24px", backgroundColor: "#f9fafb", minHeight: "100vh" }}>
       <Title level={2}>Service Tickets</Title>
       <Row gutter={[8, 8]} style={{ marginBottom: "24px" }}>
         <Col>{tabButton("all", "All")}</Col>
-        <Col>{tabButton("open", "Open")}</Col>
+        <Col>{tabButton("pending", "Pending")}</Col>
         <Col>{tabButton("in-progress", "In Progress")}</Col>
         <Col>{tabButton("completed", "Completed")}</Col>
       </Row>
@@ -75,7 +97,7 @@ const Tickets: React.FC = () => {
             <Empty description="No tickets found for this filter" />
           </Col>
         ) : (
-          filteredTickets.map(ticket => (
+          filteredTickets.map((ticket:any) => (
             <Col span={24} key={ticket.id}>
               <Card
                 style={{
@@ -96,39 +118,39 @@ const Tickets: React.FC = () => {
                         fontWeight: 500,
                       }}
                     >
-                      {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                      {ticket?.status?.charAt(0)?.toUpperCase() + ticket?.status?.slice(1)}
                     </Text>{" "}
                     <Text style={{ marginLeft: 8, color: "#374151" }}>
-                      Ticket #{ticket.id.toString().slice(-6)}
+                      Ticket #{ticket?.id?.toString()?.slice(-6)}
                     </Text>
                   </Col>
-                  {ticket.status === "completed" && (
+                  {ticket?.status === "completed" && (
                     <Text style={{ color: "#065f46", fontWeight: 500 }}>✓ Completed</Text>
                   )}
                 </Row>
 
                 <Title level={4} style={{ marginTop: "8px" }}>
-                  {ticket.service}
+                  {ticket?.service}
                 </Title>
 
                 <Text>
-                  <UserOutlined /> {ticket.customerName}
+                  <UserOutlined /> {ticket?.customerName}
                 </Text>
                 <br />
                 <Text>
-                  🧑 Assigned to: <span style={{ color: "#0D9488" }}>{ticket.employee}</span>
+                  🧑 Assigned to: <span style={{ color: "#0D9488" }}>{ticket?.employee}</span>
                 </Text>
                 <br />
                 <Text>
-                  <EnvironmentOutlined /> {ticket.address}
+                  <EnvironmentOutlined /> {ticket?.address}
                 </Text>
                 <br />
                 <Text>
-                  <CalendarOutlined /> {ticket.time}
+                  <CalendarOutlined /> {ticket?.time}
                 </Text>
 
                 {/* OTP card under completed ticket, right side */}
-                {ticket.status === "completed" && (
+                {ticket?.status === "completed" && (
                   <Row justify="end" style={{ marginTop: 12 }}>
                     <Col>
                       <Card
