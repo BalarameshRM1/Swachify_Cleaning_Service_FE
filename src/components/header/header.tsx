@@ -232,7 +232,7 @@ const HeaderBar: React.FC = () => {
                         />
                     </AutoComplete>
 
-                   
+                    {/* LOCATION SELECT */}
                     <div
                         style={{
                             display: "flex",

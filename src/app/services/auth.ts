@@ -128,3 +128,15 @@ export const createEmployee = async(first_name:any ,last_name:any ,email:any ,mo
         console.error("Error createEmployee:", error);
     }
 }
+
+// bookings api
+export const getallBookings = async() =>{
+    try {
+        const response = await fetch(`${baseUrl}/Booking/getall`);
+        if (!response.ok) throw new Error("Failed to getAllBookings");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error getAllBookings:", error);
+    }
+}
