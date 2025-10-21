@@ -23,6 +23,7 @@ import {
 } from "@ant-design/icons";
 import BrandLogo from '../../assets/SWACHIFY_gif.gif';
 import { useAppSelector } from "../../app/hooks";
+import { getUserDetails } from "../../utils/helpers/storage";
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -37,12 +38,12 @@ const HeaderBar: React.FC = () => {
     const screens = useBreakpoint();
     const { user } = useAppSelector((state) => state.user);
 
-    const [userData,setUserData] = useState<any>(user);
+    const [userData,setUserData] = useState<any>(null);
 
     useEffect(()=>{
-        let userDetails = localStorage.getItem('user');
+        let userDetails = getUserDetails('user');
         if(userDetails){
-            setUserData((userDetails));
+            setUserData(userDetails);
         }
     },[])
 
@@ -303,7 +304,7 @@ const HeaderBar: React.FC = () => {
                                         color: "#0f172a",
                                     }}
                                 >
-                                    {user?.first_name || "Admin User"}
+                                    {userData?.first_name || "Admin User"}
                                 </Text>
                                 <Text type="secondary" style={{ fontSize: screens.md ? 12 : 10 }}>
                                     {userData?.role == 1 ? "Super Admin" : userData?.role == 2 ? "Admin" : "Employe"}
