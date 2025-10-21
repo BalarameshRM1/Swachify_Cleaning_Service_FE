@@ -31,6 +31,7 @@ const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
 const allServices = [
   'Home Cleaning', 'Kitchen', 'Bathroom', 'Office Cleaning', 'Sofa & Carpet', 'Pest Control', 'Deep Cleaning', 'Painting', 'AC Service', 'Appliance Repair'
 ];
+const Role = ['Employee','Admin','Super Admin'];
 
 
 
@@ -90,6 +91,8 @@ const Employees: React.FC = () => {
     const res = await getAllUsers()
     const usersWithFullName = res.map((res:any) => ({...res,
       name: `${res.first_name} ${res.last_name}`,
+      location:"test location",
+      status:"Available"
     }));
     console.log('__res1, ', usersWithFullName)
   }
@@ -177,8 +180,8 @@ const Employees: React.FC = () => {
             open={isModalVisible}
             onCancel={handleCancel}
             footer={[
-                <Button key="back" onClick={handleCancel}>Cancel</Button>,
-                <Button key="submit" type="primary" onClick={() => form.submit()}>Add Employee</Button>
+                <Button key="back" style={{borderColor:'#14B8A6',color:'black'}} onClick={handleCancel}>Cancel</Button>,
+                <Button key="submit" style={{backgroundColor:' #14B8A6',color:'#ffffff',borderColor:'#14B8A6'}} onClick={() => form.submit()}>Add Employee</Button>
             ]}
         >
             <Form form={form} layout="vertical" onFinish={handleAddEmployee}>
@@ -196,6 +199,9 @@ const Employees: React.FC = () => {
                 </Form.Item>
                 <Form.Item name="services" label="Services" rules={[{ required: true }]}>
                     <Select mode="multiple" allowClear options={allServices.map(s => ({ label: s, value: s }))} placeholder="Select services"/>
+                </Form.Item>
+                  <Form.Item name="Role" label="Role" rules={[{ required: true }]}>
+                    <Select mode="multiple" allowClear options={Role.map(s => ({ label: s, value: s }))} placeholder="Select Role"/>
                 </Form.Item>
             </Form>
         </Modal>
