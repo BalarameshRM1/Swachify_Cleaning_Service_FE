@@ -33,20 +33,36 @@ const EmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => (
         }}
     >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-            <Avatar size={64} style={{ backgroundColor: '#14b8a6', fontSize: 24 }}>
-                {employee.name?.charAt(0) || '?'}
-            </Avatar>
-            <div>
-                <Title level={5} style={{ margin: 0 }}>{employee.name || 'Unknown'}</Title>
-                <Tag
-                    color={employee.status === 'Available' ? 'success' : 'warning'}
-                    style={{ marginTop: 4 }}
-                >
-                    {employee.status}
-                </Tag>
-            </div>
-        </div>
-        
+  <Avatar
+    size={64}
+    style={{ backgroundColor: '#14b8a6', fontSize: 24 }}
+  >
+    {employee.name?.charAt(0) || '?'}
+  </Avatar>
+
+  <div style={{ maxWidth: 70 }}> 
+    <Title
+      level={5}
+      style={{
+        margin: 0,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      }}
+      title={employee.name} 
+    >
+      {employee.name || 'Unknown'}
+    </Title>
+
+    <Tag
+      color={employee.status === 'Available' ? 'success' : 'warning'}
+      style={{ marginTop: 4 }}
+    >
+      {employee.status}
+    </Tag>
+  </div>
+</div>
+
         <Divider style={{ margin: '12px 0' }}/>
 
         <div>
@@ -145,7 +161,7 @@ const Employees: React.FC = () => {
                         onChange={setLocationFilter}
                         options={locationOptions} 
                     />
-                    <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                    <Button style={{color:' rgb(20, 184, 166);'}} icon={<PlusOutlined />} onClick={showModal}>
                         Add Employee
                     </Button>
                 </Space>
@@ -168,7 +184,7 @@ const Employees: React.FC = () => {
             onCancel={handleCancel}
             footer={[
                 <Button key="back" onClick={handleCancel}>Cancel</Button>,
-                <Button key="submit" type="primary" onClick={() => form.submit()}>Add Employee</Button>
+                <Button key="submit" style={{color:' rgb(20, 184, 166);'}}  onClick={() => form.submit()}>Add Employee</Button>
             ]}
         >
             <Form form={form} layout="vertical" onFinish={handleAddEmployee}>
