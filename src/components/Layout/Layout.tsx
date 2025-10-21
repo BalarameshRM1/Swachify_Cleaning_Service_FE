@@ -63,7 +63,7 @@ const LayoutComponent: React.FC = () => {
         <Sider width={200} style={{ background: colorBgContainer }} breakpoint="lg" collapsedWidth="0">
           <Menu
             mode="inline"
-            defaultSelectedKeys={['1']}
+            defaultSelectedKeys={['Dashboard']}
             onClick={onClick}
             style={{ height: '100%', borderInlineEnd: 0 }}
             items={items2}

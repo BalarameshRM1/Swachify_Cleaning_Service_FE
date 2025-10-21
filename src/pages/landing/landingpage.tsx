@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button, Modal, Form, Input, Checkbox, message, Menu, Drawer } from 'antd';
 import { 
   PhoneOutlined, 
@@ -13,10 +13,13 @@ import {
   // CrownOutlined,
   // TrophyOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { getUserDetails, setUserDetails } from '../../utils/helpers/storage';
+// import { useNavigate } from 'react-router-dom';
+import { setUserDetails } from '../../utils/helpers/storage';
 import ServicesImg from '../../assets/service.jpg';
 import BrandLogo from '../../assets/SWACHIFY_gif.gif';
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { loginUser, registerUser } from "../../app/features/user/userSlice";
+import { menuItems, services, pricingPlans, testimonials } from '../../utils/constants/data.ts';
 
 const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -26,46 +29,52 @@ const Landing = () => {
 const [registerForm] = Form.useForm();
 const [users, setUsers] = useState<any[]>([]);  // ✅ Added persistent storage
 // const [currentUserData, setCurrentUserData] = useState<any>(null);  // ✅ Track logged-in user
-const navigate = useNavigate();
-
-useEffect(() => {
-
-}, []);
-
-  // Storage management
-  
+// const navigate = useNavigate();
+const dispatch = useAppDispatch();
+const { loading, error, user } = useAppSelector((state) => state.user);
 
   const saveUser = (user: any) => {
-  setUsers(prevUsers => [...prevUsers, user]);  // ✅ Properly updates state
-};
+    setUsers(prevUsers => [...prevUsers, user]);  // ✅ Properly updates state
+  };
 
 const findUser = (email: string) => {
   return users.find((u: any) => u.email === email);  // ✅ Reads from actual state
 };
-  // Auth handlers
- const handleLogin = (values: any) => {
-  const user = getUserDetails('registerUser');
 
-  if (user?.email !== values.email) {
-    message.error('No account found with this email.');
-    return;
-  }
+const handleLogin = async (values: any) => {
+  dispatch(loginUser({ email: values.email, password: values.password }));
 
-  if (user.password !== values.password) {
-    message.error('Incorrect password.');
-    return;
-  }
-  setUserDetails('user',user);
+  //   setTimeout(() => {
+  //   setAuthModalOpen(false);
+  //   loginForm.resetFields();
+  //   navigate('/app/dashboard');  // ✅ Correct way
+  // }, 1000);
+}
 
-  // setCurrentUserData(user);
-  message.success(`Welcome back, ${user.name}!`);
+//   // Auth handlers
+//  const handleLogin = (values: any) => {
+//   const user = getUserDetails('registerUser');
 
-  setTimeout(() => {
-    setAuthModalOpen(false);
-    loginForm.resetFields();
-    navigate('/app/dashboard');  // ✅ Correct way
-  }, 1000);
-};
+//   if (user?.email !== values.email) {
+//     message.error('No account found with this email.');
+//     return;
+//   }
+
+//   if (user.password !== values.password) {
+//     message.error('Incorrect password.');
+//     return;
+//   }
+//   setUserDetails('user',user);
+
+//   // setCurrentUserData(user);
+//   message.success(`Welcome back, ${user.name}!`);
+
+//   setTimeout(() => {
+//     setAuthModalOpen(false);
+//     loginForm.resetFields();
+//     navigate('/app/dashboard');  // ✅ Correct way
+//   }, 1000);
+// };
 
 
   const handleRegister = (values: any) => {
@@ -85,6 +94,8 @@ const findUser = (email: string) => {
       role: 'Customer',
       createdAt: new Date().toISOString()
     };
+    
+    dispatch(registerUser({ first_name: values.name, last_name: values.name, email: values.email, password: values.password, mobile: values.phone }));
 
     setUserDetails('registerUser',newUser);
 
@@ -124,134 +135,6 @@ const findUser = (email: string) => {
     }
     setMobileMenuOpen(false);
   };
-
-  const menuItems = [
-    { key: 'services', label: 'Our Services' },
-    { key: 'how-it-works', label: 'How It Works' },
-    { key: 'pricing', label: 'Pricing' },
-    { key: 'about', label: 'About Us' },
-    { key: 'testimonials', label: 'Testimonials' },
-    { key: 'contact', label: 'Contact' },
-  ];
-
-  const services = [
-    {
-      icon: '🏠',
-      title: 'Home Deep Cleaning',
-      description: 'Thorough cleaning of every corner of your home. Kitchen, bathrooms, living areas, and bedrooms - all spotless.',
-      features: ['Kitchen & appliances', 'Bathroom sanitization', 'Floor & carpet cleaning'],
-      gradient: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)'
-    },
-    {
-      icon: '🏢',
-      title: 'Office Cleaning',
-      description: 'Professional workspace cleaning for a productive environment. Daily, weekly, or monthly service available.',
-      features: ['Desk & workstation cleaning', 'Common area maintenance', 'Restroom sanitization'],
-      gradient: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)'
-    },
-    {
-      icon: '🪟',
-      title: 'Window Cleaning',
-      description: 'Crystal clear windows inside and out. Professional equipment for streak-free shine every time.',
-      features: ['Interior & exterior glass', 'Frame & sill cleaning', 'High-rise specialists'],
-      gradient: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'
-    },
-    {
-      icon: '🛋️',
-      title: 'Sofa & Carpet Cleaning',
-      description: 'Deep cleaning for upholstery and carpets. Remove stains, odors, and allergens with our specialized treatment.',
-      features: ['Steam cleaning', 'Stain removal', 'Fabric protection'],
-      gradient: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)'
-    },
-    {
-      icon: '🏡',
-      title: 'Move In/Out Cleaning',
-      description: 'Complete cleaning for moving homes. Leave your old place spotless or move into a fresh, clean new home.',
-      features: ['Complete house cleaning', 'Cabinet & closet cleaning', 'Same-day service available'],
-      gradient: 'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)'
-    },
-    {
-      icon: '✨',
-      title: 'Post-Construction Cleaning',
-      description: 'Specialized cleaning after renovation or construction. Remove dust, debris, and make it move-in ready.',
-      features: ['Dust & debris removal', 'Surface polishing', 'Final touch cleaning'],
-      gradient: 'linear-gradient(135deg, #f43f5e 0%, #ec4899 100%)'
-    }
-  ];
-
-  const pricingPlans = [
-    {
-      name: 'BASIC CLEANING',
-      price: '₹499',
-      period: '/visit',
-      description: 'Perfect for regular maintenance',
-      features: [
-        'Dusting & vacuuming',
-        'Mopping all floors',
-        'Kitchen counters cleaning',
-        'Bathroom basic cleaning',
-        'Up to 1000 sq ft'
-      ],
-      popular: false
-    },
-    {
-      name: 'DEEP CLEANING',
-      price: '₹999',
-      period: '/visit',
-      description: 'Comprehensive cleaning solution',
-      features: [
-        'Everything in Basic',
-        'Deep kitchen cleaning',
-        'Bathroom sanitization',
-        'Window & glass cleaning',
-        'Up to 2000 sq ft',
-        'Appliance cleaning'
-      ],
-      popular: true
-    },
-    {
-      name: 'PREMIUM PACKAGE',
-      price: '₹1,999',
-      period: '/visit',
-      description: 'Ultimate cleaning experience',
-      features: [
-        'Everything in Deep',
-        'Sofa & carpet cleaning',
-        'Balcony & terrace cleaning',
-        'Unlimited square footage',
-        'Priority scheduling',
-        '24/7 support'
-      ],
-      popular: false
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: 'Priya Sharma',
-      role: 'Homemaker, Mumbai',
-      initial: 'P',
-      rating: 5,
-      text: 'Absolutely fantastic service! The team was professional, punctual, and my house has never been cleaner. Will definitely book again!',
-      color: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)'
-    },
-    {
-      name: 'Rahul Verma',
-      role: 'Business Owner, Delhi',
-      initial: 'R',
-      rating: 5,
-      text: 'We use Swachify for our office cleaning weekly. They\'re reliable, thorough, and use eco-friendly products. Highly recommend!',
-      color: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'
-    },
-    {
-      name: 'Anjali Patel',
-      role: 'Engineer, Bangalore',
-      initial: 'A',
-      rating: 5,
-      text: 'Best cleaning service in the city! They did an amazing job with my post-renovation cleaning. Everything sparkles now!',
-      color: 'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)'
-    }
-  ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#fff' }}>
@@ -1326,6 +1209,7 @@ const findUser = (email: string) => {
               type="primary"
               htmlType="submit"
               size="large"
+              loading={loading}
               block
               style={{
                 background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
