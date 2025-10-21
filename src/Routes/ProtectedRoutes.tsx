@@ -6,13 +6,15 @@ export const ProtectedRoutes = (prop:any) =>{
      const navigate = useNavigate()
     
         useEffect(()=>{
-            let userData:any = getUserDetails('user')
-    
-            if(userData != null){
                 navigate('/app/dashboard')
-            }else{
-                navigate('/landing')
-            }
+
+            // let userData:any = getUserDetails('user')
+    
+            // if(userData != null){
+            //     navigate('/app/dashboard')
+            // }else{
+            //     navigate('/landing')
+            // }
     
         },[])
         
