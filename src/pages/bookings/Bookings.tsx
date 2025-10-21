@@ -1,40 +1,40 @@
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import { Card, Typography, Row, Col, Space, Button } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import { getallBookings } from "../../app/services/auth";
 
 const { Title, Text } = Typography;
 
-interface Booking {
-  id: number;
-  service: string;
-  customerName: string;
-  phone: string;
-  address: string;
-  dateTime: string;
-  status: string;
-}
+// interface Booking {
+//   id: number;
+//   service: string;
+//   customerName: string;
+//   phone: string;
+//   address: string;
+//   dateTime: string;
+//   status: string;
+// }
 
-const sampleBookings: Booking[] = [
-  {
-    id: 1,
-    service: "Kitchen Cleaning",
-    customerName: "Raj",
-    phone: "+91 8956412359",
-    address: "Gachibowli",
-    dateTime: "8/11/2025 at 1:00 PM - 3:00 PM",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    service: "Room Painting",
-    customerName: "Alice Smith",
-    phone: "+91 9876501234",
-    address: "456 Business Ave, vij",
-    dateTime: "2025/10/21 at 02:00 PM - 04:00 PM",
-    status: "Pending",
-  },
-];
+// const sampleBookings: Booking[] = [
+//   {
+//     id: 1,
+//     service: "Kitchen Cleaning",
+//     customerName: "Raj",
+//     phone: "+91 8956412359",
+//     address: "Gachibowli",
+//     dateTime: "8/11/2025 at 1:00 PM - 3:00 PM",
+//     status: "Pending",
+//   },
+//   {
+//     id: 2,
+//     service: "Room Painting",
+//     customerName: "Alice Smith",
+//     phone: "+91 9876501234",
+//     address: "456 Business Ave, vij",
+//     dateTime: "2025/10/21 at 02:00 PM - 04:00 PM",
+//     status: "Pending",
+//   },
+// ];
 
 const Bookings: React.FC = () => {
   const [bookings, setBookings] = useState<any>([]);
