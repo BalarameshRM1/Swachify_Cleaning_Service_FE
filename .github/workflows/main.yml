@@ -17,7 +17,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Clean node_modules and package-lock
+        run: rm -rf node_modules package-lock.json
 
+      - name: Install dependencies
+        run: npm install
+        
       - name: Install dependencies
         run: npm ci
 
