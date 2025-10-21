@@ -374,7 +374,6 @@ const PlanTableView: React.FC<PlanTableViewProps> = ({ navigateTo, goBack, categ
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Redesigned header with BackButton */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
         <BackButton onClick={goBack} ariaLabel="Go back" />
         <Title level={2} style={{ margin: 0 }}>
