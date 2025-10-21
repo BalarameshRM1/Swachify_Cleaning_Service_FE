@@ -13,6 +13,7 @@ export const NonSecureRoutes = () => {
     const navigate = useNavigate()
     
         useEffect(()=>{
+
             let userData:any = getUserDetails('user')
     
             if(userData != null){

@@ -24,7 +24,6 @@ const LayoutComponent: React.FC = () => {
   } = theme.useToken();
 
   const navigate = useNavigate();
-  // const location = useLocation();
 
   const items2: MenuProps['items'] = MenuItems.map((ele: any) => {
     return {
@@ -57,7 +56,7 @@ const LayoutComponent: React.FC = () => {
   };
 
   return (
-    <Layout style={{ height: '100vh' }}>
+    <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       <HeaderBar />
       <Layout>
         <Sider width={200} style={{ background: colorBgContainer }} breakpoint="lg" collapsedWidth="0">
@@ -70,20 +69,21 @@ const LayoutComponent: React.FC = () => {
           />
         </Sider>
 
-        <Layout style={{ padding: '0 24px 24px' }}>
-          {/* Breadcrumb removed */}
-          <div>
-            <Content
-              style={{
-                padding: 24,
-                margin: 0,
-                minHeight: 280,
-                borderRadius: borderRadiusLG,
-              }}
-            >
-              <Outlet />
-            </Content>
-          </div>
+        <Layout style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column' }}>
+        
+          <Content
+            style={{
+              padding: 24,
+              margin: 0,
+              borderRadius: borderRadiusLG,
+              flex: 1,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <Outlet />
+          </Content>
         </Layout>
       </Layout>
     </Layout>

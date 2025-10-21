@@ -125,3 +125,66 @@ export  const testimonials = [
       color: 'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)'
     }
   ];
+export const planDetailsData = {
+ Kitchen: {
+  plans: ['Regular', 'Premium', 'Ultimate'],
+  prices: [89, 129, 199], 
+  features: [
+      { name: 'All accessible areas mopped & vacuumed', values: ['✓', '✓', '✓'] },
+      { name: 'All surfaces, backsplash, sinks & small appliances', values: ['✓', '✓', '✓'] },
+      { name: 'Large appliances exterior', values: ['X', '✓', '✓'] },
+      { name: 'Cabinet and drawer exterior', values: ['X', '✓', '✓'] },
+      { name: 'Microwave and rangehood interior cleaned', values: ['X', 'X', '✓'] },
+      { name: 'Large appliance interior', values: ['X', 'X', '✓'] },
+      { name: 'Open shelves wiped', values: ['X', '✓', '✓'] },
+      { name: 'Cabinets and drawer interior', values: ['X', 'X', '✓'] },
+      { name: 'Baseboards, window tracks and ceiling corners', values: ['X', '✓', '✓'] },
+      { name: 'Windows and blind interior (within reach)', values: ['X', 'X', '✓'] },
+  ]
+ },
+ Bathrooms: {
+  plans: ['Regular', 'Premium', 'Ultimate'],
+  prices: [89, 129, 199], 
+  features: [
+      { name: 'All accessible areas mopped & vacuumed', values: ['✓', '✓', '✓'] },
+      { name: 'All surfaces, sinks & toilets cleaned & sanitized', values: ['✓', '✓', '✓'] },
+      { name: 'Tile walls, grout, bathtubs & showers', values: ['X', '✓', '✓'] },
+      { name: 'Open shelves & picture frames dusted', values: ['X', '✓', '✓'] },
+      { name: 'Mirrors polished', values: ['✓', '✓', '✓'] },
+      { name: 'Cabinets & vanity exterior', values: ['X', '✓', '✓'] },
+      { name: 'Cabinets & vanity interior cleaned (upon request)', values: ['X', 'X', '✓'] },
+      { name: 'Build up on surfaces scrubbed', values: ['X', 'X', '✓'] },
+      { name: 'Baseboards, window sills & ceiling corners', values: ['X', '✓', '✓'] },
+      { name: 'Windows & blinds interior cleaned (within reach)', values: ['X', 'X', '✓'] },
+  ]
+ },
+ Bedrooms: {
+  plans: ['Regular', 'Premium', 'Ultimate'],
+  prices: [49, 79, 109], 
+  features: [
+      { name: 'All accessible areas mopped & vacuumed', values: ['✓', '✓', '✓'] },
+      { name: 'All surfaces, furniture, shelves, frames & lamps dusted', values: ['✓', '✓', '✓'] },
+      { name: 'Mirrors polished', values: ['✓', '✓', '✓'] },
+      { name: 'Linens tidied', values: ['X', '✓', '✓'] },
+      { name: 'Linens changed (upon request)', values: ['X', '✓', '✓'] },
+      { name: 'Inside closet floors cleaned (upon request)', values: ['X', '✓', '✓'] },
+      { name: 'Baseboards, window sills & ceiling corners', values: ['X', '✓', '✓'] },
+      { name: 'Windows & blind interior cleaned (within reach)', values: ['X', 'X', '✓'] },
+  ]
+ },
+ 'Living Areas': {
+  plans: ['Regular', 'Premium', 'Ultimate'],
+  prices: [89, 129, 199],
+  features: [
+      { name: 'All accessible areas mopped & vacuumed', values: ['✓', '✓', '✓'] },
+      { name: 'All surfaces, furniture, shelves, frames & lamps dusted', values: ['✓', '✓', '✓'] },
+      { name: 'Wastebaskets emptied & relined', values: ['X', '✓', '✓'] },
+      { name: 'Mirrors polished', values: ['X', '✓', '✓'] },
+      { name: 'Patio doors cleaned inside & out (weather permitting)', values: ['X', 'X', '✓'] },
+      { name: 'Door handles & switch plate covers hand wiped', values: ['X', 'X', '✓'] },
+      { name: 'Door interior wiped', values: ['X', 'X', '✓'] },
+      { name: 'Baseboards, window sills & ceiling corners', values: ['X', '✓', '✓'] },
+      { name: 'Windows & blind interior cleaned (within reach)', values: ['X', 'X', '✓'] },
+  ]
+ }
+};
