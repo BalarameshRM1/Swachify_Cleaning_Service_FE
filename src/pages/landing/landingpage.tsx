@@ -121,22 +121,21 @@ const handleLogin = async (values: any) => {
   // };
 
   const handleForgotPassword = () => {
-    const email = loginForm.getFieldValue('email');
-    
-    if (!email) {
-      message.error('Please enter your email first.');
-      return;
-    }
+  const email = loginForm.getFieldValue('email');
 
-    // const user = findUser(email.toLowerCase());
-    // if (!user) {
-    //   message.error('No account found with this email.');
-    //   return;
-    // }
 
-    message.success(`Password reset link sent to ${email}. Check console for demo link.`);
-    console.log(`Reset link: https://swachify.com/reset?token=${Date.now()}`);
-  };
+  if (!email) {
+    message.error('Please enter your email first.');
+    return;
+  }
+
+
+  // Optionally validate user here
+
+
+  // Navigate to forgot password page with email as query param (optional)
+  navigate(`/forgotPassword?email=${encodeURIComponent(email)}`);
+};
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);

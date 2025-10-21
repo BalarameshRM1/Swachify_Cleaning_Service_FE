@@ -59,7 +59,7 @@ const ForgotPassword: React.FC = () => {
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
-      <Title level={3} style={{ marginBottom: 24, fontWeight: "bold" }}>
+      <Title level={3} style={{color: "#009688", marginBottom: 24, fontWeight: "bold"}}>
         Forgot Password
       </Title>
 
@@ -102,7 +102,7 @@ const ForgotPassword: React.FC = () => {
         </Form.Item>
 
         <Form.Item style={{ marginTop: 16, textAlign: "center" }}>
-          <Link to="/login" style={{ color: "#009688", display: "block", marginTop: 16 }}>
+          <Link to="/Landing" style={{ color: "#009688", display: "block", marginTop: 16 }}>
   ← Back to Login
 </Link>
 
