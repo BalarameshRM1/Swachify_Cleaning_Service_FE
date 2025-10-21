@@ -31,7 +31,7 @@ const [users, setUsers] = useState<any[]>([]);  // ✅ Added persistent storage
 // const [currentUserData, setCurrentUserData] = useState<any>(null);  // ✅ Track logged-in user
 // const navigate = useNavigate();
 const dispatch = useAppDispatch();
-const { loading, error, user } = useAppSelector((state) => state.user);
+const { loading} = useAppSelector((state) => state.user);
 
   const saveUser = (user: any) => {
     setUsers(prevUsers => [...prevUsers, user]);  // ✅ Properly updates state
