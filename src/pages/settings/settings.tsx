@@ -73,7 +73,7 @@ const BusinessSettings: React.FC = () => {
     <Card
       style={{
         borderRadius: 10,
-        padding: '10px 14px', // reduced inner padding
+        padding: '10px 14px',
       }}
     >
       <Title level={4} style={{ marginBottom: 8, fontSize: 17 }}>

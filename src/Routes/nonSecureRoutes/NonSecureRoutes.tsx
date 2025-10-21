@@ -6,20 +6,21 @@ import { useNavigate} from "react-router-dom";
 import ForgotPassword from '../../pages/forgotpassword/ForgotPassword';
 // import Dashboard from '../../pages/dashboard/Dashboard';
 import Landing from '../../pages/landing/landingpage';
+import { getUserDetails } from '../../utils/helpers/storage';
 
 
 export const NonSecureRoutes = () => {
     const navigate = useNavigate()
     
         useEffect(()=>{
-            // let userData:any = getUserDetails('user')
+
+            let userData:any = getUserDetails('user')
     
-            // if(userData != null){
-            //     navigate('/landing')
-            // }else{
-            //     navigate('/landing')
-            // }
+            if(userData != null){
                 navigate('/app/dashboard')
+            }else{
+                navigate('/landing')
+            }
         },[])
 
     return <Routes>

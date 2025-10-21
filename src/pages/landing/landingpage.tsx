@@ -13,7 +13,7 @@ import {
   // CrownOutlined,
   // TrophyOutlined
 } from '@ant-design/icons';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { setUserDetails } from '../../utils/helpers/storage';
 import ServicesImg from '../../assets/service.jpg';
 import BrandLogo from '../../assets/SWACHIFY_gif.gif';
@@ -29,7 +29,7 @@ const Landing = () => {
 const [registerForm] = Form.useForm();
 const [users, setUsers] = useState<any[]>([]);  // ✅ Added persistent storage
 // const [currentUserData, setCurrentUserData] = useState<any>(null);  // ✅ Track logged-in user
-// const navigate = useNavigate();
+const navigate = useNavigate();
 const dispatch = useAppDispatch();
 const { loading} = useAppSelector((state) => state.user);
 
@@ -42,8 +42,18 @@ const findUser = (email: string) => {
 };
 
 const handleLogin = async (values: any) => {
-  dispatch(loginUser({ email: values.email, password: values.password }));
+  const response = await dispatch(loginUser({ email: values.email, password: values.password }));
+  // console.log('Login response:', response);
 
+  if(response.meta.requestStatus === 'rejected') {
+    message.error(response.payload || 'Login failed. Please try again.');
+  }else{
+    // console.log('user data after login:', response.payload);
+    setUserDetails('user',response.payload);
+    setAuthModalOpen(false);
+    loginForm.resetFields();
+    navigate('/app/dashboard');
+  }
   //   setTimeout(() => {
   //   setAuthModalOpen(false);
   //   loginForm.resetFields();
@@ -77,38 +87,38 @@ const handleLogin = async (values: any) => {
 // };
 
 
-  const handleRegister = (values: any) => {
-    const existingUser = findUser(values.email.toLowerCase());
+  // const handleRegister = (values: any) => {
+  //   const existingUser = findUser(values.email.toLowerCase());
     
-    if (existingUser) {
-      message.error('Account already exists. Please login.');
-      return;
-    }
+  //   if (existingUser) {
+  //     message.error('Account already exists. Please login.');
+  //     return;
+  //   }
 
-    const newUser = {
-      id: Date.now(),
-      name: values.name,
-      email: values.email.toLowerCase(),
-      phone: values.phone,
-      password: values.password,
-      role: 'Customer',
-      createdAt: new Date().toISOString()
-    };
+  //   const newUser = {
+  //     id: Date.now(),
+  //     name: values.name,
+  //     email: values.email.toLowerCase(),
+  //     phone: values.phone,
+  //     password: values.password,
+  //     role: 'Customer',
+  //     createdAt: new Date().toISOString()
+  //   };
     
-    dispatch(registerUser({ first_name: values.name, last_name: values.name, email: values.email, password: values.password, mobile: values.phone }));
+  //   dispatch(registerUser({ first_name: values.name, last_name: values.name, email: values.email, password: values.password, mobile: values.phone }));
 
-    setUserDetails('registerUser',newUser);
+  //   setUserDetails('registerUser',newUser);
 
-    saveUser(newUser);
-    message.success('Account created! Please login to continue.');
+  //   saveUser(newUser);
+  //   message.success('Account created! Please login to continue.');
     
-    setTimeout(() => {
-      setActiveTab('login');
-      loginForm.setFieldsValue({ email: values.email });
-    }, 1500);
+  //   setTimeout(() => {
+  //     setActiveTab('login');
+  //     loginForm.setFieldsValue({ email: values.email });
+  //   }, 1500);
     
-    registerForm.resetFields();
-  };
+  //   registerForm.resetFields();
+  // };
 
   const handleForgotPassword = () => {
     const email = loginForm.getFieldValue('email');
@@ -1141,6 +1151,7 @@ const handleLogin = async (values: any) => {
           <Button
             type="primary"
             onClick={() => setActiveTab('register')}
+            disabled
             style={{
               flex: 1,
               height: 46,
@@ -1226,7 +1237,7 @@ const handleLogin = async (values: any) => {
         )}
 
         {/* ---------- Register Form ---------- */}
-        {activeTab === 'register' && (
+        {/* {activeTab === 'register' && (
           <Form form={registerForm} onFinish={handleRegister} layout="vertical">
             <Form.Item
               label="Full Name"
@@ -1285,7 +1296,7 @@ const handleLogin = async (values: any) => {
               Create Account
             </Button>
           </Form>
-        )}
+        )} */}
 
         <p
           style={{

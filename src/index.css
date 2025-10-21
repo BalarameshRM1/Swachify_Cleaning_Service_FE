@@ -29,6 +29,55 @@
   background-color: #0d9488 !important;
   color: white;
 }
-
-
-
+.ant-btn-color-default {
+    color: #f7fafa;
+    background-color: rgb(20, 184, 166);
+    /* box-shadow: 0 2px 0  rgb(20, 184, 166); */
+}
+.element.style {
+    /* padding: 24px; */
+    margin: 0px;
+    min-height: 280px;
+    border-radius: 8px;
+}
+.element.style {
+    margin: 0px;
+    border-radius: 8px;
+    flex: 1 1 0%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.ant-card .ant-card-body {
+    /* padding: 24px; */
+    border-radius: 0 0 8px 8px;
+}
+.element.style {
+    /* padding: 24px; */
+    margin: 0px;
+    border-radius: 8px;
+    flex: 1 1 0%;
+    overflow: hidden;
+    display: flex
+;
+    flex-direction: column;
+}
+.element.style {
+    background: rgb(240, 242, 245);
+    /* padding: 24px 0px; */
+    min-height: 100vh;
+}
+.element.style {
+    background: rgb(240, 242, 245);
+    /* padding: 24px 0px; */
+    min-height: 100vh;
+}
+.ant-layout-content {
+  /* padding: 24px; */
+    margin: 0px;
+    border-radius: 8px;
+    flex: 1 1 0%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
