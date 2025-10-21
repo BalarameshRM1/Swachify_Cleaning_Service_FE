@@ -12,6 +12,58 @@ export const fetchUserById = createAsyncThunk<User, number>(
   }
 );
 
+export const loginUser = createAsyncThunk<any, { email: string; password: string }>(
+  "user/loginUser",
+  async (credentials, { rejectWithValue }) => {
+    const options:any = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      }
+    try {
+      const response = await fetch(`${baseUrl}/Login/login?email=${credentials.email}&password=${credentials.password}`, options);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Login failed");
+      }
+
+      const data = await response.json();
+      return data as User;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const registerUser = createAsyncThunk<any, { first_name: string; last_name: string; email: string; mobile:string; password: string }>(
+  "user/registerUser",
+  async (credentials, { rejectWithValue }) => {
+    const options:any = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      }
+    try {
+      const response = await fetch(`${baseUrl}/User/register`, options);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Register failed");
+      }
+
+      const data = await response.json();
+      return data as User;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const initialState: UserState = {
   user: null,
   loading: false,
@@ -39,6 +91,19 @@ const userSlice = createSlice({
       .addCase(fetchUserById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Something went wrong";
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          (action.payload as string) || "Invalid username or password";
       });
   },
 });
