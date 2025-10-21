@@ -11,7 +11,7 @@ export const AppRoutes = () => {
                     element={
                         <ProtectedRoutes>
                             <SecureRoutes />
-                        </ProtectedRoutes>
+                        </ProtectedRoutes>   
                     }
                 />
             </Routes>

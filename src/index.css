@@ -81,3 +81,6 @@
     display: flex;
     flex-direction: column;
 }
+.ant-btn-color-link.ant-btn-variant-link:not(:disabled) {
+    color:  rgb(20, 184, 166); 
+}
