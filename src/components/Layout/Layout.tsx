@@ -1,20 +1,28 @@
 import React from 'react';
 
-import { LaptopOutlined, NotificationOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
+import { NotificationOutlined, UserOutlined, LogoutOutlined, CalendarOutlined, ScheduleOutlined, UsergroupAddOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import { Outlet, useNavigate } from 'react-router-dom';
 import HeaderBar from '../header/header';
+import { getUserDetails } from '../../utils/helpers/storage';
 
 const { Content, Sider } = Layout;
 
 const MenuItems: any = [
   { menuIcon: UserOutlined, label: 'Dashboard' },
   { menuIcon: NotificationOutlined, label: 'Services' },
-  { menuIcon: LogoutOutlined, label: 'Bookings' },
-  { menuIcon: LogoutOutlined, label: 'Tickets' },
-  { menuIcon: LaptopOutlined, label: 'Employees' },
-  { menuIcon: LaptopOutlined, label: 'Settings' },
+  { menuIcon: CalendarOutlined, label: 'Bookings' },
+  { menuIcon: ScheduleOutlined, label: 'Tickets' },
+  { menuIcon: UsergroupAddOutlined, label: 'Employees' },
+  { menuIcon: SettingOutlined, label: 'Settings' },
+  { menuIcon: LogoutOutlined, label: 'Logout' },
+];
+
+const MenuItemsEmp: any = [
+  { menuIcon: UserOutlined, label: 'Dashboard' },
+  { menuIcon: ScheduleOutlined, label: 'Tickets' },
+  { menuIcon: SettingOutlined, label: 'Settings' },
   { menuIcon: LogoutOutlined, label: 'Logout' },
 ];
 
@@ -23,9 +31,16 @@ const LayoutComponent: React.FC = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const [userDetails, setUserDetails] = React.useState<any>(null);  
+
+  React.useEffect(() => {
+    const userData = getUserDetails('user');
+    setUserDetails(userData);
+  }, []);
+
   const navigate = useNavigate();
 
-  const items2: MenuProps['items'] = MenuItems.map((ele: any) => {
+  const MenuData = (menu:any) => menu.map((ele: any) => {
     return {
       key: ele.label,
       icon: React.createElement(ele.menuIcon),
@@ -39,7 +54,9 @@ const LayoutComponent: React.FC = () => {
           };
         }),
     };
-  });
+  }); 
+
+  const items2: MenuProps['items'] = userDetails?.role_id === 3 ?  MenuData(MenuItemsEmp) : MenuData(MenuItems)
 
   const onClick: MenuProps['onClick'] = (e) => {
     if (e.key === 'Dashboard') navigate('/app/dashboard');
