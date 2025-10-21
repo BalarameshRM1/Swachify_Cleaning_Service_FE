@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Layout,
     Input,
@@ -22,6 +22,7 @@ import {
     MenuOutlined,
 } from "@ant-design/icons";
 import BrandLogo from '../../assets/SWACHIFY_gif.gif';
+import { useAppSelector } from "../../app/hooks";
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -34,6 +35,16 @@ const HeaderBar: React.FC = () => {
     const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
     const [menuVisible, setMenuVisible] = useState(false);
     const screens = useBreakpoint();
+    const { user } = useAppSelector((state) => state.user);
+
+    const [userData,setUserData] = useState<any>(user);
+
+    useEffect(()=>{
+        let userDetails = localStorage.getItem('user');
+        if(userDetails){
+            setUserData((userDetails));
+        }
+    },[])
 
     const fetchSearchSuggestions = async (value: string) => {
         if (!value) {
@@ -292,10 +303,10 @@ const HeaderBar: React.FC = () => {
                                         color: "#0f172a",
                                     }}
                                 >
-                                    Admin User
+                                    {user?.first_name || "Admin User"}
                                 </Text>
                                 <Text type="secondary" style={{ fontSize: screens.md ? 12 : 10 }}>
-                                    Administrator
+                                    {userData?.role == 1 ? "Super Admin" : userData?.role == 2 ? "Admin" : "Employe"}
                                 </Text>
                             </div>
                             <Avatar
@@ -304,7 +315,7 @@ const HeaderBar: React.FC = () => {
                                     fontWeight: "bold",
                                 }}
                             >
-                                A
+                                {(userData?.first_name ? userData.first_name.charAt(0) : "A").toUpperCase()}
                             </Avatar>
                         </Space>
                     </Dropdown>
