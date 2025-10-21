@@ -10,7 +10,6 @@ import {
     DatePicker,
     message,
     Table,
-    Tag
 } from 'antd';
 import {
     ArrowLeftOutlined,

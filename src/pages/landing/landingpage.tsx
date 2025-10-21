@@ -18,7 +18,7 @@ import { setUserDetails } from '../../utils/helpers/storage';
 import ServicesImg from '../../assets/service.jpg';
 import BrandLogo from '../../assets/SWACHIFY_gif.gif';
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { loginUser, registerUser } from "../../app/features/user/userSlice";
+import { loginUser } from "../../app/features/user/userSlice";
 import { menuItems, services, pricingPlans, testimonials } from '../../utils/constants/data.ts';
 
 const Landing = () => {
@@ -26,20 +26,20 @@ const Landing = () => {
   const [activeTab, setActiveTab] = useState('login');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loginForm] = Form.useForm();
-const [registerForm] = Form.useForm();
-const [users, setUsers] = useState<any[]>([]);  // ✅ Added persistent storage
+// const [registerForm] = Form.useForm();
+// const [users, setUsers] = useState<any[]>([]);  // ✅ Added persistent storage
 // const [currentUserData, setCurrentUserData] = useState<any>(null);  // ✅ Track logged-in user
 const navigate = useNavigate();
 const dispatch = useAppDispatch();
-const { loading, error, user } = useAppSelector((state) => state.user);
+const { loading} = useAppSelector((state) => state.user);
 
-  const saveUser = (user: any) => {
-    setUsers(prevUsers => [...prevUsers, user]);  // ✅ Properly updates state
-  };
+  // const saveUser = (user: any) => {
+  //   setUsers(prevUsers => [...prevUsers, user]);  // ✅ Properly updates state
+  // };
 
-const findUser = (email: string) => {
-  return users.find((u: any) => u.email === email);  // ✅ Reads from actual state
-};
+// const findUser = (email: string) => {
+//   return users.find((u: any) => u.email === email);  // ✅ Reads from actual state
+// };
 
 const handleLogin = async (values: any) => {
   const response = await dispatch(loginUser({ email: values.email, password: values.password }));
@@ -128,11 +128,11 @@ const handleLogin = async (values: any) => {
       return;
     }
 
-    const user = findUser(email.toLowerCase());
-    if (!user) {
-      message.error('No account found with this email.');
-      return;
-    }
+    // const user = findUser(email.toLowerCase());
+    // if (!user) {
+    //   message.error('No account found with this email.');
+    //   return;
+    // }
 
     message.success(`Password reset link sent to ${email}. Check console for demo link.`);
     console.log(`Reset link: https://swachify.com/reset?token=${Date.now()}`);

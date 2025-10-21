@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { Routes, Route } from "react-router-dom";
 // import Login from "../../pages/login/Login";
-import { getUserDetails } from "../../utils/helpers/storage"
 import { useNavigate} from "react-router-dom";
 // import Register from '../../pages/register/Register';
 import ForgotPassword from '../../pages/forgotpassword/ForgotPassword';
 // import Dashboard from '../../pages/dashboard/Dashboard';
 import Landing from '../../pages/landing/landingpage';
+import { getUserDetails } from '../../utils/helpers/storage';
 
 
 export const NonSecureRoutes = () => {
