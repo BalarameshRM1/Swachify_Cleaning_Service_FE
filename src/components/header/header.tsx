@@ -75,7 +75,12 @@ const HeaderBar: React.FC = () => {
             message.success("You have been logged out.");
             navigate("/landing");
         }
+        if(key=="settings")
+        {
+            navigate('/app/settings');
+        }
     };
+    
 
     
     const userMenu = (
@@ -83,7 +88,7 @@ const HeaderBar: React.FC = () => {
             onClick={handleMenuClick}
             items={[
                 { key: "profile", icon: <UserOutlined />, label: "Profile" },
-                { key: "settings", icon: <SettingOutlined />, label: "Settings" },
+                { key: "settings", icon: <SettingOutlined />, label: "Settings"},
                 { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
             ]}
         />
