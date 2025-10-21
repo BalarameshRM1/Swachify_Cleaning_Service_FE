@@ -102,7 +102,7 @@ export  const pricingPlans = [
 export  const testimonials = [
     {
       name: 'Priya Sharma',
-      role: 'Homemaker, Mumbai',
+      role: 'Homemaker, Toronto',
       initial: 'P',
       rating: 5,
       text: 'Absolutely fantastic service! The team was professional, punctual, and my house has never been cleaner. Will definitely book again!',
@@ -110,7 +110,7 @@ export  const testimonials = [
     },
     {
       name: 'Rahul Verma',
-      role: 'Business Owner, Delhi',
+      role: 'Business Owner, Victoria',
       initial: 'R',
       rating: 5,
       text: 'We use Swachify for our office cleaning weekly. They\'re reliable, thorough, and use eco-friendly products. Highly recommend!',
@@ -118,7 +118,7 @@ export  const testimonials = [
     },
     {
       name: 'Anjali Patel',
-      role: 'Engineer, Bangalore',
+      role: 'Engineer, Edmonton',
       initial: 'A',
       rating: 5,
       text: 'Best cleaning service in the city! They did an amazing job with my post-renovation cleaning. Everything sparkles now!',

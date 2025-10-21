@@ -21,7 +21,6 @@ export const NonSecureRoutes = () => {
             }else{
                 navigate('/landing')
             }
-    
         },[])
 
     return <Routes>
