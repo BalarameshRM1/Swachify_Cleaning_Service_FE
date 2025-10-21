@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import { Card, Typography, Row, Col, Space, Button } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
+import { getallBookings } from "../../app/services/auth";
 
 const { Title, Text } = Typography;
 
@@ -36,17 +37,38 @@ const sampleBookings: Booking[] = [
 ];
 
 const Bookings: React.FC = () => {
-  const [bookings] = useState<Booking[]>(sampleBookings);
+  const [bookings, setBookings] = useState<any>([]);
+
+  const getallBookingsApi = async () => {
+    try {
+      const data = await getallBookings();
+      console.log("Bookings data from API:", data);
+      setBookings(data);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  }
+
+  React.useEffect(() => {
+    getallBookingsApi();
+  }, []);
 
   return (
     <div style={{ padding: "24px" }}>
       <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff" }}>
         Bookings Management
       </Title>
+      {/* <div
+      style={{
+        flex: 1,
+        overflowY: "auto",
+        paddingRight: 4,
+      }}
+    > */}
 
       <Row gutter={[16, 16]} style={{ marginTop: "16px" }}>
         {bookings.length > 0 ? (
-          bookings.map((item) => (
+          bookings.map((item:any) => (
             <Col xs={24} key={item.id}>
               <Card
                 hoverable
@@ -144,6 +166,7 @@ const Bookings: React.FC = () => {
         )}
       </Row>
     </div>
+    // </div>
   );
 };
 
