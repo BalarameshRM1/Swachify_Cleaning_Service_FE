@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Button, Typography, Empty } from "antd";
+import { Card, Row, Col,message, Button, Typography, Empty, Input, Modal } from "antd";
 import { UserOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
-import { getallBookings, getallBookingsByUserId } from "../../app/services/auth";
+import { getallBookings, getallBookingsByUserId, otpSend, otpSendAPi, updateTicketByEmployeeCompleted, updateTicketByEmployeeInprogress } from "../../app/services/auth";
 import moment from "moment";
 import { getUserDetails } from "../../utils/helpers/storage";
 
@@ -52,6 +52,11 @@ const Tickets: React.FC = () => {
   const [filteredTickets, setFilteredTickets] = useState<any[]>(
     filter === "all" ? allTickets : allTickets.filter((ticket) => ticket.status.status === filter)
   );
+
+  const [otpModalVisible, setOtpModalVisible] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+
 
   const tabButton = (tab: typeof filter, label: string) => (
     <Button
@@ -120,6 +125,49 @@ const Tickets: React.FC = () => {
       setFilteredTickets(allTickets.filter((ticket) => ticket.status.status === filter));
     }
   }, [filter]);
+
+    const handleOpenOtpModal = (ticketId: number) => {
+    setSelectedTicketId(ticketId);
+    setOtpModalVisible(true);
+  };
+
+  const handleVerifyOtp = async () => {
+    let res;
+    if (otpValue.length !== 6) {
+      const num = getUserDetails('user')?.phone;
+      message.warning("Please enter a 6-digit OTP");
+       res = await otpSendAPi(num,otpValue);
+    }
+
+    try {
+      // TODO: Call API to verify OTP and update status to "In-Progress"
+      // Example: await verifyOtp(selectedTicketId, otpValue);
+
+      if(!res) return
+      setOtpModalVisible(false);
+      setOtpValue("");
+      await updateTicketByEmployeeInprogress(selectedTicketId);
+      message.success("OTP verified successfully! Service started.");
+      await getallBookingsApi();
+      // window.location.reload();
+    } catch (error) {
+      message.error("Failed to verify OTP");
+      console.error(error);
+    }
+  };
+
+  const handleCompleteService = async (ticketId: number) => {
+    try {
+      // TODO: Call your API to update status to "Completed"
+      await updateTicketByEmployeeCompleted(ticketId);
+      message.success("Service completed successfully!");
+      await getallBookingsApi();
+      window.location.reload();
+    } catch (error) {
+      message.error("Failed to complete service");
+      console.error(error);
+    }
+  };
 
   return (
    <div
@@ -218,6 +266,48 @@ const Tickets: React.FC = () => {
                     <CalendarOutlined /> {moment(ticket?.preferred_date).format("LLL") || "No Date Provided"} - {Slots.find((slot) => slot.id === ticket?.slot_id)?.slot_time}
                     {/* {ticket?.created_date} */}
                   </Text>
+
+                                      {/* Action buttons */}
+
+                  {getUserDetails('user')?.role_id === 3 && (
+                    <Row justify="end" style={{ marginTop: 12, gap: 8 }}>
+                      {ticket?.status?.status === "Pending" && (
+                        <Button
+                          type="primary"
+                          style={{
+                            backgroundColor: "rgb(20, 184, 166)",
+                            borderColor: "#ffffff",
+                            fontWeight: 600,
+                            minWidth: 140,
+                          }}
+                          onClick={async() => {
+                            let data = getUserDetails('user');
+                            await otpSend(data?.phone);
+                            handleOpenOtpModal(ticket.id)
+                          }}
+                        >
+                          Start Service
+                        </Button>
+                      )}
+
+                      {ticket?.status?.status === "In-Progress" && (
+                        <Button
+                          type="primary"
+                          style={{
+                            backgroundColor: "#059669",
+                            borderColor: "#059669",
+                            fontWeight: 600,
+                            minWidth: 140,
+                          }}
+                          onClick={() => handleCompleteService(ticket.id)}
+                        >
+                          Complete Service
+                        </Button>
+                      )}
+                    </Row>                    
+                  )}
+
+
                   {/* {ticket?.status?.status === "Completed" && (
                     <Row justify="end" style={{ marginTop: 12 }}>
                       <Col>
@@ -245,6 +335,44 @@ const Tickets: React.FC = () => {
           )}
         </Row>
       </div>
+            {/* OTP Modal */}
+      <Modal
+        title={<b>Verify Start OTP</b>}
+        centered
+        open={otpModalVisible}
+        onCancel={() => setOtpModalVisible(false)}
+        footer={null}
+      >
+        <div style={{ textAlign: "center" }}>
+          <p style={{ color: "#6b7280" }}>
+            Enter the 6-digit OTP provided by the customer to proceed.
+          </p>
+          <Input.OTP
+            length={6}
+            size="large"
+            value={otpValue}
+            onChange={(value) => setOtpValue(value)}
+            style={{
+              marginTop: 10,
+              marginBottom: 20,
+              justifyContent: "center",
+            }}
+          />
+          <Button
+            type="primary"
+            block
+            style={{
+              background: "linear-gradient(to right, #06b6d4, #0d9488)",
+              border: "none",
+              fontWeight: 600,
+              height: 45,
+            }}
+            onClick={handleVerifyOtp}
+          >
+            Verify & Proceed
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

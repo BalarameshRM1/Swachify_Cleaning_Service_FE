@@ -245,13 +245,70 @@ export const getAllLocations = async() =>{
     }
 }
 
-export const otpSend = async() =>{
+export const otpSend = async(mobileNumber:any) =>{
     try {
-        const response = await fetch(`${baseUrl}/Otp/send`);
-        if (!response.ok) throw new Error("Failed to fetch locations");
+        let options:any = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+        const response = await fetch(`${baseUrl}/Otp/send?phoneNumber=%2B91${mobileNumber}`,options);
+        if (!response.ok) throw new Error("Failed to fetch otpSend");
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error("Error fetching locations:", error);
+        console.error("Error fetching otpSend:", error);
+    }
+}
+
+export const otpSendAPi = async(mobileNumber:any,code:any) =>{
+    try {
+        let options:any = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+        const response = await fetch(`${baseUrl}/Otp/verify?phoneNumber=%2B91${mobileNumber}&code=${code}`,options);
+        if (!response.ok) throw new Error("Failed to fetch otpSend");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching otpSend:", error);
+    }
+}
+
+export const updateTicketByEmployeeCompleted = async(id:any) =>{
+    try {
+        let options:any = {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+        const response = await fetch(`${baseUrl}/Booking/UpdateTicketByEmployeeCompleted/${id}`,options);
+        if (!response.ok) throw new Error("Failed to fetch otpSend");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching otpSend:", error);
+    }
+}
+
+export const updateTicketByEmployeeInprogress = async(id:any) =>{
+    try {
+        let options:any = {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
+        const response = await fetch(`${baseUrl}/Booking/UpdateTicketByEmployeeInprogress/${id}`,options);
+        if (!response.ok) throw new Error("Failed to fetch otpSend");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching otpSend:", error);
     }
 }
