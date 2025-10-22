@@ -184,6 +184,25 @@ export const getallBookings = async() =>{
         console.error("Error fetching getBookings:", error);
     }
 }
+export const assignEmployeeToBooking = async (bookingId: number, userId: number) => {
+  const response = await fetch(`${baseUrl}/User/assignemployee`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id: bookingId,
+      user_id: userId,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to assign employee");
+  }
+
+  return response.json();
+};
 
 // bookings api
 export const getallBookingsTest = async(empData:any) =>{
