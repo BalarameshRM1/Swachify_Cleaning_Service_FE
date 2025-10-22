@@ -1122,7 +1122,7 @@ const handleLogin = async (values: any) => {
             marginBottom: 32,
           }}
         >
-          <Button
+          {/* <Button
             type="primary"
             onClick={() => setActiveTab('login')}
             style={{
@@ -1145,9 +1145,9 @@ const handleLogin = async (values: any) => {
             }}
           >
             Login
-          </Button>
+          </Button> */}
 
-          <Button
+          {/* <Button
             type="primary"
             onClick={() => setActiveTab('register')}
             disabled
@@ -1171,7 +1171,7 @@ const handleLogin = async (values: any) => {
             }}
           >
             Register
-          </Button>
+          </Button> */}
         </div>
 
         {/* ---------- Login Form ---------- */}
