@@ -127,15 +127,16 @@ const Employees: React.FC = () => {
 
 const createEmployeeApi = async () => {
   try {
-    const res = await createEmployee({
-      first_name: "Harish",
-      last_name: "Yadav",
-      email: "harish@example.com",
-      mobile: "9876543210",
-      role_id: 1,
-      location: "Hyderabad",
-      services: ["Cleaning", "Painting", "Pest Control"],
-    });
+    // const res = await createEmployee({
+    //   first_name: "Harish",
+    //   last_name: "Yadav",
+    //   email: "harish@example.com",
+    //   mobile: "9876543210",
+    //   role_id: 1,
+    //   location: "Hyderabad",
+    //   services: ["Cleaning", "Painting", "Pest Control"],
+    // });
+    const res = await createEmployee();
 
     console.log("✅ Employee created successfully:", res);
   } catch (error) {

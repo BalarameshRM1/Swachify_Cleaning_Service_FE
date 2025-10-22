@@ -12,7 +12,7 @@ const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
 
-  const [allBookings, setAllBookings] = React.useState<any>([]);
+  const [ setAllBookings] = React.useState<any>([]);
   const [userList, setUserList] = React.useState<any>([]);
   const [dashboardTasks, setDashboardTasks] = React.useState<any>({
     pending: [],

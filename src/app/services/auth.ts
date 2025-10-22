@@ -111,27 +111,18 @@ export const otpVerify = async(mobileNumber:any,otp:any) =>{
     }
 }
 
-export const createEmployee = async (
-  first_name: string,
-  last_name: string,
-  email: string,
-  mobile: string,
-  dept_id: number,
-  role_id: number,
-  location_id: number,
-  services: string[]
-) => {
+export const createEmployee = async () => {
   try {
     const payload = {
       empCommandDto: {
-        first_name,
-        last_name,
-        email,
-        mobile,
-        dept_id,
-        role_id,
-        location_id,
-        services
+        // first_name,
+        // last_name,
+        // email,
+        // mobile,
+        // dept_id,
+        // role_id,
+        // location_id,
+        // services
       }
     };
 
