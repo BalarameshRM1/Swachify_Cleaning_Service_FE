@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { assignEmployeeToBooking } from "../../app/services/auth";
 import {
   Card,
   Typography,
@@ -8,13 +9,11 @@ import {
   Button,
   Modal,
   Avatar,
-  Tag,
   message,
 } from "antd";
 import {
-  ClockCircleOutlined,
-  UserOutlined, 
-  PhoneOutlined, 
+  UserOutlined,
+  PhoneOutlined,
   EnvironmentOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
@@ -42,7 +41,8 @@ const { Title, Text } = Typography;
 
 interface Employee {
   id: number;
-  full_name: string;
+  first_name: string;
+  last_name: string;
   email: string;
 }
 
@@ -96,19 +96,39 @@ const Bookings: React.FC = () => {
     setSelectedEmployeeId(null);
   };
 
-  const handleAssignEmployee = () => {
-    if (selectedEmployeeId && selectedBookingId) {
-      const employee = employees.find((emp) => emp.id === selectedEmployeeId);
-      if (employee) {
-        message.success(
-          `Assigned ${employee.full_name} to booking #${selectedBookingId}`
-        );
-      }
-      closeAssignModal();
-    } else {
-      message.error("Please select an employee.");
-    }
-  };
+  // const handleAssignEmployee = () => {
+  //   if (selectedEmployeeId && selectedBookingId) {
+  //     const employee = employees.find((emp) => emp.id === selectedEmployeeId);
+  //     if (employee) {
+  //       message.success(
+  //         `Assigned ${employee.first_name} ${employee.last_name} to booking #${selectedBookingId}`
+  //       );
+  //     }
+  //     closeAssignModal();
+  //   } else {
+  //     message.error("Please select an employee.");
+  //   }
+  // };
+  const handleAssignEmployee = async () => {
+  if (!selectedEmployeeId || !selectedBookingId) {
+    message.error("Please select an employee.");
+    return;
+  }
+
+  try {
+    await assignEmployeeToBooking(selectedBookingId, selectedEmployeeId);
+
+    message.success("Employee assigned successfully!");
+
+    // Optional: Refresh the bookings if the backend updates status
+    await getAllBookingsApi();
+
+    closeAssignModal(); // Close modal after success
+  } catch (error: any) {
+    console.error("Assign failed:", error);
+    message.error(error.message || "Failed to assign employee.");
+  }
+};
 
   const openDeleteModal = (bookingId: number) => {
     setSelectedBookingId(bookingId);
@@ -172,7 +192,7 @@ const Bookings: React.FC = () => {
                     borderColor: "#e5e7eb",
                     borderWidth: 1,
                     cursor: "pointer",
-                    fontWeight: "bold",
+                    fontWeight: "",
                   }}
                   onMouseEnter={(e) => {
                     const target = e.currentTarget as HTMLDivElement;
@@ -207,7 +227,7 @@ const Bookings: React.FC = () => {
                         {"Booking #"+item.id || "Unknown Service"}
                       </Text>
 
-                      {/* --- ICONS FIXED BELOW --- */}
+                      {/* --- ICONS --- */}
                       <Text>
                         <UserOutlined
                           style={{ marginRight: 8, color: "#0D9488" }}
@@ -232,10 +252,10 @@ const Bookings: React.FC = () => {
                         />{" "}
                         {moment(item?.created_date).format("LLL") || "No Date Provided"}
                       </Text>
-                      {/* --- END OF FIX --- */}
+                      {/* --- END ICONS --- */}
                     </Space>
 
-                    <Space direction="vertical" align="end">
+                    <Space direction="vertical" align="end" size="middle">
                       <span
                         style={{
                           backgroundColor: "#fef3c7",
@@ -244,6 +264,7 @@ const Bookings: React.FC = () => {
                           padding: "4px 12px",
                           borderRadius: "16px",
                           textAlign: "center",
+                          minWidth: 100,
                         }}
                       >
                         {item.status_id === 1
@@ -254,21 +275,21 @@ const Bookings: React.FC = () => {
                       </span>
 
                       <Button
-                              type="primary"
-                              className="sw-action-btn sw-assign"
-                              onClick={() => openAssignModal(item.id)}
-                            >
-                              Assign Employee
-                            </Button>
+                        type="primary"
+                        className="sw-action-btn sw-assign"
+                        onClick={() => openAssignModal(item.id)}
+                      >
+                        Assign Employee
+                      </Button>
 
-                            <Button
-                              type="primary"
-                              danger
-                              className="sw-action-btn"
-                              onClick={() => openDeleteModal(item.id)}
-                            >
-                              Delete Booking
-                            </Button>
+                      <Button
+                        type="primary"
+                        danger
+                        className="sw-action-btn"
+                        onClick={() => openDeleteModal(item.id)}
+                      >
+                        Delete Booking
+                      </Button>
                     </Space>
                   </Space>
                 </Card>
@@ -284,7 +305,7 @@ const Bookings: React.FC = () => {
                   textAlign: "center",
                 }}
               >
-                <ClockCircleOutlined
+                <CalendarOutlined
                   style={{ fontSize: 48, color: "#94a3b8", opacity: 0.5 }}
                 />
                 <Text strong type="secondary">
@@ -296,6 +317,7 @@ const Bookings: React.FC = () => {
         </Row>
       </div>
 
+      {/* Assign Employee Modal */}
       <Modal
         title={<Title level={4}>Assign Employee</Title>}
         open={assignModalVisible}
@@ -314,6 +336,7 @@ const Bookings: React.FC = () => {
           </Button>,
         ]}
         width={600}
+        bodyStyle={{ padding: "16px 24px" }}
       >
         {/* {selectedBooking && (
           <div>
@@ -325,59 +348,74 @@ const Bookings: React.FC = () => {
         )} */}
         <div
           style={{
-            maxHeight: "400px",
+            maxHeight: 400,
             overflowY: "auto",
-            marginTop: "16px",
-            paddingRight: "8px",
+            marginTop: 16,
+            paddingRight: 8,
           }}
         >
           {loadingEmployees ? (
             <Text>Loading employees...</Text>
           ) : (
-            employees.map((employee) => (
-              <Card
-                key={employee.id}
-                hoverable
-                style={{
-                  marginBottom: "12px",
-                  borderRadius: "8px",
-                  border:
-                    selectedEmployeeId === employee.id
-                      ? "2px solid #14b8a6"
-                      : "1px solid #e8e8e8",
-                  cursor: "pointer",
-                  transition: "border 0.2s",
-                  boxShadow:
-                    selectedEmployeeId === employee.id
-                      ? "0 0 0 2px rgba(20, 184, 166, 0.2)"
-                      : "none",
-                }}
-                onClick={() => setSelectedEmployeeId(employee.id)}
-                bodyStyle={{ padding: "12px" }}
-              >
-                <Row align="middle" gutter={16} wrap={false}>
-                  <Col>
-                    <Avatar size="large" style={{ backgroundColor: "#14b8a6" }}>
-                      {(employee.full_name ?? "?").charAt(0)}
+            employees.map((employee) => {
+              const fullName = `${employee.first_name} ${employee.last_name}`;
+              const firstLetter =
+                employee.first_name?.[0]?.toUpperCase() || "U";
+
+              return (
+                <Card
+                  key={employee.id}
+                  hoverable
+                  style={{
+                    marginBottom: 12,
+                    borderRadius: 12,
+                    border:
+                      selectedEmployeeId === employee.id
+                        ? "2px solid #14b8a6"
+                        : "1px solid #e8e8e8",
+                    cursor: "pointer",
+                    transition: "border 0.2s",
+                    boxShadow:
+                      selectedEmployeeId === employee.id
+                        ? "0 0 0 2px rgba(20, 184, 166, 0.2)"
+                        : "none",
+                    userSelect: "none",
+                  }}
+                  onClick={() => setSelectedEmployeeId(employee.id)}
+                  bodyStyle={{ padding: 16 }}
+                >
+                  <Space size="middle" align="start">
+                    <Avatar
+                      style={{ backgroundColor: "#14b8a6", verticalAlign: "middle" }}
+                      size="large"
+                    >
+                      {firstLetter}
                     </Avatar>
-                  </Col>
-                  <Col flex="auto">
-                    <Text strong>{employee.full_name || "Unknown"}</Text>
-                    <br />
-                    <Text type="secondary" style={{ fontSize: "12px" }}>
-                      {employee.email || "No email"}
-                    </Text>
-                  </Col>
-                  <Col>
-                    <Tag color="green">Available</Tag>
-                  </Col>
-                </Row>
-              </Card>
-            ))
+
+                    <div>
+                      <div
+                        style={{
+                        
+                          fontSize: 16,
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {fullName}
+                      </div>
+
+                      <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+                        {employee.email}
+                      </div>
+                    </div>
+                  </Space>
+                </Card>
+              );
+            })
           )}
         </div>
       </Modal>
 
+      {/* Delete Booking Modal */}
       <Modal
         title={
           <Title level={3} style={{ color: "#d32f2f" }}>
@@ -413,11 +451,11 @@ const Bookings: React.FC = () => {
           >
             <Text strong>{selectedBooking.bookingId}</Text>
             <br />
-            <Text type="secondary">
-              Customer: {selectedBooking.full_name}
-            </Text>
+            <Text type="secondary">Customer: {selectedBooking.full_name}</Text>
             <br />
-            <Text type="secondary">Date: {selectedBooking.preferredDate}</Text>
+            <Text type="secondary">
+              Date: {selectedBooking.preferredDate}
+            </Text>
           </div>
         )}
         <Text
