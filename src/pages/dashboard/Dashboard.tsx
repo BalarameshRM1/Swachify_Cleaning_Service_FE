@@ -20,6 +20,7 @@ const Dashboard: React.FC = () => {
       if (!response.ok) {
         throw new Error("Failed to fetch bookings");
       }
+      response.data.filter((booking: any) => booking.status !== "completed");
       return setAllBookings(response.data);
     } catch (error) {
       console.error("Error fetching bookings:", error);
