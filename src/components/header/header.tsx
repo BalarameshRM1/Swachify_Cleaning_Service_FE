@@ -323,9 +323,10 @@ const HeaderBar: React.FC = () => {
                                     {userData?.first_name || "Admin User"}
                                 </Text>
                                 <Text type="secondary" style={{ fontSize: screens.md ? 12 : 10 }}>
-                                    {userData?.id == 1
+
+                                    {userData?.role_id == 1
                                         ? "Super Admin"
-                                        : userData?.id == 2
+                                        : userData?.role_id == 2
                                             ? "Admin"
                                             : "Employee"}
                                 </Text>

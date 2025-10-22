@@ -6,15 +6,36 @@ import {
   FileTextOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
+import { getallBookings } from "../../app/services/auth";
 
 const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
 
+  const [allBookings, setAllBookings] = React.useState<any>([]);
+
+  const getallBookingsApi = async () => {
+    try {
+      const response = await getallBookings()
+      if (!response.ok) {
+        throw new Error("Failed to fetch bookings");
+      }
+      response.data.filter((booking: any) => booking.status !== "completed");
+      return setAllBookings(response.data);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  }
+
   React.useEffect(() => {
     document.title = "Dashboard - Swachify Admin Panel";
+
+    getallBookingsApi();
+
+    ()=> getallBookingsApi();
     
   }, []);
+
   return (
     <div className="dashboard-wrap">
       <Title level={2} style={{ marginTop: 0 }}>Welcome Back! 👋</Title>
