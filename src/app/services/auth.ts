@@ -174,8 +174,19 @@ export const serviceForm = async(bookingId:any ,deptId:any ,serviceId:any,slotId
     }
 }
 
-// bookings api
 export const getallBookings = async() =>{
+    try {
+        const response = await fetch(`${baseUrl}/Booking/getall`);
+        if (!response.ok) throw new Error("Failed to fetch bookings");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching getBookings:", error);
+    }
+}
+
+// bookings api
+export const getallBookingsTest = async(empData:any) =>{
     try {
         const options:any = {
             method: "POST",
