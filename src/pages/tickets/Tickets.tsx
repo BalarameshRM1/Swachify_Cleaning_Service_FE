@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Button, Typography, Empty } from "antd";
 import { UserOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { getallBookings } from "../../app/services/auth";
+import moment from "moment";
 
 const { Text, Title } = Typography;
 
@@ -63,6 +64,8 @@ const Tickets: React.FC = () => {
   const getallBookingsApi = async () => {
     try {
       const response = await getallBookings();
+      response?.sort((a:any, b:any) => b.id - a.id);
+
       setFilteredTickets(response);
       console.log("Bookings API Response:", response);
     } catch (error) {
@@ -160,7 +163,8 @@ const Tickets: React.FC = () => {
                   </Row>
 
                   <Title level={4} style={{ marginTop: "8px" }}>
-                    {ticket?.service}
+                    {/* {ticket?.service} */}
+                    {ticket?.department?.department_name}
                   </Title>
 
                   <Text>
@@ -176,7 +180,8 @@ const Tickets: React.FC = () => {
                   </Text>
                   <br />
                   <Text>
-                    <CalendarOutlined /> {ticket?.modifiedDate}
+                    <CalendarOutlined />                         {moment(ticket?.created_date).format("LLL") || "No Date Provided"}
+                    {/* {ticket?.created_date} */}
                   </Text>
 
                   {ticket?.status === "completed" && (

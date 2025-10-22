@@ -64,6 +64,7 @@ const Bookings: React.FC = () => {
   const getAllBookingsApi = async () => {
     try {
       const data = await getallBookings();
+      data.sort((a:any, b:any) => b.id - a.id);
       setBookings(data || []);
     } catch (error) {
       console.error(error);
