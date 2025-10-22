@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
           <Card
             title={<Title level={4}>Recent Bookings</Title>}
             bordered
-            style={{ borderRadius: "16px",height: "350px", overflowY: "auto" }}
+            style={{ borderRadius: "16px",height: "350px", overflowY: "auto"}}
           >{
             dashboardTasks?.recent?.length > 0 ? (
               dashboardTasks?.recent?.map((booking: any) => (

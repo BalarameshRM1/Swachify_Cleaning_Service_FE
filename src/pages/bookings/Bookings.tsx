@@ -20,7 +20,7 @@ import {
 } from "@ant-design/icons";
 import {
   // getAllUsers,
-  getallBookings,
+  // getallBookings,
   getAllUsers,
   deleteBookingById,
 } from "../../app/services/auth";
