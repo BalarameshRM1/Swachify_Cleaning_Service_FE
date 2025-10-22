@@ -1,6 +1,7 @@
-import  { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Button, Typography, Empty } from "antd";
 import { UserOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import { getallBookings } from "../../app/services/auth";
 
 const { Text, Title } = Typography;
 
@@ -11,7 +12,7 @@ interface Ticket {
   customerName: string;
   address: string;
   time: string;
-  status: "open" | "in-progress" | "completed";
+  status: "open" | "pending" | "in-progress" | "completed";
 }
 
 const sampleTickets: Ticket[] = [
@@ -35,14 +36,13 @@ const sampleTickets: Ticket[] = [
   },
 ];
 
-
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
 const Tickets: React.FC = () => {
-  const [filter, setFilter] = useState<"all" | "open" | "in-progress" | "completed">("all");
-
-  const filteredTickets =
-    filter === "all" ? sampleTickets : sampleTickets.filter(ticket => ticket.status === filter);
+  const [filter, setFilter] = useState<"all" | "open" | "pending" | "in-progress" | "completed">("all");
+  const [filteredTickets, setFilteredTickets] = useState<Ticket[]>(
+    filter === "all" ? sampleTickets : sampleTickets.filter((ticket) => ticket.status === filter)
+  );
 
   const tabButton = (tab: typeof filter, label: string) => (
     <Button
@@ -60,100 +60,152 @@ const Tickets: React.FC = () => {
     </Button>
   );
 
+  const getallBookingsApi = async () => {
+    try {
+      const response = await getallBookings();
+      setFilteredTickets(response);
+      console.log("Bookings API Response:", response);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  };
+
+  useEffect(() => {
+    document.title = "Service Tickets - Swachify Admin Panel";
+    getallBookingsApi();
+  }, []);
+
+  useEffect(() => {
+    if (filter === "all") {
+      setFilteredTickets(sampleTickets);
+    } else {
+      setFilteredTickets(sampleTickets.filter((ticket) => ticket.status === filter));
+    }
+  }, [filter]);
+
   return (
-    <div style={{ padding: "24px", backgroundColor: "#f9fafb", minHeight: "100vh" }}>
-      <Title level={2}>Service Tickets</Title>
-      <Row gutter={[8, 8]} style={{ marginBottom: "24px" }}>
-        <Col>{tabButton("all", "All")}</Col>
-        <Col>{tabButton("open", "Open")}</Col>
-        <Col>{tabButton("in-progress", "In Progress")}</Col>
-        <Col>{tabButton("completed", "Completed")}</Col>
-      </Row>
-      <Row gutter={[16, 16]}>
-        {filteredTickets.length === 0 ? (
-          <Col span={24}>
-            <Empty description="No tickets found for this filter" />
-          </Col>
-        ) : (
-          filteredTickets.map(ticket => (
-            <Col span={24} key={ticket.id}>
-              <Card
-                style={{
-                  backgroundColor: "white",
-                  border: "3px solid #0D9488",
-                  borderRadius: "8px",
-                  padding: 16,
-                }}
-              >
-                <Row justify="space-between" align="middle">
-                  <Col>
-                    <Text
-                      style={{
-                        backgroundColor: "#d1fae5",
-                        padding: "2px 8px",
-                        borderRadius: "4px",
-                        color: "#065f46",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
-                    </Text>{" "}
-                    <Text style={{ marginLeft: 8, color: "#374151" }}>
-                      Ticket #{ticket.id.toString().slice(-6)}
-                    </Text>
-                  </Col>
-                  {ticket.status === "completed" && (
-                    <Text style={{ color: "#065f46", fontWeight: 500 }}>✓ Completed</Text>
-                  )}
-                </Row>
+   <div
+  style={{
+    height: "100vh",
+    overflow: "hidden", 
+    backgroundColor: "#f9fafb",
+    display: "flex",
+    flexDirection: "column",
+  }}
+>
+    
+      <div
+    style={{
+      position: "sticky",
+      top: 0,
+      zIndex: 100,
+      backgroundColor: "#f9fafb",
+      padding: "24px 24px 0 24px",
+    }}
+  >
+    <Title level={2}>Service Tickets</Title>
+    <Row gutter={[8, 8]} style={{ marginBottom: "16px" }}>
+      <Col>{tabButton("all", "All")}</Col>
+      <Col>{tabButton("pending", "Pending")}</Col>
+      <Col>{tabButton("in-progress", "In Progress")}</Col>
+      <Col>{tabButton("completed", "Completed")}</Col>
+    </Row>
+  </div>
 
-                <Title level={4} style={{ marginTop: "8px" }}>
-                  {ticket.service}
-                </Title>
-
-                <Text>
-                  <UserOutlined /> {ticket.customerName}
-                </Text>
-                <br />
-                <Text>
-                  🧑 Assigned to: <span style={{ color: "#0D9488" }}>{ticket.employee}</span>
-                </Text>
-                <br />
-                <Text>
-                  <EnvironmentOutlined /> {ticket.address}
-                </Text>
-                <br />
-                <Text>
-                  <CalendarOutlined /> {ticket.time}
-                </Text>
-
-                {/* OTP card under completed ticket, right side */}
-                {ticket.status === "completed" && (
-                  <Row justify="end" style={{ marginTop: 12 }}>
+      
+      <div
+    style={{
+      flex: 1,
+      overflowY: "auto",
+      padding: "0 24px 24px 24px",
+      minHeight: 0, 
+    }}
+  >
+        <Row gutter={[16, 16]}>
+          {filteredTickets.length === 0 ? (
+            <Col span={24}>
+              <Empty description="No tickets found for this filter" />
+            </Col>
+          ) : (
+            filteredTickets.map((ticket: any) => (
+              <Col span={24} key={ticket.id}>
+                <Card
+                  style={{
+                    backgroundColor: "white",
+                    border: "3px solid #0D9488",
+                    borderRadius: "8px",
+                    padding: 16,
+                  }}
+                >
+                  <Row justify="space-between" align="middle">
                     <Col>
-                      <Card
-                        size="small"
+                      <Text
                         style={{
-                          backgroundColor: "#f3f4f6",
-                          borderRadius: 6,
-                          width: 180,
-                          textAlign: "center",
+                          backgroundColor: "#d1fae5",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          color: "#065f46",
+                          fontWeight: 500,
                         }}
                       >
-                        <Text style={{ fontWeight: 500 }}>Customer's OTP</Text>
-                        <br />
-                        <Text style={{ color: "red", fontWeight: 600, fontSize: 16 }}>
-                          {generateOTP()}
-                        </Text>
-                      </Card>
+                        {/* {ticket?.status?.charAt(0)?.toUpperCase() + ticket?.status?.slice(1)} */}
+                      </Text>{" "}
+                      <Text style={{ marginLeft: 8, color: "#374151" }}>
+                        Ticket #{ticket?.id?.toString()?.slice(-6)}
+                      </Text>
                     </Col>
+                    {ticket?.status?.status === "completed" && (
+                      <Text style={{ color: "#065f46", fontWeight: 500 }}>✓ Completed</Text>
+                    )}
                   </Row>
-                )}
-              </Card>
-            </Col>
-          ))
-        )}
-      </Row>
+
+                  <Title level={4} style={{ marginTop: "8px" }}>
+                    {ticket?.service}
+                  </Title>
+
+                  <Text>
+                    <UserOutlined /> {ticket?.full_name}
+                  </Text>
+                  <br />
+                  <Text>
+                    🧑 Assigned to: <span style={{ color: "#0D9488" }}>{ticket?.employee}</span>
+                  </Text>
+                  <br />
+                  <Text>
+                    <EnvironmentOutlined /> {ticket?.address}
+                  </Text>
+                  <br />
+                  <Text>
+                    <CalendarOutlined /> {ticket?.modifiedDate}
+                  </Text>
+
+                  {ticket?.status === "completed" && (
+                    <Row justify="end" style={{ marginTop: 12 }}>
+                      <Col>
+                        <Card
+                          size="small"
+                          style={{
+                            backgroundColor: "#f3f4f6",
+                            borderRadius: 6,
+                            width: 180,
+                            textAlign: "center",
+                          }}
+                        >
+                          <Text style={{ fontWeight: 500 }}>Customer's OTP</Text>
+                          <br />
+                          <Text style={{ color: "red", fontWeight: 600, fontSize: 16 }}>
+                            {generateOTP()}
+                          </Text>
+                        </Card>
+                      </Col>
+                    </Row>
+                  )}
+                </Card>
+              </Col>
+            ))
+          )}
+        </Row>
+      </div>
     </div>
   );
 };

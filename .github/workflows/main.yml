@@ -17,7 +17,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Clean node_modules and package-lock
+        run: rm -rf node_modules package-lock.json
 
+      - name: Install dependencies
+        run: npm install
+        
       - name: Install dependencies
         run: npm ci
 
@@ -33,6 +38,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'SWACHIFYDEMOFE'  # 👈 your Azure App Service name
+          app-name: 'SwachifyFELive'  
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: dist                  # 👈 Vite to 'dist' by default
+          package: dist                

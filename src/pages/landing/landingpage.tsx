@@ -1192,6 +1192,7 @@ const handleLogin = async (values: any) => {
             <Form.Item
               label="Password"
               name="password"
+              
               rules={[{ required: true, message: 'Please enter your password' }]}
             >
               <Input.Password size="large" placeholder="Enter password" />
