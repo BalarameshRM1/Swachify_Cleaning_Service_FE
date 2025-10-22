@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from "react";
 import {
-    Layout,
-    Input,
-    Select,
-    Dropdown,
-    Menu,
-    Typography,
-    Space,
-    AutoComplete,
-    Avatar,
-    Grid,
-    Button,
-    message,
+  Layout,
+  Input,
+  Select,
+  Dropdown,
+  Typography,
+  Space,
+  AutoComplete,
+  Avatar,
+  Grid,
+  message,
+  Menu,
 } from "antd";
 import {
-    BellOutlined,
-    SearchOutlined,
-    EnvironmentFilled,
-    UserOutlined,
-    LogoutOutlined,
-    SettingOutlined,
-    MenuOutlined,
+  BellOutlined,
+  SearchOutlined,
+  EnvironmentFilled,
+  UserOutlined,
+  LogoutOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
-import BrandLogo from '../../assets/SWACHIFY_gif.gif';
-import { useAppSelector } from "../../app/hooks";
-import { getUserDetails } from "../../utils/helpers/storage";
+import BrandLogo from "../../assets/SWACHIFY_gif.gif";
 import { useNavigate } from "react-router-dom";
 
 const { Header } = Layout;
@@ -33,321 +29,233 @@ const { Option } = Select;
 const { useBreakpoint } = Grid;
 
 const HeaderBar: React.FC = () => {
-    const [notifications] = useState<string[]>([]);
-    const [searchValue, setSearchValue] = useState("");
-    const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
-    const [menuVisible, setMenuVisible] = useState(false);
-    const screens = useBreakpoint();
-    const navigate = useNavigate();
-    const { user } = useAppSelector((state) => state.user);
+  const screens = useBreakpoint();
+  const navigate = useNavigate();
 
-    const [userData,setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
+  const [location, setLocation] = useState<string>("All Locations");
 
-    useEffect(()=>{
-        let userDetails = getUserDetails('user');
-        if(userDetails){
-            setUserData(userDetails);
-        }
-    }, []);
+  useEffect(() => {
+    const userDetails = JSON.parse(localStorage.getItem("user") || "null");
+    if (userDetails) setUserData(userDetails);
+  }, []);
 
-    const fetchSearchSuggestions = async (value: string) => {
-        if (!value) {
-            setSearchSuggestions([]);
-            return;
-        }
-        const mockData = [
-            "Cleaning Services",
-            "Room Painting",
-            "Plumbing",
-            "Car Wash",
-            "Gardening",
-        ].filter((item) => item.toLowerCase().includes(value.toLowerCase()));
-        setSearchSuggestions(mockData);
-    };
+  // Pages for global search
+  const pages = [
+    { label: "Dashboard", path: "/app/dashboard" },
+    { label: "Services", path: "/app/services" },
+    { label: "Tickets", path: "/app/tickets" },
+    { label: "Employees", path: "/app/employees" },
+    { label: "Bookings", path: "/app/bookings" },
+    { label: "Settings", path: "/app/settings" },
+  ];
 
-    const handleSearch = (value: string) => {
-        console.log("Searching:", value);
-    };
+  // Filter pages based on search input
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    if (!value) {
+      setSearchSuggestions([]);
+      return;
+    }
+    const filtered = pages.filter((page) =>
+      page.label.toLowerCase().includes(value.toLowerCase())
+    );
+    setSearchSuggestions(filtered);
+  };
 
+  // Navigate to selected page
+  const handleSelect = (value: string) => {
+    const selected = pages.find((page) => page.label === value);
+    if (selected) {
+      navigate(selected.path);
+      setSearchValue("");
+      setSearchSuggestions([]);
+    }
+  };
 
-    const handleMenuClick = ({ key }: { key: string }) => {
+  // User dropdown menu
+  const userMenu = (
+    <Menu
+      onClick={({ key }) => {
         if (key === "logout") {
-            localStorage.removeItem("user");
-            message.success("You have been logged out.");
-            navigate("/landing");
+          localStorage.removeItem("user");
+          message.success("Logged out successfully!");
+          navigate("/landing");
         }
-        if(key=="settings")
-        {
-            navigate('/app/settings');
-        }
-    };
-    
+        if (key === "settings") navigate("/app/settings");
+        if (key === "profile") navigate("/app/profile");
+      }}
+      items={[
+        { key: "profile", icon: <UserOutlined />, label: "Profile" },
+        { key: "settings", icon: <SettingOutlined />, label: "Settings" },
+        { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
+      ]}
+    />
+  );
 
-    
-    const userMenu = (
-        <Menu
-            onClick={handleMenuClick}
-            items={[
-                { key: "profile", icon: <UserOutlined />, label: "Profile" },
-                { key: "settings", icon: <SettingOutlined />, label: "Settings"},
-                { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
-            ]}
+  return (
+    <Header
+      style={{
+        backgroundColor: "#ffffff",
+        borderBottom: "1px solid #e5e7eb",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: screens.xs ? "0 12px" : "0 24px",
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+        height: "64px",
+        lineHeight: "64px",
+        flexWrap: "wrap",
+      }}
+    >
+      {/* Logo */}
+      <Space align="center" style={{ gap: screens.xs ? 8 : 12 }}>
+        <img
+          src={BrandLogo}
+          alt="Logo"
+          style={{
+            width: screens.xs ? 36 : 48,
+            height: screens.xs ? 36 : 48,
+            paddingTop: 8,
+            borderRadius: "50%",
+            objectFit: "cover",
+          }}
         />
-    );
-
-    
-    const mobileMenu = (
-        <Menu
-            onClick={handleMenuClick}
-            style={{ borderRadius: 8 }}
-            items={[
-                {
-                    key: "location",
-                    label: (
-                        <Select
-                            defaultValue="All Locations"
-                            style={{ width: "100%", borderRadius: 6 }}
-                            dropdownStyle={{ borderRadius: 8 }}
-                            suffixIcon={null}
-                        >
-                            <Option value="All">All Locations</Option>
-                            <Option value="Delhi">Delhi</Option>
-                            <Option value="Mumbai">Mumbai</Option>
-                            <Option value="Hyderabad">Hyderabad</Option>
-                            <Option value="Bangalore">Bangalore</Option>
-                        </Select>
-                    ),
-                },
-                {
-                    key: "user",
-                    label: (
-                        <div style={{ textAlign: "center" }}>
-                            <Text strong>{user?.first_name || "Admin User"}</Text>
-                            <br />
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                                Administrator
-                            </Text>
-                        </div>
-                    ),
-                },
-                { key: "divider", type: "divider" },
-                { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
-            ]}
-        />
-    );
-
-    return (
-        <Header
+        {!screens.xs && (
+          <Text
             style={{
-                backgroundColor: "#ffffff",
-                borderBottom: "1px solid #e5e7eb",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: screens.xs ? "0 12px" : "0 24px",
-                position: "sticky",
-                top: 0,
-                zIndex: 1000,
-                height: "64px",
-                lineHeight: "64px",
-                flexWrap: "wrap",
+              fontSize: screens.lg ? 28 : 24,
+              fontWeight: 700,
+              background: "linear-gradient(90deg, #0D9488, #14b8a6)",
+              WebkitBackgroundClip: "text",
+              color: "transparent",
             }}
+          >
+            Swachify
+          </Text>
+        )}
+      </Space>
+
+      {/* Search + Location */}
+      <Space size="middle" align="center">
+        {/* Search Bar */}
+        <AutoComplete
+          options={searchSuggestions.map((item) => ({
+            value: item.label,
+          }))}
+          value={searchValue}
+          onSearch={handleSearch}
+          onSelect={handleSelect}
+          style={{ width: screens.xl ? 360 : screens.lg ? 320 : 280 }}
         >
-            
-            <Space align="center" style={{ gap: screens.xs ? 8 : 12 }}>
-                <img
-                    src={BrandLogo}
-                    alt="Logo"
-                    style={{
-                        width: screens.xs ? 36 : 48,
-                        height: screens.xs ? 36 : 48,
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        verticalAlign: "middle",
-                    }}
-                />
+          <Input
+            prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
+            placeholder="Search pages..."
+            value={searchValue}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{
+              borderRadius: 10,
+              backgroundColor: "#f1f5f9",
+              borderColor: "#e5e7eb",
+              fontWeight: 500,
+              color: "#334155",
+              height: "36px",
+            }}
+          />
+        </AutoComplete>
 
-                {!screens.xs && (
-                    <Text
-                        style={{
-                            fontSize: screens.lg ? 28 : 24,
-                            fontWeight: 700,
-                            background: "linear-gradient(90deg, #0D9488, #14b8a6)",
-                            WebkitBackgroundClip: "text",
-                            color: "transparent",
-                            verticalAlign: "middle",
-                        }}
-                    >
-                        Swachify
-                    </Text>
-                )}
-            </Space>
+        {/* Location Dropdown */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            backgroundColor: "#f1f5f9",
+            borderRadius: 8,
+            padding: "0 10px",
+            height: "36px",
+            border: "1px solid #e5e7eb",
+          }}
+        >
+          <EnvironmentFilled style={{ color: "#ef4444", marginRight: 6 }} />
+          <Select
+            value={location}
+            onChange={setLocation}
+            bordered={false}
+            style={{
+              width: screens.lg ? 150 : 120,
+              fontWeight: 500,
+              backgroundColor: "transparent",
+            }}
+            dropdownStyle={{ borderRadius: 8 }}
+          >
+            <Option value="All Locations">All Locations</Option>
+            <Option value="Delhi">Delhi</Option>
+            <Option value="Mumbai">Mumbai</Option>
+            <Option value="Hyderabad">Hyderabad</Option>
+            <Option value="Bangalore">Bangalore</Option>
+          </Select>
+        </div>
+      </Space>
 
-            
-            {screens.xs ? (
-                <Dropdown
-                    overlay={mobileMenu}
-                    trigger={["click"]}
-                    open={menuVisible}
-                    onOpenChange={setMenuVisible}
-                >
-                    <Button
-                        icon={<MenuOutlined />}
-                        type="text"
-                        style={{ fontSize: 22, color: "#334155" }}
-                    />
-                </Dropdown>
-            ) : (
-                <Space align="center" size="large">
-                   
-                    <AutoComplete
-                        options={searchSuggestions.map((item) => ({
-                            value: item,
-                            label: item,
-                        }))}
-                        onSearch={(value) => {
-                            setSearchValue(value);
-                            fetchSearchSuggestions(value);
-                        }}
-                        onSelect={(value) => {
-                            setSearchValue(value);
-                            handleSearch(value);
-                        }}
-                        style={{
-                            width: screens.xl ? 360 : screens.lg ? 320 : 280,
-                            flexShrink: 0,
-                        }}
-                    >
-                        <Input
-                            prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
-                            placeholder="Search services..."
-                            value={searchValue}
-                            onChange={(e) => {
-                                setSearchValue(e.target.value);
-                                fetchSearchSuggestions(e.target.value);
-                            }}
-                            style={{
-                                borderRadius: 10,
-                                backgroundColor: "#f1f5f9",
-                                borderColor: "#e5e7eb",
-                                fontWeight: 500,
-                                color: "#334155",
-                                height: "36px",
-                                verticalAlign: "middle",
-                            }}
-                        />
-                    </AutoComplete>
-
-                    {/* LOCATION SELECT */}
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            backgroundColor: "#f1f5f9",
-                            borderRadius: 8,
-                            padding: "0 10px",
-                            height: "36px",
-                            border: "1px solid #e5e7eb",
-                        }}
-                    >
-                        <EnvironmentFilled style={{ color: "#ef4444", marginRight: 6 }} />
-                        <Select
-                            defaultValue="All Locations"
-                            bordered={false}
-                            style={{
-                                width: screens.lg ? 150 : 120,
-                                fontWeight: 500,
-                                backgroundColor: "transparent",
-                            }}
-                            dropdownStyle={{ borderRadius: 8 }}
-                        >
-                            <Option value="All">All Locations</Option>
-                            <Option value="Delhi">Delhi</Option>
-                            <Option value="Mumbai">Mumbai</Option>
-                            <Option value="Hyderabad">Hyderabad</Option>
-                            <Option value="Bangalore">Bangalore</Option>
-                        </Select>
-                    </div>
-
-                    {/* NOTIFICATIONS */}
-                    <Dropdown
-                        overlay={
-                            <Menu
-                                items={
-                                    notifications.length > 0
-                                        ? notifications.map((note, index) => ({
-                                            key: index,
-                                            label: note,
-                                        }))
-                                        : [{ key: "none", label: "No notifications" }]
-                                }
-                            />
-                        }
-                        trigger={["click"]}
-                    >
-                        <BellOutlined
-                            style={{
-                                fontSize: 20,
-                                color: "#475569",
-                                cursor: "pointer",
-                                verticalAlign: "middle",
-                            }}
-                        />
-                    </Dropdown>
-
-                    {/* USER MENU */}
-                    <Dropdown overlay={userMenu} trigger={["click"]}>
-                        <Space
-                            style={{
-                                cursor: "pointer",
-                                gap: 6,
-                                display: "flex",
-                                alignItems: "center",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "flex-end",
-                                    lineHeight: 1.1,
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        fontWeight: 600,
-                                        fontSize: screens.md ? 14 : 12,
-                                        color: "#0f172a",
-                                    }}
-                                >
-                                    {userData?.first_name || "Admin User"}
-                                </Text>
-                                <Text type="secondary" style={{ fontSize: screens.md ? 12 : 10 }}>
-
-                                    {userData?.role_id == 1
-                                        ? "Super Admin"
-                                        : userData?.role_id == 2
-                                            ? "Admin"
-                                            : "Employee"}
-                                </Text>
-                            </div>
-                            <Avatar
-                                style={{
-                                    background: "linear-gradient(135deg, #0D9488, #14b8a6)",
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                {(userData?.first_name
-                                    ? userData.first_name.charAt(0)
-                                    : "A"
-                                ).toUpperCase()}
-                            </Avatar>
-                        </Space>
-                    </Dropdown>
-                </Space>
-            )}
-        </Header>
-    );
+      {/* Notifications + Avatar */}
+      <Space size="middle" align="center">
+        <BellOutlined
+          style={{ fontSize: 25, color: "#475569", cursor: "pointer" }}
+        />
+        <Dropdown overlay={userMenu} trigger={["click"]}>
+          <Space
+            style={{
+              cursor: "pointer",
+              gap: 6,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                lineHeight: 1.1,
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: 600,
+                  fontSize: screens.md ? 14 : 12,
+                  color: "#0f172a",
+                }}
+              >
+                {userData?.first_name || "Admin User"}
+              </Text>
+              <Text type="secondary" style={{ fontSize: screens.md ? 12 : 10 }}>
+                {userData?.role_id === 1
+                  ? "Super Admin"
+                  : userData?.role_id === 2
+                  ? "Admin"
+                  : "Employee"}
+              </Text>
+            </div>
+            <Avatar
+              style={{
+                background: "linear-gradient(135deg, #0D9488, #14b8a6)",
+                fontWeight: "bold",
+              }}
+            >
+              {(userData?.first_name
+                ? userData.first_name.charAt(0)
+                : "A"
+              ).toUpperCase()}
+            </Avatar>
+          </Space>
+        </Dropdown>
+      </Space>
+    </Header>
+  );
 };
 
 export default HeaderBar;

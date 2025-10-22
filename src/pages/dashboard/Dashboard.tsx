@@ -12,7 +12,7 @@ const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
 
-  const [allBookings, setAllBookings] = React.useState<any>([]);
+  // const [allBookings, setAllBookings] = React.useState<any>([]);
   const [userList, setUserList] = React.useState<any>([]);
   const [dashboardTasks, setDashboardTasks] = React.useState<any>({
     pending: [],
@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
       //   inProgress: inProgressTsk.length,
       //   recent: recentTsk,
       // });
-      return setAllBookings(response.data);
+      // return setAllBookings(response.data);
       }
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
           <Card
             title={<Title level={4}>Recent Bookings</Title>}
             bordered
-            style={{ borderRadius: "16px",height: "350px", overflowY: "auto" }}
+            style={{ borderRadius: "16px",height: "350px", overflowY: "auto"}}
           >{
             dashboardTasks?.recent?.length > 0 ? (
               dashboardTasks?.recent?.map((booking: any) => (

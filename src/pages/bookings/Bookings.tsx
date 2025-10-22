@@ -18,23 +18,26 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 import {
-  getallBookings,
+  // getAllUsers,
+  // getallBookings,
   getAllUsers,
   deleteBookingById,
 } from "../../app/services/auth";
+import moment from "moment";
+
 
 const { Title, Text } = Typography;
 
-interface Booking {
-  id: number;
-  bookingId: string;
-  full_name: string | null;
-  phone: string | null;
-  email: string | null;
-  address: string | null;
-  preferredDate: string;
-  status_id: number | null;
-}
+// interface Booking {
+//   id: number;
+//   bookingId: string;
+//   full_name: string | null;
+//   phone: string | null;
+//   email: string | null;
+//   address: string | null;
+//   preferredDate: string;
+//   status_id: number | null;
+// }
 
 interface Employee {
   id: number;
@@ -44,7 +47,7 @@ interface Employee {
 }
 
 const Bookings: React.FC = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [assignModalVisible, setAssignModalVisible] = useState(false);
@@ -72,6 +75,7 @@ const Bookings: React.FC = () => {
     try {
       const data = await getAllUsers();
       setEmployees(data || []);
+      console.log("Employees Data:", data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -220,7 +224,7 @@ const Bookings: React.FC = () => {
                           fontWeight: "bold",
                         }}
                       >
-                        {item.bookingId || "Unknown Service"}
+                        {"Booking #"+item.id || "Unknown Service"}
                       </Text>
 
                       {/* --- ICONS --- */}
@@ -246,7 +250,7 @@ const Bookings: React.FC = () => {
                         <CalendarOutlined
                           style={{ marginRight: 8, color: "#0D9488" }}
                         />{" "}
-                        {item.preferredDate || "No Date Provided"}
+                        {moment(item?.created_date).format("LLL") || "No Date Provided"}
                       </Text>
                       {/* --- END ICONS --- */}
                     </Space>
@@ -334,15 +338,14 @@ const Bookings: React.FC = () => {
         width={600}
         bodyStyle={{ padding: "16px 24px" }}
       >
-        {selectedBooking && (
+        {/* {selectedBooking && (
           <div>
             <Text strong>Booking Details:</Text>
             <p>
               {selectedBooking.bookingId} - {selectedBooking.full_name}
             </p>
           </div>
-        )}
-
+        )} */}
         <div
           style={{
             maxHeight: 400,

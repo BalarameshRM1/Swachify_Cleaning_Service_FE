@@ -111,34 +111,12 @@ export const otpVerify = async(mobileNumber:any,otp:any) =>{
     }
 }
 
-export const createEmployee = async (
-  first_name: string,
-  last_name: string,
-  email: string,
-  mobile: string,
-  dept_id: number,
-  role_id: number,
-  location_id: number,
-  services: string[]
-) => {
+export const createEmployee = async (empData:any) => {
   try {
-    const payload = {
-      empCommandDto: {
-        first_name,
-        last_name,
-        email,
-        mobile,
-        dept_id,
-        role_id,
-        location_id,
-        services
-      }
-    };
-
     const response = await fetch(`${baseUrl}/User/createemployee`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(empData)
     });
 
     if (!response.ok) {
@@ -241,5 +219,17 @@ export const deleteBookingById = async(bookingId: number) => {
     } catch (error) {
         console.error("Error deleteBookingById:", error);
         throw error; 
+    }
+}
+
+
+export const getAllLocations = async() =>{
+    try {
+        const response = await fetch(`${baseUrl}/Master/getalllocations`);
+        if (!response.ok) throw new Error("Failed to fetch locations");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching locations:", error);
     }
 }
