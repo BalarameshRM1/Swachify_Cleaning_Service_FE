@@ -21,7 +21,7 @@ import {
   CheckOutlined,
   CloseOutlined,
 } from '@ant-design/icons';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from "dayjs";
 import type { TableProps } from 'antd';
 
 import kitchenCleaningImg from '../../assets/final_images/kitchen-cleaning.jpg';
@@ -160,12 +160,47 @@ const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, b
 
   const timeSlots = ['9am - 11am', '11am - 1pm', '1pm - 3pm', '3pm - 5pm'];
 
+  function parseSlotStart(slot: string) {
+  const to24 = (t: string) => {
+    const m = t.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i);
+    if (!m) return null;
+    let h = parseInt(m[1], 10);
+    const mm = m[2] ? parseInt(m[2], 10) : 0;
+    const ampm = m[3].toLowerCase();
+    if (ampm === "pm" && h !== 12) h += 12;
+    if (ampm === "am" && h === 12) h = 0;
+    return { h, mm };
+  };
+  const [startLabel] = slot.split("-").map(s => s.trim());
+  const start = to24(startLabel);
+  return start;
+}
+
+function canUseSlot(selectedDate: Dayjs | null, slot: string) {
+  if (!selectedDate) return false;
+  const now = dayjs();
+  const start = parseSlotStart(slot);
+  if (!start) return false;
+
+  if (selectedDate.startOf("day").isAfter(now.startOf("day"))) return true;
+
+  if (selectedDate.isSame(now, "day")) {
+    const slotStart = selectedDate.hour(start.h).minute(start.mm).second(0).millisecond(0);
+    return slotStart.isAfter(now);
+  }
+
+  return false;
+}
+
   const slotIdMap: Record<string, number> = {
     '9am - 11am': 1,
     '11am - 1pm': 2,
     '1pm - 3pm': 3,
     '3pm - 5pm': 4,
   };
+
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+
 
   const onFinish = async (values: any) => {
     if (!selectedTime) {
@@ -247,30 +282,49 @@ const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, b
             <Col xs={24} md={12}>
               <Title level={5}>Scheduling</Title>
               <Form.Item name="date" label="Preferred date" rules={[{ required: true, message: 'Pick a date' }]}>
-                <DatePicker
-                  style={{ width: '100%' }}
-                  placeholder="Select date"
-                  suffixIcon={<CalendarOutlined />}
-                  disabledDate={(d: Dayjs) => d && !d.isAfter(dayjs().subtract(1, 'day').endOf('day'))}
-                />
+                  <DatePicker
+                    style={{ width: '100%' }}
+                    placeholder="Select date"
+                    suffixIcon={<CalendarOutlined />}
+                    disabledDate={(d: Dayjs) => d && !d.isAfter(dayjs().subtract(1, 'day').endOf('day'))}
+                    value={selectedDate as any}
+                    onChange={(d) => {
+                      setSelectedDate(d);
+                      if (selectedTime && !canUseSlot(d as Dayjs, selectedTime)) {
+                        setSelectedTime(null);
+                      }
+                      form.setFieldsValue({ date: d });
+                    }}
+                  />
               </Form.Item>
+
 
               <Form.Item label="Preferred time" required>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  {timeSlots.map((time) => (
-                    <Button
-                      key={time}
-                      icon={<ClockCircleOutlined />}
-                      onClick={() => setSelectedTime(time)}
-                        type={selectedTime === time ? 'primary' : 'default'}
-                        style={selectedTime === time ? { background: '#14b8a6', borderColor: '#14b8a6' } : { background: '#f2f7f6', borderColor: '#f2f7f6', color: '#111' }}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                    {timeSlots.map((slot) => {
+                      const enabled = canUseSlot(selectedDate, slot);
+                      const isSelected = enabled && selectedTime === slot;
+                      return (
+                        <Button
+                          key={slot}
+                          icon={<ClockCircleOutlined />}
+                          disabled={!enabled}
+                          onClick={() => enabled && setSelectedTime(slot)}
+                          type={isSelected ? "primary" : "default"}
+                          style={
+                            isSelected
+                              ? { background: "#14b8a6", borderColor: "#14b8a6" }
+                              : { background: enabled ? "#f2f7f6" : "#f5f5f5", borderColor: enabled ? "#f2f7f6" : "#eee", color: enabled ? "#111" : "#aaa" }
+                          }
+                          title={!enabled && selectedDate ? "This slot has already started" : undefined}
+                        >
+                          {slot}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </Form.Item>
 
-                    >
-                      {time}
-                    </Button>
-                  ))}
-                </div>
-              </Form.Item>
 
               <Button
                 type="primary"
