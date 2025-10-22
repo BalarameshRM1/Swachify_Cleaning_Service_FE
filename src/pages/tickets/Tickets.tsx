@@ -1,27 +1,55 @@
 import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Button, Typography, Empty } from "antd";
 import { UserOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
-import { getallBookings } from "../../app/services/auth";
+import { getallBookings, getallBookingsByUserId } from "../../app/services/auth";
 import moment from "moment";
+import { getUserDetails } from "../../utils/helpers/storage";
 
 const { Text, Title } = Typography;
 
-interface Ticket {
-  id: number;
-  service: string;
-  employee: string;
-  customerName: string;
-  address: string;
-  time: string;
-  status: "open" | "pPending" | "In-Progress" | "Completed";
-}
+// interface Ticket {
+//   id: number;
+//   service: string;
+//   employee: string;
+//   customerName: string;
+//   address: string;
+//   time: string;
+//   status: "open" | "Pending" | "In-Progress" | "Completed";
+// }
 
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
+const Slots = [
+  {
+    "id": 1,
+    "slot_time": "9AM - 11AM",
+    "is_active": true,
+    "service_bookings": []
+  },
+  {
+    "id": 2,
+    "slot_time": "11AM - 1 PM",
+    "is_active": true,
+    "service_bookings": []
+  },
+  {
+    "id": 3,
+    "slot_time": "1PM - 3PM",
+    "is_active": true,
+    "service_bookings": []
+  },
+  {
+    "id": 4,
+    "slot_time": "3PM - 5 PM",
+    "is_active": true,
+    "service_bookings": []
+  }
+]
+
+// const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
 const Tickets: React.FC = () => {
   const [filter, setFilter] = useState<"all" | "Open" | "Pending" | "In-Progress" | "Completed">("all");
   const [allTickets, setAllTickets] = useState<any[]>([]);
-  const [filteredTickets, setFilteredTickets] = useState<Ticket[]>(
+  const [filteredTickets, setFilteredTickets] = useState<any[]>(
     filter === "all" ? allTickets : allTickets.filter((ticket) => ticket.status.status === filter)
   );
 
@@ -44,19 +72,45 @@ const Tickets: React.FC = () => {
   const getallBookingsApi = async () => {
     try {
       const response = await getallBookings();
+      if(!response) return;
       response?.sort((a:any, b:any) => b.id - a.id);
+      const latestReps = response?.filter((booking:any) => booking?.status?.status !== "Open" || booking.status_id === 1);
 
-      setFilteredTickets(response);
-      setAllTickets(response);
-      console.log("Bookings API Response:", response);
+      console.log("Filtered Bookings:", latestReps);
+
+      setFilteredTickets(latestReps);
+      setAllTickets(latestReps);
+      console.log("Bookings API Response:", latestReps);
     } catch (error) {
       console.error("Error fetching bookings:", error);
     }
   };
 
+  const getallBookingsByUserApi = async (id:any) => {
+    try {
+      const response = await getallBookingsByUserId(id);
+      if(!response) return;
+      response?.sort((a:any, b:any) => b.id - a.id);
+      const latestReps = response?.filter((booking:any) => booking?.status?.status !== "Open" || booking.status_id === 1);
+
+      console.log("Filtered Bookings:", latestReps);
+
+      setFilteredTickets(latestReps);
+      setAllTickets(latestReps);
+      console.log("Bookings API Response:", latestReps);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  }
+
   useEffect(() => {
     document.title = "Service Tickets - Swachify Admin Panel";
-    getallBookingsApi();
+    let data = getUserDetails('user');
+    if(data?.role_id === 3){
+      getallBookingsByUserApi(data.id);
+    }else{
+      getallBookingsApi();
+    }
   }, []);
 
   useEffect(() => {
@@ -125,20 +179,20 @@ const Tickets: React.FC = () => {
                     <Col>
                       <Text
                         style={{
-                          backgroundColor: "#d1fae5",
+                          backgroundColor: ticket?.status?.status === "Completed" ? "#d1fae5" : "#fef3c7",
                           padding: "2px 8px",
                           borderRadius: "4px",
-                          color: "#065f46",
-                          fontWeight: 500,
+                          color: ticket?.status?.status === "Completed" ? "#065f46" : "#d97706",
+                          fontWeight: 500
                         }}
                       >
-                        {/* {ticket?.status?.charAt(0)?.toUpperCase() + ticket?.status?.slice(1)} */}
+                        {ticket?.status?.status?.charAt(0)?.toUpperCase() + ticket?.status?.status?.slice(1)}
                       </Text>{" "}
                       <Text style={{ marginLeft: 8, color: "#374151" }}>
                         Ticket #{ticket?.id?.toString()?.slice(-6)}
                       </Text>
                     </Col>
-                    {ticket?.status?.status === "completed" && (
+                    {ticket?.status?.status === "Completed" && (
                       <Text style={{ color: "#065f46", fontWeight: 500 }}>✓ Completed</Text>
                     )}
                   </Row>
@@ -161,10 +215,10 @@ const Tickets: React.FC = () => {
                   </Text>
                   <br />
                   <Text>
-                    <CalendarOutlined />                         {moment(ticket?.created_date).format("LLL") || "No Date Provided"}
+                    <CalendarOutlined /> {moment(ticket?.preferred_date).format("LLL") || "No Date Provided"} - {Slots.find((slot) => slot.id === ticket?.slot_id)?.slot_time}
                     {/* {ticket?.created_date} */}
                   </Text>
-                  {ticket?.status?.status === "Completed" && (
+                  {/* {ticket?.status?.status === "Completed" && (
                     <Row justify="end" style={{ marginTop: 12 }}>
                       <Col>
                         <Card
@@ -184,7 +238,7 @@ const Tickets: React.FC = () => {
                         </Card>
                       </Col>
                     </Row>
-                  )}
+                  )} */}
                 </Card>
               </Col>
             ))

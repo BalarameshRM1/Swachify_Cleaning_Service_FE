@@ -6,13 +6,15 @@ import {
   FileTextOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { getallBookings, getAllUsers } from "../../app/services/auth";
+import { getallBookings, getallBookingsByUserId, getAllUsers } from "../../app/services/auth";
+import { getUserDetails } from "../../utils/helpers/storage";
 
 const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
 
   // const [allBookings, setAllBookings] = React.useState<any>([]);
+  const userData = getUserDetails('user');
   const [userList, setUserList] = React.useState<any>([]);
   const [dashboardTasks, setDashboardTasks] = React.useState<any>({
     pending: [],
@@ -22,7 +24,9 @@ const Dashboard: React.FC = () => {
 
   const getallBookingsApi = async () => {
     try {
-      const response = await getallBookings()
+
+      if(!userData) return;
+      const response = userData.role_id === 3 ? await getallBookingsByUserId(userData.id) : await getallBookings()
       if(response) {
         // console.log("Bookings API Response:", response);
         const pendingTsk = response.filter((booking: any) => booking?.status?.status === "Pending");
@@ -76,7 +80,7 @@ const Dashboard: React.FC = () => {
 
       
       <Row gutter={[16, 16]} style={{ marginTop: "24px" }}>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={userData?.role_id !== 3 ? 6 : 8}>
           <Card
             style={{
               background: "linear-gradient(to bottom right, #14b8a6, #06b6d4)",
@@ -99,7 +103,7 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
 
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={userData?.role_id !== 3 ? 6 : 8}>
           <Card
             bordered
             style={{
@@ -123,7 +127,7 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
 
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={userData?.role_id !== 3 ? 6 : 8}>
           <Card
             bordered
             style={{
@@ -147,7 +151,8 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
 
-        <Col xs={24} sm={12} lg={6}>
+        {userData?.role_id !== 3 && (
+                  <Col xs={24} sm={12} lg={6}>
           <Card
             bordered
             style={{
@@ -170,6 +175,7 @@ const Dashboard: React.FC = () => {
             </Text>
           </Card>
         </Col>
+        )}
       </Row>
 
       {/* Recent Activity Section */}
