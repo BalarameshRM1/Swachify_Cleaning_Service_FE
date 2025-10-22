@@ -10,11 +10,9 @@ import '@ant-design/v5-patch-for-react-19';
 
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
     <BrowserRouter>
       <Provider store={store}>
         <App />
       </Provider>
     </BrowserRouter>
-  </StrictMode>,
 )

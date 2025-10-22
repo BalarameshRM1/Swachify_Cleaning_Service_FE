@@ -19,7 +19,7 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 import {
-  getAllUsers,
+  // getAllUsers,
   getallBookings,
   getAllUsers,
   deleteBookingById,
