@@ -12,7 +12,7 @@ import {
   message,
 } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
-import { getallBookings, getAllUsers } from "../../app/services/auth";
+import { getAllUsers } from "../../app/services/auth";
 
 const { Title, Text } = Typography;
 
@@ -41,14 +41,14 @@ const Bookings: React.FC = () => {
   const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
 
-  const getAllBookingsApi = async () => {
-    try {
-      const data = await getallBookings();
-      setBookings(data || []);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const getAllBookingsApi = async () => {
+  //   try {
+  //     const data = await getallBookings();
+  //     setBookings(data || []);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const getAllEmployeesApi = async () => {
     setLoadingEmployees(true);
@@ -90,7 +90,7 @@ const Bookings: React.FC = () => {
   };
 
   useEffect(() => {
-    getAllBookingsApi();
+    // getAllBookingsApi();
   }, []);
 
   const selectedBooking = bookings.find((b) => b.id === selectedBookingId);
