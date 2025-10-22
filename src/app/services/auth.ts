@@ -185,3 +185,24 @@ export const getallBookings = async() =>{
         console.error("Error getAllBookings:", error);
     }
 }
+
+export const deleteBookingById = async(bookingId: number) => {
+    try {
+        const response = await fetch(`${baseUrl}/Booking/${bookingId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            const err = await response.text();
+            console.error("❌ Server error:", err);
+            throw new Error(err || "Failed to delete booking");
+        }
+        
+       
+        return { success: true };
+
+    } catch (error) {
+        console.error("Error deleteBookingById:", error);
+        throw error; 
+    }
+}
