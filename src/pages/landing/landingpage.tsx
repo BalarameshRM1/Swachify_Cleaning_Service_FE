@@ -23,7 +23,7 @@ import { menuItems, services, pricingPlans, testimonials } from '../../utils/con
 
 const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('login');
+  const [activeTab] = useState('login');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loginForm] = Form.useForm();
 // const [registerForm] = Form.useForm();
