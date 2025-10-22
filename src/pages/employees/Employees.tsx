@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { SelectProps } from 'antd';
 import { Card, Col, Row, Select, Typography, Avatar, Tag, Button, Modal, Form, Input, message, Space, Divider } from 'antd';
 import { PhoneFilled, EnvironmentFilled, PlusOutlined } from '@ant-design/icons'; 
-import { createEmployee, getAllUsers } from "../../app/services/auth";
+import { createEmployee, getAllUsers, getAllLocations } from "../../app/services/auth";
 // import { services } from '../../utils/constants/data';
 
 
@@ -30,9 +30,10 @@ interface Employee {
 // ];
 
 const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
-const allServices = [
-  'Home Cleaning', 'Kitchen', 'Bathroom', 'Office Cleaning', 'Sofa & Carpet', 'Pest Control', 'Deep Cleaning', 'Painting', 'AC Service', 'Appliance Repair'
-];
+// const allServices = [
+//   'Home Cleaning', 'Kitchen', 'Bathroom', 'Office Cleaning', 'Sofa & Carpet', 'Pest Control', 'Deep Cleaning', 'Painting', 'AC Service', 'Appliance Repair'
+// ];
+const allServices = ['Kitchen','Bathrooms','Bedrooms','Living Areas'];
 const Role = ['Employee','Admin','Super Admin'];
 
 
@@ -106,50 +107,44 @@ const EmployeeCard: React.FC<any> = ({ employee }) => (
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<any>([]);
   const [locationFilter, setLocationFilter] = useState<string>('All Locations');
+  const [locationsData, setLocationsData] = useState<any>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>(employees);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
 
   const getAllUsersApi = async() =>{
-    const res = await getAllUsers()
+
+    try {
+          const res = await getAllUsers()
     const usersWithFullName = res.map((res:any) => ({...res,
       name: `${res.first_name} ${res.last_name}`,
       location:"test location",
       status:"Available"
     }));
     setEmployees(usersWithFullName)
-    // console.log('__res1, ', usersWithFullName)
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+
+  }
+
+  const getAllLocationsApi = async() => {
+    try {
+      const res = await getAllLocations()
+      // console.log("Locations fetched:", res);
+      if(res){
+        const locationNames = res.map((loc:any) => ({label: loc.location_name, value: loc.id}));
+        setLocationsData(locationNames);
+      }
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
   }
 
   useEffect(()=>{
     getAllUsersApi()
+    getAllLocationsApi()
   },[])
-
-const createEmployeeApi = async () => {
-  try {
-    // const res = await createEmployee({
-    //   first_name: "Harish",
-    //   last_name: "Yadav",
-    //   email: "harish@example.com",
-    //   mobile: "9876543210",
-    //   role_id: 1,
-    //   location: "Hyderabad",
-    //   services: ["Cleaning", "Painting", "Pest Control"],
-    // });
-    const res = await createEmployee();
-
-    console.log("✅ Employee created successfully:", res);
-  } catch (error) {
-    console.error("❌ Error creating employee:", error);
-  }
-};
-
-
-
-useEffect(() => {
-  createEmployeeApi();
-}, []);
-
 
 
 
@@ -169,12 +164,32 @@ useEffect(() => {
     form.resetFields();
   };
 
-  const handleAddEmployee = (values: any) => {
-    const newEmployee: Employee = {
+  const handleAddEmployee = async(values: any) => {
+    const newEmployee: any = {
       id: Date.now(),
       ...values,
       status: 'Available',
     };
+    // console.log('New Employee Data:', newEmployee);
+
+    newEmployee.role_id = newEmployee.Role === 'Admin' ? 2 : newEmployee.Role === 'Super Admin' ? 3 : 1;
+    newEmployee.dept_id = [newEmployee.services]
+    newEmployee.first_name = newEmployee.name
+    newEmployee.last_name = newEmployee.name
+    newEmployee.mobile = newEmployee.phone
+    newEmployee.location_id = newEmployee.location
+
+    delete newEmployee.Role;
+    delete newEmployee.services;
+
+    try {
+       const res = await createEmployee(newEmployee);
+       console.log('Employee created successfully:', res);
+    } catch (error) {
+        console.error("Error creating employee:", error);      
+    }
+    // console.log('New Employee Data:', newEmployee);
+
     setEmployees((prev:any) => [newEmployee, ...prev]);
     message.success('Employee added successfully!');
     handleCancel();
@@ -244,13 +259,13 @@ useEffect(() => {
                     <Input placeholder="Enter phone number" />
                 </Form.Item>
                 <Form.Item name="location" label="Location" rules={[{ required: true }]}>
-                    <Select options={locations.map(loc => ({ label: loc, value: loc }))} placeholder="Select location"/>
+                    <Select options={locationsData} placeholder="Select location"/>
                 </Form.Item>
                 <Form.Item name="services" label="Services" rules={[{ required: true }]}>
-                    <Select mode="multiple" allowClear options={allServices.map(s => ({ label: s, value: s }))} placeholder="Select services"/>
+                    <Select allowClear options={allServices.map((sl,index:any) => ({ label: sl, value: index+1 }))} placeholder="Select services"/>
                 </Form.Item>
                   <Form.Item name="Role" label="Role" rules={[{ required: true }]}>
-                    <Select mode="multiple" allowClear options={Role.map(s => ({ label: s, value: s }))} placeholder="Select Role"/>
+                    <Select allowClear options={Role.map(s => ({ label: s, value: s }))} placeholder="Select Role"/>
                 </Form.Item>
             </Form>
         </Modal>
