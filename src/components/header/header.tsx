@@ -22,7 +22,6 @@ import {
 } from "@ant-design/icons";
 import BrandLogo from "../../assets/SWACHIFY_gif.gif";
 import { useNavigate } from "react-router-dom";
-// import { useAppSelector } from "../../app/hooks";
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -32,12 +31,10 @@ const { useBreakpoint } = Grid;
 const HeaderBar: React.FC = () => {
   const screens = useBreakpoint();
   const navigate = useNavigate();
-//   const { user } = useAppSelector((state) => state.user);
 
   const [userData, setUserData] = useState<any>(null);
   const [searchValue, setSearchValue] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
-//   const [notifications] = useState<string[]>([]);
   const [location, setLocation] = useState<string>("All Locations");
 
   useEffect(() => {
@@ -55,7 +52,9 @@ const HeaderBar: React.FC = () => {
     { label: "Settings", path: "/app/settings" },
   ];
 
+  // Filter pages based on search input
   const handleSearch = (value: string) => {
+    setSearchValue(value);
     if (!value) {
       setSearchSuggestions([]);
       return;
@@ -66,11 +65,17 @@ const HeaderBar: React.FC = () => {
     setSearchSuggestions(filtered);
   };
 
-  const handleSelect = ( option: any) => {
-    navigate(option.path);
-    setSearchValue("");
+  // Navigate to selected page
+  const handleSelect = (value: string) => {
+    const selected = pages.find((page) => page.label === value);
+    if (selected) {
+      navigate(selected.path);
+      setSearchValue("");
+      setSearchSuggestions([]);
+    }
   };
 
+  // User dropdown menu
   const userMenu = (
     <Menu
       onClick={({ key }) => {
@@ -79,12 +84,8 @@ const HeaderBar: React.FC = () => {
           message.success("Logged out successfully!");
           navigate("/landing");
         }
-        if (key === "settings") {
-          navigate("/app/settings");
-        }
-        if (key === "profile") {
-          navigate("/app/profile");
-        }
+        if (key === "settings") navigate("/app/settings");
+        if (key === "profile") navigate("/app/profile");
       }}
       items={[
         { key: "profile", icon: <UserOutlined />, label: "Profile" },
@@ -119,7 +120,7 @@ const HeaderBar: React.FC = () => {
           style={{
             width: screens.xs ? 36 : 48,
             height: screens.xs ? 36 : 48,
-            paddingTop:8,
+            paddingTop: 8,
             borderRadius: "50%",
             objectFit: "cover",
           }}
@@ -145,24 +146,17 @@ const HeaderBar: React.FC = () => {
         <AutoComplete
           options={searchSuggestions.map((item) => ({
             value: item.label,
-            label: item.label,
-            path: item.path,
           }))}
-          style={{ width: screens.xl ? 360 : screens.lg ? 320 : 280 }}
-          onSearch={(value) => {
-            setSearchValue(value);
-            handleSearch(value);
-          }}
+          value={searchValue}
+          onSearch={handleSearch}
           onSelect={handleSelect}
+          style={{ width: screens.xl ? 360 : screens.lg ? 320 : 280 }}
         >
           <Input
             prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
             placeholder="Search pages..."
             value={searchValue}
-            onChange={(e) => {
-              setSearchValue(e.target.value);
-              handleSearch(e.target.value);
-            }}
+            onChange={(e) => handleSearch(e.target.value)}
             style={{
               borderRadius: 10,
               backgroundColor: "#f1f5f9",
@@ -189,7 +183,7 @@ const HeaderBar: React.FC = () => {
           <EnvironmentFilled style={{ color: "#ef4444", marginRight: 6 }} />
           <Select
             value={location}
-            onChange={(value) => setLocation(value)}
+            onChange={setLocation}
             bordered={false}
             style={{
               width: screens.lg ? 150 : 120,
@@ -212,8 +206,6 @@ const HeaderBar: React.FC = () => {
         <BellOutlined
           style={{ fontSize: 25, color: "#475569", cursor: "pointer" }}
         />
-
-        {/* Avatar Dropdown */}
         <Dropdown overlay={userMenu} trigger={["click"]}>
           <Space
             style={{
