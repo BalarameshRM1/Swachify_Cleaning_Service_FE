@@ -13,36 +13,16 @@ interface Ticket {
   customerName: string;
   address: string;
   time: string;
-  status: "open" | "pending" | "in-progress" | "completed";
+  status: "open" | "pPending" | "In-Progress" | "Completed";
 }
-
-const sampleTickets: Ticket[] = [
-  {
-    id: 101356,
-    service: "Cleaning & Pest Control - Bedroom Cleaning (Regular)",
-    employee: "Arun Kumar",
-    customerName: "Uma",
-    address: "H No 33-251/3/A/1 SHARANYA GREEN HOMES, MIRYALAGUDA",
-    time: "16/10/2025 at 9:00 AM - 11:00 AM",
-    status: "completed",
-  },
-  {
-    id: 101358,
-    service: "Window Cleaning",
-    employee: "Sara",
-    customerName: "Bob",
-    address: "H No 89-22/4, Sunrise Apartments, Miryalaguda",
-    time: "18/10/2025 at 11:00 AM - 1:00 PM",
-    status: "in-progress",
-  },
-];
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
 const Tickets: React.FC = () => {
-  const [filter, setFilter] = useState<"all" | "open" | "pending" | "in-progress" | "completed">("all");
+  const [filter, setFilter] = useState<"all" | "Open" | "Pending" | "In-Progress" | "Completed">("all");
+  const [allTickets, setAllTickets] = useState<any[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<Ticket[]>(
-    filter === "all" ? sampleTickets : sampleTickets.filter((ticket) => ticket.status === filter)
+    filter === "all" ? allTickets : allTickets.filter((ticket) => ticket.status.status === filter)
   );
 
   const tabButton = (tab: typeof filter, label: string) => (
@@ -67,6 +47,7 @@ const Tickets: React.FC = () => {
       response?.sort((a:any, b:any) => b.id - a.id);
 
       setFilteredTickets(response);
+      setAllTickets(response);
       console.log("Bookings API Response:", response);
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -80,9 +61,9 @@ const Tickets: React.FC = () => {
 
   useEffect(() => {
     if (filter === "all") {
-      setFilteredTickets(sampleTickets);
+      setFilteredTickets(allTickets);
     } else {
-      setFilteredTickets(sampleTickets.filter((ticket) => ticket.status === filter));
+      setFilteredTickets(allTickets.filter((ticket) => ticket.status.status === filter));
     }
   }, [filter]);
 
@@ -109,9 +90,9 @@ const Tickets: React.FC = () => {
     <Title level={2}>Service Tickets</Title>
     <Row gutter={[8, 8]} style={{ marginBottom: "16px" }}>
       <Col>{tabButton("all", "All")}</Col>
-      <Col>{tabButton("pending", "Pending")}</Col>
-      <Col>{tabButton("in-progress", "In Progress")}</Col>
-      <Col>{tabButton("completed", "Completed")}</Col>
+      <Col>{tabButton("Pending", "Pending")}</Col>
+      <Col>{tabButton("In-Progress", "In-Progress")}</Col>
+      <Col>{tabButton("Completed", "Completed")}</Col>
     </Row>
   </div>
 
@@ -183,8 +164,7 @@ const Tickets: React.FC = () => {
                     <CalendarOutlined />                         {moment(ticket?.created_date).format("LLL") || "No Date Provided"}
                     {/* {ticket?.created_date} */}
                   </Text>
-
-                  {ticket?.status === "completed" && (
+                  {ticket?.status?.status === "Completed" && (
                     <Row justify="end" style={{ marginTop: 12 }}>
                       <Col>
                         <Card
