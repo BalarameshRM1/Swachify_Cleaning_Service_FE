@@ -73,7 +73,6 @@
     min-height: 100vh;
 }
 .ant-layout-content {
-  /* padding: 24px; */
     margin: 0px;
     border-radius: 8px;
     flex: 1 1 0%;
@@ -81,6 +80,14 @@
     display: flex;
     flex-direction: column;
 }
-.ant-btn-color-link.ant-btn-variant-link:not(:disabled) {
-    color:  rgb(20, 184, 166); 
+.sw-action-btn {
+  height: 36px;
+  min-width: 160px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.sw-assign {
+  background: #0D9488 !important;
+  border-color: #0D9488 !important;
 }

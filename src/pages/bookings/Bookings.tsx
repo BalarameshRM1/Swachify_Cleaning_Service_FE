@@ -11,8 +11,18 @@ import {
   Tag,
   message,
 } from "antd";
-import { ClockCircleOutlined } from "@ant-design/icons";
-import { getallBookings, getAllUsers } from "../../app/services/auth";
+import {
+  ClockCircleOutlined,
+  UserOutlined, 
+  PhoneOutlined, 
+  EnvironmentOutlined,
+  CalendarOutlined,
+} from "@ant-design/icons";
+import {
+  getallBookings,
+  getAllUsers,
+  deleteBookingById,
+} from "../../app/services/auth";
 
 const { Title, Text } = Typography;
 
@@ -38,8 +48,15 @@ const Bookings: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [assignModalVisible, setAssignModalVisible] = useState(false);
-  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(
+    null
+  );
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const getAllBookingsApi = async () => {
     try {
@@ -89,6 +106,35 @@ const Bookings: React.FC = () => {
     }
   };
 
+  const openDeleteModal = (bookingId: number) => {
+    setSelectedBookingId(bookingId);
+    setDeleteModalVisible(true);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalVisible(false);
+    setSelectedBookingId(null);
+  };
+
+  const handleDeleteBooking = async () => {
+    if (!selectedBookingId) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteBookingById(selectedBookingId);
+      message.success(`Booking #${selectedBookingId} deleted successfully.`);
+      setBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking.id !== selectedBookingId)
+      );
+      closeDeleteModal();
+    } catch (error: any) {
+      console.error("Failed to delete booking:", error);
+      message.error(error.message || "Failed to delete booking.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   useEffect(() => {
     getAllBookingsApi();
   }, []);
@@ -115,7 +161,7 @@ const Bookings: React.FC = () => {
               <Col xs={24} key={item.id}>
                 <Card
                   hoverable
-                  bordered
+                  variant="outlined"
                   style={{
                     borderRadius: 16,
                     transition: "all 0.3s",
@@ -147,13 +193,42 @@ const Bookings: React.FC = () => {
                     }}
                   >
                     <Space direction="vertical">
-                      <Text style={{ fontSize: 16, color: "#000", fontWeight: "bold" }}>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: "#000",
+                          fontWeight: "bold",
+                        }}
+                      >
                         {item.bookingId || "Unknown Service"}
                       </Text>
-                      <Text>👤 {item.full_name || "Unknown Name"}</Text>
-                      <Text>📞 {item.phone || "Not Provided"}</Text>
-                      <Text>📍 {item.address || "Not Provided"}</Text>
-                      <Text>🗓️ {item.preferredDate || "No Date Provided"}</Text>
+
+                      {/* --- ICONS FIXED BELOW --- */}
+                      <Text>
+                        <UserOutlined
+                          style={{ marginRight: 8, color: "#0D9488" }}
+                        />{" "}
+                        {item.full_name || "Unknown Name"}
+                      </Text>
+                      <Text>
+                        <PhoneOutlined
+                          style={{ marginRight: 8, color: "#0D9488" }}
+                        />{" "}
+                        {item.phone || "Not Provided"}
+                      </Text>
+                      <Text>
+                        <EnvironmentOutlined
+                          style={{ marginRight: 8, color: "#0D9488" }}
+                        />{" "}
+                        {item.address || "Not Provided"}
+                      </Text>
+                      <Text>
+                        <CalendarOutlined
+                          style={{ marginRight: 8, color: "#0D9488" }}
+                        />{" "}
+                        {item.preferredDate || "No Date Provided"}
+                      </Text>
+                      {/* --- END OF FIX --- */}
                     </Space>
 
                     <Space direction="vertical" align="end">
@@ -175,18 +250,21 @@ const Bookings: React.FC = () => {
                       </span>
 
                       <Button
-                        type="primary"
-                        style={{
-                          backgroundColor: "#0D9488",
-                          borderColor: "#0D9488",
-                          borderRadius: 8,
-                          fontWeight: "bold",
-                          marginTop: 8,
-                        }}
-                        onClick={() => openAssignModal(item.id)}
-                      >
-                        Assign Employee
-                      </Button>
+                              type="primary"
+                              className="sw-action-btn sw-assign"
+                              onClick={() => openAssignModal(item.id)}
+                            >
+                              Assign Employee
+                            </Button>
+
+                            <Button
+                              type="primary"
+                              danger
+                              className="sw-action-btn"
+                              onClick={() => openDeleteModal(item.id)}
+                            >
+                              Delete Booking
+                            </Button>
                     </Space>
                   </Space>
                 </Card>
@@ -195,7 +273,7 @@ const Bookings: React.FC = () => {
           ) : (
             <Col xs={24}>
               <Card
-                bordered
+                variant="outlined"
                 style={{
                   borderRadius: 16,
                   padding: "40px 0",
@@ -216,7 +294,7 @@ const Bookings: React.FC = () => {
 
       <Modal
         title={<Title level={4}>Assign Employee</Title>}
-        visible={assignModalVisible}
+        open={assignModalVisible}
         onCancel={closeAssignModal}
         footer={[
           <Button key="back" onClick={closeAssignModal}>
@@ -294,6 +372,56 @@ const Bookings: React.FC = () => {
             ))
           )}
         </div>
+      </Modal>
+
+      <Modal
+        title={
+          <Title level={3} style={{ color: "#d32f2f" }}>
+            Confirm Deletion
+          </Title>
+        }
+        open={deleteModalVisible}
+        onCancel={closeDeleteModal}
+        footer={[
+          <Button key="back" onClick={closeDeleteModal}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            danger
+            loading={isDeleting}
+            onClick={handleDeleteBooking}
+          >
+            Confirm Delete
+          </Button>,
+        ]}
+      >
+        <Text>Are you sure you want to delete this booking?</Text>
+        {selectedBooking && (
+          <div
+            style={{
+              marginTop: 16,
+              padding: 12,
+              background: "#fafafa",
+              borderRadius: 8,
+            }}
+          >
+            <Text strong>{selectedBooking.bookingId}</Text>
+            <br />
+            <Text type="secondary">
+              Customer: {selectedBooking.full_name}
+            </Text>
+            <br />
+            <Text type="secondary">Date: {selectedBooking.preferredDate}</Text>
+          </div>
+        )}
+        <Text
+          type="danger"
+          style={{ display: "block", marginTop: 16, fontWeight: "bold" }}
+        >
+          This action cannot be undone.
+        </Text>
       </Modal>
     </div>
   );
