@@ -9,7 +9,6 @@ import {
   AutoComplete,
   Avatar,
   Grid,
-  Button,
   message,
   Menu,
 } from "antd";
@@ -20,7 +19,6 @@ import {
   UserOutlined,
   LogoutOutlined,
   SettingOutlined,
-  MenuOutlined,
 } from "@ant-design/icons";
 import BrandLogo from "../../assets/SWACHIFY_gif.gif";
 import { useNavigate } from "react-router-dom";
@@ -39,8 +37,8 @@ const HeaderBar: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
   const [searchValue, setSearchValue] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
-  const [menuVisible, setMenuVisible] = useState(false);
   const [notifications] = useState<string[]>([]);
+  const [location, setLocation] = useState<string>("All Locations");
 
   useEffect(() => {
     const userDetails = JSON.parse(localStorage.getItem("user") || "null");
@@ -113,7 +111,7 @@ const HeaderBar: React.FC = () => {
         flexWrap: "wrap",
       }}
     >
-      {/* Logo and Brand */}
+      {/* Logo */}
       <Space align="center" style={{ gap: screens.xs ? 8 : 12 }}>
         <img
           src={BrandLogo}
@@ -121,7 +119,7 @@ const HeaderBar: React.FC = () => {
           style={{
             width: screens.xs ? 36 : 48,
             height: screens.xs ? 36 : 48,
-            marginTop:12,
+            paddingTop:8,
             borderRadius: "50%",
             objectFit: "cover",
           }}
@@ -141,44 +139,81 @@ const HeaderBar: React.FC = () => {
         )}
       </Space>
 
-      {/* Search Bar */}
-      <AutoComplete
-        options={searchSuggestions.map((item) => ({
-          value: item.label,
-          label: item.label,
-          path: item.path,
-        }))}
-        style={{ width: screens.xl ? 360 : screens.lg ? 320 : 280 }}
-        onSearch={(value) => {
-          setSearchValue(value);
-          handleSearch(value);
-        }}
-        onSelect={handleSelect}
-      >
-        <Input
-          prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
-          placeholder="Search pages..."
-          value={searchValue}
-          onChange={(e) => {
-            setSearchValue(e.target.value);
-            handleSearch(e.target.value);
-          }}
-          style={{
-            borderRadius: 10,
-            backgroundColor: "#f1f5f9",
-            borderColor: "#e5e7eb",
-            fontWeight: 500,
-            color: "#334155",
-            height: "36px",
-          }}
-        />
-      </AutoComplete>
-
-      {/* Right Section: Notifications + User Menu */}
+      {/* Search + Location */}
       <Space size="middle" align="center">
-        <BellOutlined style={{ fontSize: 25, color: "#475569", cursor: "pointer" }} />
+        {/* Search Bar */}
+        <AutoComplete
+          options={searchSuggestions.map((item) => ({
+            value: item.label,
+            label: item.label,
+            path: item.path,
+          }))}
+          style={{ width: screens.xl ? 360 : screens.lg ? 320 : 280 }}
+          onSearch={(value) => {
+            setSearchValue(value);
+            handleSearch(value);
+          }}
+          onSelect={handleSelect}
+        >
+          <Input
+            prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
+            placeholder="Search pages..."
+            value={searchValue}
+            onChange={(e) => {
+              setSearchValue(e.target.value);
+              handleSearch(e.target.value);
+            }}
+            style={{
+              borderRadius: 10,
+              backgroundColor: "#f1f5f9",
+              borderColor: "#e5e7eb",
+              fontWeight: 500,
+              color: "#334155",
+              height: "36px",
+            }}
+          />
+        </AutoComplete>
 
-        {/* Avatar dropdown */}
+        {/* Location Dropdown */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            backgroundColor: "#f1f5f9",
+            borderRadius: 8,
+            padding: "0 10px",
+            height: "36px",
+            border: "1px solid #e5e7eb",
+          }}
+        >
+          <EnvironmentFilled style={{ color: "#ef4444", marginRight: 6 }} />
+          <Select
+            value={location}
+            onChange={(value) => setLocation(value)}
+            bordered={false}
+            style={{
+              width: screens.lg ? 150 : 120,
+              fontWeight: 500,
+              backgroundColor: "transparent",
+            }}
+            dropdownStyle={{ borderRadius: 8 }}
+          >
+            <Option value="All Locations">All Locations</Option>
+            <Option value="Delhi">Delhi</Option>
+            <Option value="Mumbai">Mumbai</Option>
+            <Option value="Hyderabad">Hyderabad</Option>
+            <Option value="Bangalore">Bangalore</Option>
+          </Select>
+        </div>
+      </Space>
+
+      {/* Notifications + Avatar */}
+      <Space size="middle" align="center">
+        <BellOutlined
+          style={{ fontSize: 25, color: "#475569", cursor: "pointer" }}
+        />
+
+        {/* Avatar Dropdown */}
         <Dropdown overlay={userMenu} trigger={["click"]}>
           <Space
             style={{
@@ -219,7 +254,10 @@ const HeaderBar: React.FC = () => {
                 fontWeight: "bold",
               }}
             >
-              {(userData?.first_name ? userData.first_name.charAt(0) : "A").toUpperCase()}
+              {(userData?.first_name
+                ? userData.first_name.charAt(0)
+                : "A"
+              ).toUpperCase()}
             </Avatar>
           </Space>
         </Dropdown>
