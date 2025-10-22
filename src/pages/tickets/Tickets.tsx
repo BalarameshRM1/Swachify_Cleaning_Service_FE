@@ -42,17 +42,25 @@ const Tickets: React.FC = () => {
   );
 
   const getallBookingsApi = async () => {
-    try {
-      const response = await getallBookings();
-      response?.sort((a:any, b:any) => b.id - a.id);
+  try {
+    const response = await getallBookings();
 
-      setFilteredTickets(response);
-      setAllTickets(response);
-      console.log("Bookings API Response:", response);
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
-    }
-  };
+    console.log("🔍 Raw Bookings:", response);
+
+    
+    const assignedOnly = response.filter((booking: any) => booking.assign_to !== null);
+
+    assignedOnly.sort((a: any, b: any) => b.id - a.id);
+
+    setFilteredTickets(assignedOnly);
+    setAllTickets(assignedOnly);
+
+    console.log("✅ Bookings with assigned employees:", assignedOnly);
+  } catch (error) {
+    console.error(" Error fetching bookings:", error);
+  }
+};
+
 
   useEffect(() => {
     document.title = "Service Tickets - Swachify Admin Panel";
@@ -153,7 +161,8 @@ const Tickets: React.FC = () => {
                   </Text>
                   <br />
                   <Text>
-                    🧑 Assigned to: <span style={{ color: "#0D9488" }}>{ticket?.employee}</span>
+                    🧑 Assigned to: <span style={{ color: "#0D9488" }}>{ticket?.assign_to_name || "Unassigned"}</span>
+
                   </Text>
                   <br />
                   <Text>
