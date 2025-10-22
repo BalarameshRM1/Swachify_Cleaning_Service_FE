@@ -22,7 +22,7 @@ import {
 } from "@ant-design/icons";
 import BrandLogo from "../../assets/SWACHIFY_gif.gif";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../app/hooks";
+// import { useAppSelector } from "../../app/hooks";
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -32,12 +32,12 @@ const { useBreakpoint } = Grid;
 const HeaderBar: React.FC = () => {
   const screens = useBreakpoint();
   const navigate = useNavigate();
-  const { user } = useAppSelector((state) => state.user);
+//   const { user } = useAppSelector((state) => state.user);
 
   const [userData, setUserData] = useState<any>(null);
   const [searchValue, setSearchValue] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
-  const [notifications] = useState<string[]>([]);
+//   const [notifications] = useState<string[]>([]);
   const [location, setLocation] = useState<string>("All Locations");
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const HeaderBar: React.FC = () => {
     setSearchSuggestions(filtered);
   };
 
-  const handleSelect = (value: string, option: any) => {
+  const handleSelect = ( option: any) => {
     navigate(option.path);
     setSearchValue("");
   };
