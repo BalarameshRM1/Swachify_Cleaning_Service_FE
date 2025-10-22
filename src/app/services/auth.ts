@@ -177,12 +177,19 @@ export const serviceForm = async(bookingId:any ,deptId:any ,serviceId:any,slotId
 // bookings api
 export const getallBookings = async() =>{
     try {
-        const response = await fetch(`${baseUrl}/Booking/getall`);
-        if (!response.ok) throw new Error("Failed to getAllBookings");
+        const options:any = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(empData),
+        }
+        const response = await fetch(`${baseUrl}/User/createemployee`,options);
+        if (!response.ok) throw new Error("Failed to createEmployee");
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error("Error getAllBookings:", error);
+        console.error("Error createEmployee:", error);
     }
 }
 

@@ -19,6 +19,7 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 import {
+  getAllUsers,
   getallBookings,
   getAllUsers,
   deleteBookingById,
@@ -58,14 +59,14 @@ const Bookings: React.FC = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const getAllBookingsApi = async () => {
-    try {
-      const data = await getallBookings();
-      setBookings(data || []);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const getAllBookingsApi = async () => {
+  //   try {
+  //     const data = await getallBookings();
+  //     setBookings(data || []);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const getAllEmployeesApi = async () => {
     setLoadingEmployees(true);
@@ -136,7 +137,7 @@ const Bookings: React.FC = () => {
   };
 
   useEffect(() => {
-    getAllBookingsApi();
+    // getAllBookingsApi();
   }, []);
 
   const selectedBooking = bookings.find((b) => b.id === selectedBookingId);
