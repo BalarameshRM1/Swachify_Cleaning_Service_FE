@@ -4,6 +4,7 @@ import { UserOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design
 import { getallBookings, getallBookingsByUserId, otpSend, otpSendAPi, updateTicketByEmployeeCompleted, updateTicketByEmployeeInprogress } from "../../app/services/auth";
 import moment from "moment";
 import { getUserDetails } from "../../utils/helpers/storage";
+import { getAllUsers } from "../../app/services/auth";
 
 const { Text, Title } = Typography;
 
@@ -56,6 +57,9 @@ const Tickets: React.FC = () => {
   const [otpModalVisible, setOtpModalVisible] = useState(false);
   const [otpValue, setOtpValue] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [employees, setEmployees] = useState<any[]>([]);
+  
+
 
 
   const tabButton = (tab: typeof filter, label: string) => (
@@ -130,6 +134,17 @@ const Tickets: React.FC = () => {
     setSelectedTicketId(ticketId);
     setOtpModalVisible(true);
   };
+  useEffect(() => {
+  const fetchEmployees = async () => {
+    try {
+      const res = await getAllUsers();
+      setEmployees(res || []);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
+  };
+  fetchEmployees();
+}, []);
 
   const handleVerifyOtp = async () => {
     let res;
@@ -155,6 +170,49 @@ const Tickets: React.FC = () => {
       console.error(error);
     }
   };
+   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [bookingsData, usersData] = await Promise.all([
+          getallBookings(),
+          getAllUsers(),
+        ]);
+
+       
+        setEmployees(usersData || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+    const getEmployeeName = (id: any) => {
+  console.log("🔍 Checking employee assignment:", {
+    employee_id_from_ticket: id,
+    allEmployees: employees?.length,
+    sampleEmployee: employees?.[0],
+  });
+
+  if (!id) {
+    console.warn("⚠️ Ticket has no assigned employee_id");
+    return "Not Assigned";
+  }
+
+  const emp = employees.find((e) => {
+    const match = Number(e.id) === Number(id);
+    if (match) console.log("✅ Found employee match:", e);
+    return match;
+  });
+
+  if (!emp) {
+    console.error("❌ No employee found for ID:", id);
+    console.table(employees.map(e => ({ id: e.id, name: e.first_name })));
+  }
+
+  return emp ? emp.first_name : "Not Assigned";
+};
+
 
   const handleCompleteService = async (ticketId: number) => {
     try {
@@ -254,9 +312,14 @@ const Tickets: React.FC = () => {
                     <UserOutlined /> {ticket?.full_name}
                   </Text>
                   <br />
-                  <Text>
-                    🧑 Assigned to: <span style={{ color: "#0D9488" }}>{ticket?.employee}</span>
-                  </Text>
+                <Text>
+  🧑 Assigned to:{" "}
+  <span className="text-teal-600 font-medium">
+    {getEmployeeName(ticket.employee_id || ticket.assign_to || ticket.assigned_to)}
+  </span>
+</Text>
+
+
                   <br />
                   <Text>
                     <EnvironmentOutlined /> {ticket?.address}
