@@ -18,7 +18,7 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 import {
-  // getAllUsers,
+  
   getallBookings,
   getAllUsers,
   deleteBookingById,
@@ -121,10 +121,10 @@ const Bookings: React.FC = () => {
 
     message.success("Employee assigned successfully!");
 
-    // Optional: Refresh the bookings if the backend updates status
+
     await getAllBookingsApi();
 
-    closeAssignModal(); // Close modal after success
+    closeAssignModal(); 
   } catch (error: any) {
     console.error("Assign failed:", error);
     message.error(error.message || "Failed to assign employee.");
@@ -269,9 +269,9 @@ const Bookings: React.FC = () => {
                         }}
                       >
                         {item.status_id === 1
-                          ? "Completed"
+                          ? "Open"
                           : item.status_id === 2
-                          ? "In Progress"
+                          ? "Pending"
                           : "Pending"}
                       </span>
 
@@ -318,7 +318,7 @@ const Bookings: React.FC = () => {
         </Row>
       </div>
 
-      {/* Assign Employee Modal */}
+      
       <Modal
         title={<Title level={4}>Assign Employee</Title>}
         open={assignModalVisible}
@@ -416,7 +416,7 @@ const Bookings: React.FC = () => {
         </div>
       </Modal>
 
-      {/* Delete Booking Modal */}
+     
       <Modal
         title={
           <Title level={3} style={{ color: "#d32f2f" }}>

@@ -4,6 +4,7 @@ import { UserOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design
 import { getallBookings, getallBookingsByUserId, otpSend, otpSendAPi, updateTicketByEmployeeCompleted, updateTicketByEmployeeInprogress } from "../../app/services/auth";
 import moment from "moment";
 import { getUserDetails } from "../../utils/helpers/storage";
+import { getAllUsers } from "../../app/services/auth";
 
 const { Text, Title } = Typography;
 
@@ -44,6 +45,7 @@ const Slots = [
   }
 ]
 
+// const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
 const Tickets: React.FC = () => {
   const [filter, setFilter] = useState<"all" | "Open" | "Pending" | "In-Progress" | "Completed">("all");
@@ -55,6 +57,9 @@ const Tickets: React.FC = () => {
   const [otpModalVisible, setOtpModalVisible] = useState(false);
   const [otpValue, setOtpValue] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [employees, setEmployees] = useState<any[]>([]);
+  
+
 
 
   const tabButton = (tab: typeof filter, label: string) => (
@@ -129,66 +134,91 @@ const Tickets: React.FC = () => {
     setSelectedTicketId(ticketId);
     setOtpModalVisible(true);
   };
+  useEffect(() => {
+  const fetchEmployees = async () => {
+    try {
+      const res = await getAllUsers();
+      setEmployees(res || []);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
+  };
+  fetchEmployees();
+}, []);
 
   const handleVerifyOtp = async () => {
-  if (!selectedTicketId) {
-    message.error("No ticket selected for verification.");
-    return;
-  }
-
-  if (otpValue.length !== 6) {
-    message.warning("Please enter a 6-digit OTP");
-    return;
-  }
-
-  try {
-   
-    const selectedTicket = allTickets.find((t) => t.id === selectedTicketId);
-    if (!selectedTicket) {
-      message.error("Ticket not found.");
-      return;
+    let res;
+    if (otpValue.length !== 6) {
+      const num = getUserDetails('user')?.phone;
+      message.warning("Please enter a 6-digit OTP");
+       res = await otpSendAPi(num,otpValue);
     }
 
-    
-    const customerPhone = selectedTicket?.phone || selectedTicket?.mobile || selectedTicket?.customer_mobile;
-    if (!customerPhone) {
-      message.error("Customer phone number not found for this ticket.");
-      return;
-    }
+    try {
+      // TODO: Call API to verify OTP and update status to "In-Progress"
+      // Example: await verifyOtp(selectedTicketId, otpValue);
 
-    console.log("Verifying OTP for customer:", customerPhone);
-
-    
-    const res = await otpSendAPi(customerPhone, otpValue);
-    console.log("OTP Verify Response:", res);
-
-    
-    if (res?.toLowerCase().includes("verified")) {
-      message.success("OTP verified successfully! Service started.");
-
-      // Update ticket status to In-Progress
-      await updateTicketByEmployeeInprogress(selectedTicketId);
-
-      // Reset modal and input
+      if(!res) return
       setOtpModalVisible(false);
       setOtpValue("");
-
-     
+      await updateTicketByEmployeeInprogress(selectedTicketId);
+      message.success("OTP verified successfully! Service started.");
       await getallBookingsApi();
-    } else {
-      message.error("Invalid or expired OTP. Please try again.");
+      // window.location.reload();
+    } catch (error) {
+      message.error("Failed to verify OTP");
+      console.error(error);
     }
-  } catch (error) {
-    console.error("Error verifying OTP:", error);
-    message.error("Failed to verify OTP. Please try again.");
-  }
-};
+  };
+   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [bookingsData, usersData] = await Promise.all([
+          getallBookings(),
+          getAllUsers(),
+        ]);
 
+        console.log("Fetched bookings data:", bookingsData);
+
+       
+        setEmployees(usersData || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+    const getEmployeeName = (id: any) => {
+  console.log("🔍 Checking employee assignment:", {
+    employee_id_from_ticket: id,
+    allEmployees: employees?.length,
+    sampleEmployee: employees?.[0],
+  });
+
+  if (!id) {
+    console.warn("⚠️ Ticket has no assigned employee_id");
+    return "Not Assigned";
+  }
+
+  const emp = employees.find((e) => {
+    const match = Number(e.id) === Number(id);
+    if (match) console.log("✅ Found employee match:", e);
+    return match;
+  });
+
+  if (!emp) {
+    console.error("❌ No employee found for ID:", id);
+    console.table(employees.map(e => ({ id: e.id, name: e.first_name })));
+  }
+
+  return emp ? emp.first_name : "Not Assigned";
+};
 
 
   const handleCompleteService = async (ticketId: number) => {
     try {
-      
+      // TODO: Call your API to update status to "Completed"
       await updateTicketByEmployeeCompleted(ticketId);
       message.success("Service completed successfully!");
       await getallBookingsApi();
@@ -284,9 +314,14 @@ const Tickets: React.FC = () => {
                     <UserOutlined /> {ticket?.full_name}
                   </Text>
                   <br />
-                  <Text>
-                    🧑 Assigned to: <span style={{ color: "#0D9488" }}>{ticket?.employee}</span>
-                  </Text>
+                <Text>
+  🧑 Assigned to:{" "}
+  <span className="text-teal-600 font-medium">
+    {getEmployeeName(ticket.employee_id || ticket.assign_to || ticket.assigned_to)}
+  </span>
+</Text>
+
+
                   <br />
                   <Text>
                     <EnvironmentOutlined /> {ticket?.address}
@@ -294,9 +329,10 @@ const Tickets: React.FC = () => {
                   <br />
                   <Text>
                     <CalendarOutlined /> {moment(ticket?.preferred_date).format("LLL") || "No Date Provided"} - {Slots.find((slot) => slot.id === ticket?.slot_id)?.slot_time}
+                    {/* {ticket?.created_date} */}
                   </Text>
 
-                      
+                                      {/* Action buttons */}
 
                   {getUserDetails('user')?.role_id === 3 && (
                     <Row justify="end" style={{ marginTop: 12, gap: 8 }}>
@@ -309,27 +345,11 @@ const Tickets: React.FC = () => {
                             fontWeight: 600,
                             minWidth: 140,
                           }}
-                              onClick={async () => {
-                                console.log("Ticket Data:", ticket);
-
-                                const customerPhone = ticket?.phone || ticket?.mobile_number || ticket?.customer_mobile;
-                                if (!customerPhone) {
-                                  message.error("Customer phone number not found in this ticket.");
-                                  return;
-                                }
-
-                                try {
-                                  const res = await otpSend(customerPhone);
-                                  console.log("OTP Sent Response:", res);
-                                  message.success("OTP sent to customer successfully!");
-                                  handleOpenOtpModal(ticket.id);
-                                } catch (err) {
-                                  console.error("Error sending OTP:", err);
-                                  message.error("Failed to send OTP to customer.");
-                                }
-                              }}
-
-
+                          onClick={async() => {
+                            let data = getUserDetails('user');
+                            await otpSend(data?.phone);
+                            handleOpenOtpModal(ticket.id)
+                          }}
                         >
                           Start Service
                         </Button>
@@ -353,13 +373,34 @@ const Tickets: React.FC = () => {
                   )}
 
 
+                  {/* {ticket?.status?.status === "Completed" && (
+                    <Row justify="end" style={{ marginTop: 12 }}>
+                      <Col>
+                        <Card
+                          size="small"
+                          style={{
+                            backgroundColor: "#f3f4f6",
+                            borderRadius: 6,
+                            width: 180,
+                            textAlign: "center",
+                          }}
+                        >
+                          <Text style={{ fontWeight: 500 }}>Customer's OTP</Text>
+                          <br />
+                          <Text style={{ color: "red", fontWeight: 600, fontSize: 16 }}>
+                            {generateOTP()}
+                          </Text>
+                        </Card>
+                      </Col>
+                    </Row>
+                  )} */}
                 </Card>
               </Col>
             ))
           )}
         </Row>
       </div>
-
+            {/* OTP Modal */}
       <Modal
         title={<b>Verify Start OTP</b>}
         centered
