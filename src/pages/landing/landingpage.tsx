@@ -996,7 +996,7 @@ const handleLogin = async (values: any) => {
               <MailOutlined /> Email: <a href="mailto:support@swachify.com" style={{ color: '#5eead4' }}>support@swachify.com</a>
             </p>
             <p>
-              <EnvironmentOutlined /> Address: 123 Clean Street, Green City, India - 400001
+              <EnvironmentOutlined /> Address: 76 King St W,Oshawa, ONL1H 1A6,Canada
             </p>
             <p>
               <ClockCircleOutlined /> Working Hours: Mon-Sat: 8AM-8PM, Sun: 9AM-6PM

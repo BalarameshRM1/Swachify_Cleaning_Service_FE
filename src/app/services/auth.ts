@@ -77,22 +77,27 @@ export const getAllSlots = async() =>{
     }
 }
 
-export const sendOtp = async(mobileNumber:any) =>{
-    try {
-        const options:any = {
-            method: "POST",
-            headers: {
-            "Content-Type": "application/json",
-            },
-        }
-        const response = await fetch(`${baseUrl}/Otp/send?phoneNumber=${mobileNumber}`,options);
-        if (!response.ok) throw new Error("Failed to sendOtp");
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error sendOtp:", error);
-    }
-}
+export const sendOtp = async (mobileNumber: any) => {
+  try {
+    const options: any = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const response = await fetch(`${baseUrl}/Otp/send?phoneNumber=${mobileNumber}`, options);
+    if (!response.ok) throw new Error("Failed to send OTP");
+
+    const data = await response.text();
+    console.log("OTP Response:", data); 
+
+    return data;
+  } catch (error) {
+    console.error("Error sendOtp:", error);
+  }
+};
+
 
 export const otpVerify = async(mobileNumber:any,otp:any) =>{
     try {
@@ -194,7 +199,6 @@ export const assignEmployeeToBooking = async (bookingId: number, userId: number)
   return response.json();
 };
 
-// bookings api
 export const getallBookingsTest = async(empData:any) =>{
     try {
         const options:any = {
@@ -245,39 +249,50 @@ export const getAllLocations = async() =>{
     }
 }
 
-export const otpSend = async(mobileNumber:any) =>{
-    try {
-        let options:any = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        }
-        const response = await fetch(`${baseUrl}/Otp/send?phoneNumber=%2B91${mobileNumber}`,options);
-        if (!response.ok) throw new Error("Failed to fetch otpSend");
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching otpSend:", error);
-    }
-}
+export const otpSend = async (mobileNumber: any) => {
+  try {
+    const options: any = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-export const otpSendAPi = async(mobileNumber:any,code:any) =>{
-    try {
-        let options:any = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        }
-        const response = await fetch(`${baseUrl}/Otp/verify?phoneNumber=%2B91${mobileNumber}&code=${code}`,options);
-        if (!response.ok) throw new Error("Failed to fetch otpSend");
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching otpSend:", error);
-    }
-}
+    const response = await fetch(`${baseUrl}/Otp/send?phoneNumber=%2B91${mobileNumber}`, options);
+    if (!response.ok) throw new Error("Failed to send OTP");
+
+    
+    const data = await response.text();
+    console.log("OTP Response:", data);
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching otpSend:", error);
+  }
+};
+
+
+export const otpSendAPi = async (mobileNumber: any, code: any) => {
+  try {
+    const options: any = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const response = await fetch(`${baseUrl}/Otp/verify?phoneNumber=%2B91${mobileNumber}&code=${code}`, options);
+    if (!response.ok) throw new Error("Failed to verify OTP");
+
+    const data = await response.text(); 
+    console.log("OTP Verify Response:", data);
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching otpSendAPi:", error);
+  }
+};
+
 
 export const updateTicketByEmployeeCompleted = async(id:any) =>{
     try {
