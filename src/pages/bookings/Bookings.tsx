@@ -269,9 +269,9 @@ const Bookings: React.FC = () => {
                         }}
                       >
                         {item.status_id === 1
-                          ? "Completed"
+                          ? "Open"
                           : item.status_id === 2
-                          ? "In Progress"
+                          ? "Pending"
                           : "Pending"}
                       </span>
 
