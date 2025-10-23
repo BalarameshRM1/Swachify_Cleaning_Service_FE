@@ -55,7 +55,7 @@ export  const services = [
 export  const pricingPlans = [
     {
       name: 'BASIC CLEANING',
-      price: '₹499',
+      price: '$89',
       period: '/visit',
       description: 'Perfect for regular maintenance',
       features: [
@@ -69,7 +69,7 @@ export  const pricingPlans = [
     },
     {
       name: 'DEEP CLEANING',
-      price: '₹999',
+      price: '$129',
       period: '/visit',
       description: 'Comprehensive cleaning solution',
       features: [
@@ -84,7 +84,7 @@ export  const pricingPlans = [
     },
     {
       name: 'PREMIUM PACKAGE',
-      price: '₹1,999',
+      price: '$199',
       period: '/visit',
       description: 'Ultimate cleaning experience',
       features: [
