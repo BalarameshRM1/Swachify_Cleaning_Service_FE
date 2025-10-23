@@ -178,6 +178,8 @@ const Tickets: React.FC = () => {
           getAllUsers(),
         ]);
 
+        console.log("Fetched bookings data:", bookingsData);
+
        
         setEmployees(usersData || []);
       } catch (error) {
