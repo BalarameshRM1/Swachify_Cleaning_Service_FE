@@ -173,7 +173,7 @@ const Tickets: React.FC = () => {
    useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ usersData] = await Promise.all([
+        const [bookingsData, usersData] = await Promise.all([
           getallBookings(),
           getAllUsers(),
         ]);
