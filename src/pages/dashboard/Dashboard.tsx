@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Row, Col, Typography, Space, Empty } from "antd";
+import { Card, Row, Col, Typography, Space, Empty,Tag } from "antd";
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -23,31 +23,34 @@ const Dashboard: React.FC = () => {
   });
 
   const getallBookingsApi = async () => {
-    try {
+  try {
+    if(!userData) return;
+    const response = userData.role_id === 3 
+      ? await getallBookingsByUserId(userData.id) 
+      : await getallBookings();
 
-      if(!userData) return;
-      const response = userData.role_id === 3 ? await getallBookingsByUserId(userData.id) : await getallBookings()
-      if(response) {
-        // console.log("Bookings API Response:", response);
-        const pendingTsk = response.filter((booking: any) => booking?.status?.status === "Pending");
-        const inProgressTsk = response.filter((booking: any) => booking?.status?.status === "In Progress");
-        const recentTsk = response?.slice(0, 5);
+    if(response) {
+      
+      const bookingsWithServiceName = response.map((b: any) => ({
+        ...b,
+        serviceName: b.service_name || "Unknown Service" 
+      }));
+
+      const pendingTsk = bookingsWithServiceName.filter((b: any) => b?.status?.status === "Pending");
+      const inProgressTsk = bookingsWithServiceName.filter((b: any) => b?.status?.status === "In Progress");
+      const recentTsk = bookingsWithServiceName.slice(0, 5);
+
       setDashboardTasks({
         pending: pendingTsk,
         inProgress: inProgressTsk.length,
         recent: recentTsk,
       });
-      // console.log("Bookings API Response:", {
-      //   pending: pendingTsk,
-      //   inProgress: inProgressTsk.length,
-      //   recent: recentTsk,
-      // });
-      // return setAllBookings(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
     }
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
   }
+};
+
 
     const getAllUsersApi = async () => {
     try {
@@ -180,57 +183,125 @@ const Dashboard: React.FC = () => {
 
       {/* Recent Activity Section */}
       <Row gutter={[16, 16]} style={{ marginTop: "24px" }}>
-        <Col xs={24} lg={12} >
-          <Card
-            title={<Title level={4}>Recent Bookings</Title>}
-            bordered
-            style={{ borderRadius: "16px",height: "350px", overflowY: "auto"}}
-          >{
-            dashboardTasks?.recent?.length > 0 ? (
-              dashboardTasks?.recent?.map((booking: any) => (
-                <div key={booking.id} style={{ marginBottom: "12px", }}>
-                  <Text strong>Booking #{booking.id.toString().slice(-6)}</Text>
-                  <Text type="secondary">{booking.serviceName}</Text>
-                  <br />
-                  <Text type="secondary">
-                    Status: {booking?.status?.status}
-                  </Text>
-                </div>
-              ))
-            ) : <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="No recent bookings"
-            />
-          }
-          </Card>
-        </Col>
-
-        <Col xs={24} lg={12}>
-          <Card
-            title={<Title level={4}>Active Tickets</Title>}
-            bordered
-            style={{ borderRadius: "16px", height: "350px", overflowY: "auto" }}
+  <Col xs={24} lg={12}>
+    <Card
+      title={<Title level={4}>Recent Bookings</Title>}
+      bordered
+      style={{ borderRadius: "16px", height: "350px", overflowY: "auto" }}
+    >
+      {dashboardTasks?.recent?.length > 0 ? (
+        dashboardTasks.recent.map((booking: any) => (
+          <div
+            key={booking.id}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "12px 16px",
+              borderBottom: "1px solid #f0f0f0",
+              borderRadius: 8,
+              marginBottom: 8,
+              background: "#fafafa",
+            }}
           >
-            {
-            dashboardTasks?.pending?.length > 0 ? (
-              dashboardTasks?.pending?.map((booking: any) => (
-                <div key={booking.id} style={{ marginBottom: "12px", }}>
-                  <Text strong>Booking #{booking.id.toString().slice(-6)}</Text>
-                  <Text type="secondary">{booking.serviceName}</Text>
-                  <br />
-                  <Text type="secondary">
-                    Status: {booking?.status?.status}
-                  </Text>
-                </div>
-              ))
-            ) :  <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="No active tickets"
-            />
-          }
-          </Card>
-        </Col>
-      </Row>
+           
+            <div>
+              <Text strong style={{ fontSize: 16 }}>
+                {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`}
+              </Text>
+              <br />
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Customer: {booking.full_name || "Unknown"}
+              </Text>
+              <br />
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Date: {booking.preferred_date || "N/A"}
+              </Text>
+            </div>
+
+            
+            <div>
+              <Tag
+                color={
+                  booking.status?.status === "Pending"
+                    ? "orange"
+                    : booking.status?.status === "In-Progress"
+                    ? "blue"
+                    : "green"
+                }
+                style={{ fontWeight: "bold", minWidth: 100, textAlign: "center" }}
+              >
+                {booking.status?.status}
+              </Tag>
+            </div>
+          </div>
+        ))
+      ) : (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No recent bookings" />
+      )}
+    </Card>
+  </Col>
+
+  <Col xs={24} lg={12}>
+    <Card
+      title={<Title level={4}>Active Tickets</Title>}
+      bordered
+      style={{ borderRadius: "16px", height: "350px", overflowY: "auto" }}
+    >
+      {dashboardTasks?.pending?.length > 0 ? (
+        dashboardTasks.pending.map((booking: any) => (
+          <div
+            key={booking.id}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "12px 16px",
+              borderBottom: "1px solid #f0f0f0",
+              borderRadius: 8,
+              marginBottom: 8,
+              background: "#fafafa",
+            }}
+          >
+            {/* Left Side */}
+            <div>
+              <Text strong style={{ fontSize: 16 }}>
+                {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`}
+              </Text>
+              <br />
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Customer: {booking.full_name || "Unknown"}
+              </Text>
+              <br />
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Date: {booking.preferred_date || "N/A"}
+              </Text>
+            </div>
+
+            {/* Right Side */}
+            <div>
+              <Tag
+                color={
+                  booking.status?.status === "Pending"
+                    ? "orange"
+                    : booking.status?.status === "In-Progress"
+                    ? "blue"
+                    : "green"
+                }
+                style={{ fontWeight: "bold", minWidth: 100, textAlign: "center" }}
+              >
+                {booking.status?.status}
+              </Tag>
+            </div>
+          </div>
+        ))
+      ) : (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No active tickets" />
+      )}
+    </Card>
+  </Col>
+</Row>
+
     </div>
   );
 };

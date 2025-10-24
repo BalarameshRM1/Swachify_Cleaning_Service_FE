@@ -147,29 +147,57 @@ const Tickets: React.FC = () => {
 }, []);
 
   const handleVerifyOtp = async () => {
-    let res;
-    if (otpValue.length !== 6) {
-      const num = getUserDetails('user')?.phone;
-      message.warning("Please enter a 6-digit OTP");
-       res = await otpSendAPi(num,otpValue);
+  if (!otpValue) {
+    message.error("Please enter the OTP.");
+    return;
+  }
+
+  try {
+    const selectedTicket = allTickets.find(t => t.id === selectedTicketId);
+    if (!selectedTicket) {
+      message.error("Ticket not found!");
+      return;
     }
 
-    try {
-      // TODO: Call API to verify OTP and update status to "In-Progress"
-      // Example: await verifyOtp(selectedTicketId, otpValue);
+    const customerPhone = selectedTicket?.phone;
+    if (!customerPhone) {
+      message.error("Customer phone number not found for this booking!");
+      return;
+    }
 
-      if(!res) return
+    const response = await otpSendAPi(customerPhone, otpValue);
+    console.log("OTP Verify Response:", response);
+
+    
+    if (
+      typeof response === "string" &&
+      (response.toLowerCase().includes("otp verified") ||
+       response.toLowerCase().includes("verified successfully"))
+    ) {
+      message.success("OTP verified successfully!");
+
+      await updateTicketByEmployeeInprogress(selectedTicket.id);
+
       setOtpModalVisible(false);
       setOtpValue("");
-      await updateTicketByEmployeeInprogress(selectedTicketId);
-      message.success("OTP verified successfully! Service started.");
-      await getallBookingsApi();
-      // window.location.reload();
-    } catch (error) {
-      message.error("Failed to verify OTP");
-      console.error(error);
+
+      let data = getUserDetails('user');
+      if (data?.role_id === 3) {
+        await getallBookingsByUserApi(data.id);
+      } else {
+        await getallBookingsApi();
+      }
+
+    } else {
+      message.error("Invalid OTP. Please try again.");
     }
-  };
+  } catch (error) {
+    console.error("OTP verification failed:", error);
+    message.error("Failed to verify OTP. Please try again.");
+  }
+};
+
+
    useEffect(() => {
     const fetchData = async () => {
       try {
@@ -337,23 +365,37 @@ const Tickets: React.FC = () => {
                   {getUserDetails('user')?.role_id === 3 && (
                     <Row justify="end" style={{ marginTop: 12, gap: 8 }}>
                       {ticket?.status?.status === "Pending" && (
-                        <Button
-                          type="primary"
-                          style={{
-                            backgroundColor: "rgb(20, 184, 166)",
-                            borderColor: "#ffffff",
-                            fontWeight: 600,
-                            minWidth: 140,
-                          }}
-                          onClick={async() => {
-                            let data = getUserDetails('user');
-                            await otpSend(data?.phone);
-                            handleOpenOtpModal(ticket.id)
-                          }}
-                        >
-                          Start Service
-                        </Button>
-                      )}
+  <Button
+    type="primary"
+    style={{
+      backgroundColor: "rgb(20, 184, 166)",
+      borderColor: "#ffffff",
+      fontWeight: 600,
+      minWidth: 140,
+    }}
+    onClick={async () => {
+     
+      const customerPhone = ticket?.phone;
+
+      if (!customerPhone) {
+        message.error("Customer phone number not available for this booking!");
+        return;
+      }
+
+      try {
+        await otpSend(customerPhone); 
+        message.success(`OTP sent to customer's number (${customerPhone})`);
+        handleOpenOtpModal(ticket.id);
+      } catch (error) {
+        console.error("Error sending OTP:", error);
+        message.error("Failed to send OTP to customer");
+      }
+    }}
+  >
+    Start Service
+  </Button>
+)}
+
 
                       {ticket?.status?.status === "In-Progress" && (
                         <Button
