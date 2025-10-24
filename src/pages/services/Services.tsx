@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Card,
@@ -14,7 +14,6 @@ import {
 import {
   ArrowLeftOutlined,
   UserOutlined,
-  PhoneOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
   MailOutlined,
@@ -32,7 +31,6 @@ import { planDetailsData } from '../../utils/constants/data';
 import { serviceForm } from '../../app/services/auth';
 
 const { Title, Text, Paragraph } = Typography;
-
 
 const BackButton: React.FC<{ onClick: () => void; ariaLabel?: string }> = ({ onClick, ariaLabel = "Go back" }) => {
   return (
@@ -115,7 +113,7 @@ interface BookingFormViewProps {
   goBack: GoBackFn;
   bookingDetails: {
     category?: string;
-    subCategory: string;
+    subCategory?: string;
     plan: string;
   };
 }
@@ -152,45 +150,44 @@ const pricingData: Record<string, Plan[]> = {
   ],
 };
 
-
 const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, bookingDetails }) => {
   const [form] = Form.useForm();
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const [phone, setPhone] = useState<string>('');
 
   const timeSlots = ['9am - 11am', '11am - 1pm', '1pm - 3pm', '3pm - 5pm'];
 
   function parseSlotStart(slot: string) {
-  const to24 = (t: string) => {
-    const m = t.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i);
-    if (!m) return null;
-    let h = parseInt(m[1], 10);
-    const mm = m[2] ? parseInt(m[2], 10) : 0;
-    const ampm = m[3].toLowerCase();
-    if (ampm === "pm" && h !== 12) h += 12;
-    if (ampm === "am" && h === 12) h = 0;
-    return { h, mm };
-  };
-  const [startLabel] = slot.split("-").map(s => s.trim());
-  const start = to24(startLabel);
-  return start;
-}
-
-function canUseSlot(selectedDate: Dayjs | null, slot: string) {
-  if (!selectedDate) return false;
-  const now = dayjs();
-  const start = parseSlotStart(slot);
-  if (!start) return false;
-
-  if (selectedDate.startOf("day").isAfter(now.startOf("day"))) return true;
-
-  if (selectedDate.isSame(now, "day")) {
-    const slotStart = selectedDate.hour(start.h).minute(start.mm).second(0).millisecond(0);
-    return slotStart.isAfter(now);
+    const to24 = (t: string) => {
+      const m = t.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i);
+      if (!m) return null;
+      let h = parseInt(m[1], 10);
+      const mm = m[2] ? parseInt(m[2], 10) : 0;
+      const ampm = m[3].toLowerCase();
+      if (ampm === "pm" && h !== 12) h += 12;
+      if (ampm === "am" && h === 12) h = 0;
+      return { h, mm };
+    };
+    const [startLabel] = slot.split("-").map(s => s.trim());
+    const start = to24(startLabel);
+    return start;
   }
 
-  return false;
-}
+  function canUseSlot(selected: Dayjs | null, slot: string) {
+    if (!selected) return false;
+    const now = dayjs();
+    const start = parseSlotStart(slot);
+    if (!start) return false;
+    if (selected.startOf("day").isAfter(now.startOf("day"))) return true;
+    if (selected.isSame(now, "day")) {
+      const slotStart = selected.hour(start.h).minute(start.mm).second(0).millisecond(0);
+      return slotStart.isAfter(now);
+    }
+    return false;
+  }
 
   const slotIdMap: Record<string, number> = {
     '9am - 11am': 1,
@@ -198,9 +195,6 @@ function canUseSlot(selectedDate: Dayjs | null, slot: string) {
     '1pm - 3pm': 3,
     '3pm - 5pm': 4,
   };
-
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-
 
   const onFinish = async (values: any) => {
     if (!selectedTime) {
@@ -213,19 +207,19 @@ function canUseSlot(selectedDate: Dayjs | null, slot: string) {
     try {
       setSubmitting(true);
       await serviceForm(
-        'clean',                      
-        1,   
-        1,
-        slotIdMap[selectedTime],     
-        17,
-        values.name,
-        0,                   
-        values.email,               
-        values.phone,             
-        values.address,               
-        'Cleaning',                
-        true,                     
-        preferredDate
+        'clean',                  
+        1,                           
+        1,                             
+        slotIdMap[selectedTime],      
+        17,                          
+        values.name,                    
+        0,                     
+        values.email,            
+        values.phone,                
+        values.address,              
+        bookingDetails?.category || 'Cleaning',
+        true,                        
+        preferredDate              
       );
 
       message.success('Booking placed successfully!');
@@ -245,8 +239,10 @@ function canUseSlot(selectedDate: Dayjs | null, slot: string) {
             <BackButton onClick={goBack} ariaLabel="Go back" />
           </Col>
           <Col flex="auto">
-            <Title level={4} style={{ margin: 0 }}>Booking details</Title>
-            <Text type="secondary">{bookingDetails?.category ?? ''} {bookingDetails?.plan ? `• ${bookingDetails.plan}` : ''}</Text>
+            <Title level={4} style={{ margin: 0 }}>Booking Details</Title>
+            <Text type="secondary">
+              {bookingDetails?.category ?? ''} {bookingDetails?.plan ? `• ${bookingDetails.plan}` : ''}
+            </Text>
           </Col>
         </Row>
 
@@ -254,19 +250,37 @@ function canUseSlot(selectedDate: Dayjs | null, slot: string) {
           <Row gutter={24}>
             <Col xs={24} md={12}>
               <Title level={5}>Your Information</Title>
+
               <Form.Item name="name" label="Full name" rules={[{ required: true, message: 'Enter your full name' }]}>
                 <Input prefix={<UserOutlined />} placeholder="e.g., Jane Doe" />
               </Form.Item>
+
               <Form.Item
                 name="phone"
                 label="Phone"
                 rules={[
                   { required: true, message: 'Enter your phone number' },
-                  { pattern: /^[0-9+\-\s]{8,}$/, message: 'Enter a valid phone' },
+                  { pattern: /^\d{10}$/, message: 'Enter exactly 10 digits' },
                 ]}
               >
-                <Input prefix={<PhoneOutlined />} placeholder="+91 98765 43210" />
+                <Input
+                  value={phone}
+                  placeholder="9876543210"
+                  inputMode="numeric"
+                  maxLength={10}
+                  onChange={(e) => {
+                    const only = e.target.value.replace(/\D/g, '');
+                    setPhone(only);
+                    form.setFieldsValue({ phone: only });
+                  }}
+                  onKeyDown={(e) => {
+                    const allow = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                    if (allow.includes(e.key)) return;
+                    if (!/^\d$/.test(e.key)) e.preventDefault();
+                  }}
+                />
               </Form.Item>
+
               <Form.Item
                 name="email"
                 label="Email"
@@ -274,6 +288,7 @@ function canUseSlot(selectedDate: Dayjs | null, slot: string) {
               >
                 <Input prefix={<MailOutlined />} placeholder="name@example.com" />
               </Form.Item>
+
               <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Enter your address' }]}>
                 <Input.TextArea rows={3} placeholder="Flat, street, landmark" />
               </Form.Item>
@@ -281,50 +296,49 @@ function canUseSlot(selectedDate: Dayjs | null, slot: string) {
 
             <Col xs={24} md={12}>
               <Title level={5}>Scheduling</Title>
+
               <Form.Item name="date" label="Preferred date" rules={[{ required: true, message: 'Pick a date' }]}>
-                  <DatePicker
-                    style={{ width: '100%' }}
-                    placeholder="Select date"
-                    suffixIcon={<CalendarOutlined />}
-                    disabledDate={(d: Dayjs) => d && !d.isAfter(dayjs().subtract(1, 'day').endOf('day'))}
-                    value={selectedDate as any}
-                    onChange={(d) => {
-                      setSelectedDate(d);
-                      if (selectedTime && !canUseSlot(d as Dayjs, selectedTime)) {
-                        setSelectedTime(null);
-                      }
-                      form.setFieldsValue({ date: d });
-                    }}
-                  />
+                <DatePicker
+                  style={{ width: '100%' }}
+                  placeholder="Select date"
+                  suffixIcon={<CalendarOutlined />}
+                  disabledDate={(d: Dayjs) => d && !d.isAfter(dayjs().subtract(1, 'day').endOf('day'))}
+                  value={selectedDate as any}
+                  onChange={(d) => {
+                    setSelectedDate(d);
+                    if (selectedTime && !canUseSlot(d as Dayjs, selectedTime)) {
+                      setSelectedTime(null);
+                    }
+                    form.setFieldsValue({ date: d });
+                  }}
+                />
               </Form.Item>
 
-
               <Form.Item label="Preferred time" required>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                    {timeSlots.map((slot) => {
-                      const enabled = canUseSlot(selectedDate, slot);
-                      const isSelected = enabled && selectedTime === slot;
-                      return (
-                        <Button
-                          key={slot}
-                          icon={<ClockCircleOutlined />}
-                          disabled={!enabled}
-                          onClick={() => enabled && setSelectedTime(slot)}
-                          type={isSelected ? "primary" : "default"}
-                          style={
-                            isSelected
-                              ? { background: "#14b8a6", borderColor: "#14b8a6" }
-                              : { background: enabled ? "#f2f7f6" : "#f5f5f5", borderColor: enabled ? "#f2f7f6" : "#eee", color: enabled ? "#111" : "#aaa" }
-                          }
-                          title={!enabled && selectedDate ? "This slot has already started" : undefined}
-                        >
-                          {slot}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </Form.Item>
-
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {timeSlots.map((slot) => {
+                    const enabled = canUseSlot(selectedDate, slot);
+                    const isSelected = enabled && selectedTime === slot;
+                    return (
+                      <Button
+                        key={slot}
+                        icon={<ClockCircleOutlined />}
+                        disabled={!enabled}
+                        onClick={() => enabled && setSelectedTime(slot)}
+                        type={isSelected ? "primary" : "default"}
+                        style={
+                          isSelected
+                            ? { background: "#14b8a6", borderColor: "#14b8a6" }
+                            : { background: enabled ? "#f2f7f6" : "#f5f5f5", borderColor: enabled ? "#f2f7f6" : "#eee", color: enabled ? "#111" : "#aaa" }
+                        }
+                        title={!enabled && selectedDate ? "This slot has already started" : undefined}
+                      >
+                        {slot}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </Form.Item>
 
               <Button
                 type="primary"
@@ -504,7 +518,6 @@ const MainView: React.FC<ViewProps> = ({ navigateTo }) => {
   );
 };
 
-
 const SubServicesView: React.FC<SubServicesViewProps> = ({ goBack, category }) => {
   return (
     <div>
@@ -516,7 +529,6 @@ const SubServicesView: React.FC<SubServicesViewProps> = ({ goBack, category }) =
     </div>
   );
 };
-
 
 const PricingView: React.FC<PricingViewProps> = ({ navigateTo, goBack, type, subCategory }) => {
   const plans = pricingData[type === 'pricing-bedroom' ? 'bedroom' : 'generic'];
@@ -577,7 +589,6 @@ const PricingView: React.FC<PricingViewProps> = ({ navigateTo, goBack, type, sub
   );
 };
 
-
 const AcknowledgementView: React.FC<ViewProps> = ({ navigateTo }) => (
   <div style={{ textAlign: 'center', padding: '48px 16px' }}>
     <div
@@ -604,7 +615,6 @@ const AcknowledgementView: React.FC<ViewProps> = ({ navigateTo }) => (
     </Button>
   </div>
 );
-
 
 const Services: React.FC = () => {
   const [history, setHistory] = useState<HistoryState[]>([{ view: 'main', data: {} }]);
