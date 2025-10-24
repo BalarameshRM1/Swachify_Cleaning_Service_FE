@@ -1,3 +1,7 @@
+import kitchenCleaningImg from '../../assets/final_images/kitchen-cleaning.jpg';
+import bathroomCleaningImg from '../../assets/final_images/bathroom-cleaning.jpg';
+import bedroomCleaningImg from '../../assets/final_images/bedroom-cleaning.jpg';
+import livingAreaCleaningImg from '../../assets/final_images/living-area-cleaning.jpg';
 export const menuItems = [
     { key: 'services', label: 'Our Services' },
     { key: 'how-it-works', label: 'How It Works' },
@@ -188,3 +192,27 @@ export const planDetailsData = {
   ]
  }
 };
+export const serviceCategoryMappings: Record<string, { deptId: number; serviceId: number }> = {
+  'Kitchen': { deptId: 1, serviceId: 1 },
+  'Bathrooms': { deptId: 2, serviceId: 2 },
+  'Bedrooms': { deptId: 3, serviceId: 3 },
+  'Living Areas': { deptId: 4, serviceId: 4 },
+  'Default': { deptId: 1, serviceId: 1 },
+};
+
+export const planFlagMappings: Record<string, { is_regular: boolean; is_premium: boolean; is_ultimate: boolean }> = {
+  'Regular': { is_regular: true, is_premium: false, is_ultimate: false },
+  'Premium': { is_regular: false, is_premium: true, is_ultimate: false },
+  'Ultimate': { is_regular: false, is_premium: false, is_ultimate: true },
+  
+  'Standard': { is_regular: true, is_premium: false, is_ultimate: false },
+  'Advanced': { is_regular: false, is_premium: true, is_ultimate: false },
+  'Complete': { is_regular: false, is_premium: false, is_ultimate: true },
+};
+
+export const mainServicesData = [
+  { id: 'cleaning-kitchen', title: 'Kitchen', img: kitchenCleaningImg },
+  { id: 'cleaning-bathrooms', title: 'Bathrooms', img: bathroomCleaningImg },
+  { id: 'cleaning-bedrooms', title: 'Bedrooms', img: bedroomCleaningImg },
+  { id: 'cleaning-living-areas', title: 'Living Areas', img: livingAreaCleaningImg },
+];
