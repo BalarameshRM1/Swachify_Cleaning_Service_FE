@@ -139,14 +139,14 @@ export const createEmployee = async (empData:any) => {
 };
 
 
-export const serviceForm = async(bookingId:any ,deptId:any ,serviceId:any,slotId:any,createdBy:any,full_name:any ,modifiedBy:any ,email:any ,phone:any ,address:any ,services:any,isActive:any, preferredDate:any, ) =>{
+export const serviceForm = async(bookingId:any ,deptId:any ,serviceId:any,slotId:any,createdBy:any,full_name:any ,modifiedBy:any ,email:any ,phone:any ,address:any ,services:any,isActive:any, preferredDate:any,is_regular: boolean, is_premium: boolean, is_ultimate: boolean ) =>{
     try {
         const options:any = {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ bookingId, deptId, serviceId, slotId, createdBy, full_name, modifiedBy, email, phone, address, services, isActive, preferredDate }),
+            body: JSON.stringify({ bookingId, deptId, serviceId, slotId, createdBy, full_name, modifiedBy, email, phone, address, services, isActive, preferredDate, is_regular, is_premium, is_ultimate, status_id: 1 }),
         }
         const response = await fetch(`${baseUrl}/Booking`,options);
         if (!response.ok) throw new Error("Failed to createBooking");
