@@ -188,6 +188,7 @@ const Dashboard: React.FC = () => {
       title={<Title level={4}>Recent Bookings</Title>}
       bordered
       style={{ borderRadius: "16px", height: "350px", overflowY: "auto" }}
+      
     >
       {dashboardTasks?.recent?.length > 0 ? (
         dashboardTasks.recent.map((booking: any) => (
@@ -263,7 +264,7 @@ const Dashboard: React.FC = () => {
               background: "#fafafa",
             }}
           >
-            {/* Left Side */}
+            
             <div>
               <Text strong style={{ fontSize: 16 }}>
                 {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`}

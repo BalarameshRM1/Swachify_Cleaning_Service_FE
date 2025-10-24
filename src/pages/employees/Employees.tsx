@@ -16,6 +16,7 @@ interface Employee {
   status: 'Available' | 'Assigned';
   phone: string;
   location: string;
+  depts: string[];
 }
 
 // const initialEmployeesData: Employee[] = [
@@ -39,70 +40,77 @@ const Role = ['Employee','Admin','Super Admin'];
 
 
 
-const EmployeeCard: React.FC<any> = ({ employee }) => (
-    <Card
-        hoverable
-        style={{
-            borderRadius: '16px',
-            border: '2px solid #dcfce7',
-            height: '100%',
-            transition: 'all 0.3s ease',
-        }}
-    >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-  <Avatar
-    size={64}
+const EmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => (
+  <Card
+    hoverable
     style={{
-      backgroundColor: '#14b8a6',
-      fontSize: 24,
-      color: '#fff',
+      borderRadius: '16px',
+      border: '2px solid #dcfce7',
+      height: '100%',
+      transition: 'all 0.3s ease',
     }}
   >
-    {employee.name.charAt(0)}
-  </Avatar>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+      <Avatar
+        size={64}
+        style={{
+          backgroundColor: '#14b8a6',
+          fontSize: 24,
+          color: '#fff',
+        }}
+      >
+        {employee.name.charAt(0)}
+      </Avatar>
+      <div style={{ overflow: 'hidden' }}>
+        <Title
+          level={5}
+          style={{
+            margin: 0,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: 120,
+          }}
+        >
+          {employee.name}
+        </Title>
+        <Tag
+          color={employee.status === 'Available' ? 'success' : 'warning'}
+          style={{ marginTop: 4 }}
+        >
+          {employee.status}
+        </Tag>
+      </div>
+    </div>
 
-  <div style={{ overflow: 'hidden' }}>
-    <Title
-      level={5}
-      style={{
-        margin: 0,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        maxWidth: 60,
-      }}
-    >
-      {employee.name}
-    </Title>
+    <Divider style={{ margin: '12px 0' }} />
 
-    <Tag
-      color={employee.status === 'Available' ? 'success' : 'warning'}
-      style={{ marginTop: 4 }}
-    >
-      {employee.status}
-    </Tag>
-  </div>
-</div>
+    <div style={{ marginBottom: 12 }}>
+      <Text strong>Departments:</Text>
+      <div style={{ marginTop: 4 }}>
+        {employee.depts?.length ? (
+          employee.depts.map((dept: string) => (
+            <Tag key={dept} color="#0d9488" style={{ marginBottom: 4 }}>
+              {dept}
+            </Tag>
+          ))
+        ) : (
+          <Text type="secondary">No departments assigned</Text>
+        )}
+      </div>
+    </div>
 
-        
-        <Divider style={{ margin: '12px 0' }}/>
+    <Paragraph style={{ margin: 0, color: '#6b7280' }}>
+      <EnvironmentFilled style={{ marginRight: 8, color: '#ef4444' }} /> {employee.location}
+    </Paragraph>
 
-        <div>
-            <Text strong>Specialties:</Text>
-            <div style={{ marginTop: 4, marginBottom: 12 }}>
-                {employee?.services?.slice(0, 2).map((service:any) => (
-                    <Text key={service} style={{ color: '#0d9488', display: 'block' }}>{service}</Text>
-                ))}
-            </div>
-            <Paragraph style={{ margin: 0, color: '#6b7280' }}>
-                <EnvironmentFilled style={{ marginRight: 8, color: '#ef4444' }} /> {employee.location}
-            </Paragraph>
-            <Paragraph style={{ margin: 0, color: '#6b7280' }}>
-                <PhoneFilled style={{ marginRight: 8, color: '#ef4444' }} /> {employee?.mobile ? employee.mobile : "+1 999-9999-99"}
-            </Paragraph>
-        </div>
-    </Card>
+    <Paragraph style={{ margin: 0, color: '#6b7280' }}>
+      <PhoneFilled style={{ marginRight: 8, color: '#ef4444' }} />{' '}
+      {employee.phone ? employee.phone : '+1 999-9999-99'}
+    </Paragraph>
+  </Card>
 );
+
 
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<any>([]);
@@ -119,7 +127,9 @@ const Employees: React.FC = () => {
     const usersWithFullName = res.map((res:any) => ({...res,
       name: `${res.first_name} ${res.last_name}`,
       location:"test location",
-      status:"Available"
+      status:"Available",
+      phone:res.mobile
+      
     }));
     setEmployees(usersWithFullName)
     } catch (error) {
