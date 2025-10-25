@@ -1,0 +1,118 @@
+.dashboard-wrap {
+  min-height: auto;
+}
+
+
+.stat-card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+
+.gradient-card:hover {
+  box-shadow: 0 16px 48px rgba(20, 184, 166, 0.4) !important;
+}
+
+
+.stat-card-hover:hover .icon-bounce {
+  animation: iconBounce 0.6s ease;
+}
+
+@keyframes iconBounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-6px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-6px) rotate(5deg);
+  }
+}
+
+
+.activity-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+
+.booking-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.booking-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #14b8a6, #06b6d4);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+  border-radius: 12px 0 0 12px;
+}
+
+.booking-item:hover::before {
+  transform: scaleY(1);
+}
+
+.booking-item:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1) !important;
+  transform: translateX(8px);
+}
+
+
+.status-tag {
+  transition: all 0.3s ease !important;
+}
+
+.booking-item:hover .status-tag {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+
+div::-webkit-scrollbar {
+  width: 6px;
+}
+
+div::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+div::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #14b8a6, #06b6d4);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+div::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #0d9488, #0284c7);
+}
+
+/* ============= SMOOTH TRANSITIONS ============= */
+.ant-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ant-typography {
+  transition: color 0.2s ease;
+}
+
+
+@media (max-width: 768px) {
+  .dashboard-wrap {
+    padding: 20px !important;
+  }
+  
+  .stat-card-hover:hover {
+    transform: translateY(-4px);
+  }
+  
+  .booking-item:hover {
+    transform: translateX(4px);
+  }
+}
