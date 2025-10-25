@@ -1,767 +1,311 @@
-import React, { useState, useEffect } from "react";
-import { assignEmployeeToBooking } from "../../app/services/auth";
-import {
-  Card,
-  Typography,
-  Row,
-  Col,
-  Space,
-  Button,
-  Modal,
-  Avatar,
-  message,
-  Spin,
-  Badge,
-  Tooltip,
-} from "antd";
-import {
-  UserOutlined,
-  PhoneOutlined,
-  EnvironmentOutlined,
-  CalendarOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  LoadingOutlined,
-} from "@ant-design/icons";
-import {
-  getallBookings,
-  getAllUsers,
-  deleteBookingById,
-} from "../../app/services/auth";
-import moment from "moment";
+import React, { useState, useEffect } from 'react';
+import type { SelectProps } from 'antd';
+import { Card, Col, Row, Select, Typography, Avatar, Tag, Button, Modal, Form, Input, message, Space, Divider } from 'antd';
+import { PhoneFilled, EnvironmentFilled, PlusOutlined } from '@ant-design/icons'; 
+import { createEmployee, getAllUsers, getAllLocations } from "../../app/services/auth";
+// import { services } from '../../utils/constants/data';
 
-const { Title, Text } = Typography;
+
+const { Title, Text, Paragraph } = Typography;
 
 interface Employee {
   id: number;
-  first_name: string;
-  last_name: string;
+  name: string;
   email: string;
-  role_id: number;
-  mobile: string | null;
-  age: number | null;
-  gender_id: number | null;
-  is_active: boolean;
-  is_assigned: boolean;
-  dept_id: number | null;
-  location_id: number;
-  depts: any[];
-  is_available?: boolean;
-  availability_status?: 'available' | 'unavailable' | 'checking';
+  services: string[];
+  status: 'Available' | 'Assigned';
+  phone: string;
+  location: string;
+  depts: string[];
 }
 
-const Slots = [
-  { id: 1, slot_time: "9AM - 11AM" },
-  { id: 2, slot_time: "11AM - 1 PM" },
-  { id: 3, slot_time: "1PM - 3PM" },
-  { id: 4, slot_time: "3PM - 5 PM" },
-];
+// const initialEmployeesData: Employee[] = [
+//     { id: 1, name: 'Arun Kumar', email: 'arun.k@swachify.com', services: ['Home Cleaning', 'Kitchen', 'Bathroom'], status: 'Available', phone: '+91 98765 11111', location: 'Hyderabad' },
+//     { id: 2, name: 'Priya Sharma', email: 'priya.s@swachify.com', services: ['Office Cleaning', 'Sofa & Carpet'], status: 'Available', phone: '+91 98765 22222', location: 'Bangalore' },
+//     { id: 3, name: 'Ravi Singh', email: 'ravi.s@swachify.com', services: ['Pest Control', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 33333', location: 'Hyderabad' },
+//     { id: 4, name: 'Sunita Devi', email: 'sunita.d@swachify.com', services: ['Kitchen', 'Bathroom'], status: 'Available', phone: '+91 98765 44444', location: 'Delhi' },
+//     { id: 5, name: 'Anil Mehta', email: 'anil.m@swachify.com', services: ['Painting', 'Home Cleaning'], status: 'Assigned', phone: '+91 98765 55555', location: 'Mumbai' },
+//     { id: 6, name: 'Geeta Gupta', email: 'geeta.g@swachify.com', services: ['AC Service', 'Appliance Repair'], status: 'Available', phone: '+91 98765 66666', location: 'Bangalore' },
+//     { id: 7, name: 'Sanjay Verma', email: 'sanjay.v@swachify.com', services: ['Office Cleaning', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 77777', location: 'Delhi' },
+//     { id: 8, name: 'Meena Kumari', email: 'meena.k@swachify.com', services: ['Sofa & Carpet', 'Home Cleaning'], status: 'Assigned', phone: '+91 98765 88888', location: 'Mumbai' },
+// ];
 
-const Bookings: React.FC = () => {
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(false);
-  const [checkingAvailability, setCheckingAvailability] = useState(false);
-  const [assignModalVisible, setAssignModalVisible] = useState(false);
-  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
+// const allServices = [
+//   'Home Cleaning', 'Kitchen', 'Bathroom', 'Office Cleaning', 'Sofa & Carpet', 'Pest Control', 'Deep Cleaning', 'Painting', 'AC Service', 'Appliance Repair'
+// ];
+const allServices = ['Kitchen','Bathrooms','Bedrooms','Living Areas'];
+const Role = ['Employee','Admin','Super Admin'];
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const bookingsData = await getallBookings();
-        if (bookingsData) {
-          bookingsData.sort((a: any, b: any) => b.id - a.id);
-          setBookings(bookingsData || []);
-        }
-      } catch (error) {
-        console.error("Failed to fetch bookings:", error);
-      }
-    };
-    fetchBookings();
-  }, []);
 
-  // Function to check employee availability
-  const checkEmployeeAvailability = async (
-    employeeId: number,
-    bookingDate: string,
-    slotId: number
-  ): Promise<boolean> => {
-    try {
-      // Replace with your actual availability check endpoint
-      const response = await fetch(
-        `https://swachifyapi-fpcub9f8dcgjbzcq.centralindia-01.azurewebsites.net/api/check-availability?employeeId=${employeeId}&date=${bookingDate}&slotId=${slotId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
 
-      if (!response.ok) {
-        console.warn(`Availability check failed for employee ${employeeId}`);
-        return true; // Default to available if check fails
-      }
 
-      const data = await response.json();
-      return data.available || data.isAvailable || true;
-    } catch (error) {
-      console.error('Error checking availability:', error);
-      return true; // Default to available on error
-    }
-  };
+const EmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => (
+  <Card
+    hoverable
+    style={{
+      borderRadius: '16px',
+      border: '2px solid #dcfce7',
+      height: '100%',
+      transition: 'all 0.3s ease',
+    }}
+  >
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+      <Avatar
+        size={64}
+        style={{
+          backgroundColor: '#14b8a6',
+          fontSize: 24,
+          color: '#fff',
+        }}
+      >
+        {employee.name.charAt(0)}
+      </Avatar>
+      <div style={{ overflow: 'hidden' }}>
+        <Title
+          level={5}
+          style={{
+            margin: 0,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: 120,
+          }}
+        >
+          {employee.name}
+        </Title>
+        <Tag
+          color={employee.status === 'Available' ? 'success' : 'warning'}
+          style={{ marginTop: 4 }}
+        >
+          {employee.status}
+        </Tag>
+      </div>
+    </div>
 
-  // Check availability for all employees
-  const checkAllEmployeesAvailability = async (
-    bookingId: number,
-    employeesList: Employee[]
-  ) => {
-    const booking = bookings.find((b) => b.id === bookingId);
-    if (!booking || employeesList.length === 0) {
-      return employeesList;
-    }
+    <Divider style={{ margin: '12px 0' }} />
 
-    setCheckingAvailability(true);
+    <div style={{ marginBottom: 12 }}>
+      <Text strong>Departments:</Text>
+      <div style={{ marginTop: 4 }}>
+        {employee.depts?.length ? (
+          employee.depts.map((dept: string) => (
+            <Tag key={dept} color="#0d9488" style={{ marginBottom: 4 }}>
+              {dept}
+            </Tag>
+          ))
+        ) : (
+          <Text type="secondary">No departments assigned</Text>
+        )}
+      </div>
+    </div>
 
-    try {
-      const updatedEmployees: Employee[] = await Promise.all(
-        employeesList.map(async (employee): Promise<Employee> => {
-          try {
-            const isAvailable = await checkEmployeeAvailability(
-              employee.id,
-              booking.preferred_date,
-              booking.slot_id
-            );
+    <Paragraph style={{ margin: 0, color: '#6b7280' }}>
+      <EnvironmentFilled style={{ marginRight: 8, color: '#ef4444' }} /> {employee.location}
+    </Paragraph>
 
-            return {
-              ...employee,
-              is_available: isAvailable,
-              availability_status: isAvailable ? ('available' as const) : ('unavailable' as const),
-            };
-          } catch (error) {
-            console.error(`Error checking availability for employee ${employee.id}:`, error);
-            return {
-              ...employee,
-              is_available: true,
-              availability_status: 'available' as const,
-            };
-          }
-        })
-      );
+    <Paragraph style={{ margin: 0, color: '#6b7280' }}>
+      <PhoneFilled style={{ marginRight: 8, color: '#ef4444' }} />{' '}
+      {employee.phone ? employee.phone : '+1 999-9999-99'}
+    </Paragraph>
+  </Card>
+);
 
-      return updatedEmployees;
-    } catch (error) {
-      console.error('Error in checkAllEmployeesAvailability:', error);
-      return employeesList;
-    } finally {
-      setCheckingAvailability(false);
-    }
-  };
 
-  const openAssignModal = async (bookingId: number) => {
-    setSelectedBookingId(bookingId);
-    setAssignModalVisible(true);
-    setSelectedEmployeeId(null);
-    setLoadingEmployees(true);
-    
-    try {
-      const data = await getAllUsers();
-      
-      if (!data || data.length === 0) {
-        console.log('No users returned from API');
-        setEmployees([]);
-        message.warning('No users found in the system');
-        setLoadingEmployees(false);
-        return;
-      }
+const Employees: React.FC = () => {
+  const [employees, setEmployees] = useState<any>([]);
+  const [locationFilter, setLocationFilter] = useState<string>('All Locations');
+  const [locationsData, setLocationsData] = useState<any>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>(employees);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
 
-      console.log('All users fetched:', data);
-      
-      // Filter employees based on the API response structure
-      const employeesList = data.filter((user: any) => 
-        user.role_id === 3 &&          // Employee role
-        user.is_active === true &&     // Active employees
-        user.is_assigned === false     // Not currently assigned
-      );
-
-      console.log('Filtered available employees:', employeesList);
-
-      if (employeesList.length === 0) {
-        setEmployees([]);
-        message.warning('No available employees. All employees are currently assigned.');
-        setLoadingEmployees(false);
-        return;
-      }
-
-      // Map employees according to API structure
-      const employeesWithStatus: Employee[] = employeesList.map((emp: any) => ({
-        id: emp.id,
-        first_name: emp.first_name,
-        last_name: emp.last_name,
-        email: emp.email,
-        role_id: emp.role_id,
-        mobile: emp.mobile,
-        age: emp.age,
-        gender_id: emp.gender_id,
-        is_active: emp.is_active,
-        is_assigned: emp.is_assigned,
-        dept_id: emp.dept_id,
-        location_id: emp.location_id,
-        depts: emp.depts || [],
-        availability_status: 'checking' as const,
-        is_available: false,
-      }));
-      
-      console.log('Employees with status:', employeesWithStatus);
-      setEmployees(employeesWithStatus);
-      setLoadingEmployees(false);
-      message.success(`Found ${employeesList.length} available employee(s)`);
-      
-      // Check availability
-      const updatedEmployees = await checkAllEmployeesAvailability(bookingId, employeesWithStatus);
-      setEmployees(updatedEmployees);
-      
-    } catch (error) {
-      console.error('Error in openAssignModal:', error);
-      message.error('Failed to load employees');
-      setEmployees([]);
-      setLoadingEmployees(false);
-    }
-  };
-
-  const closeAssignModal = () => {
-    setAssignModalVisible(false);
-    setSelectedBookingId(null);
-    setSelectedEmployeeId(null);
-  };
-
-  const handleAssignEmployee = async () => {
-  if (!selectedEmployeeId || !selectedBookingId) {
-    message.error("Please select an employee.");
-    return;
-  }
-
-  const selectedEmployee = employees.find((emp) => emp.id === selectedEmployeeId);
-
-  if (selectedEmployee && selectedEmployee.is_assigned) {
-    message.error("This employee is already assigned to another booking.");
-    return;
-  }
-
+  const getAllUsersApi = async () => {
   try {
-    // optimistic UI: mark chosen employee as assigned / unavailable locally
-    setEmployees((prev) =>
-      prev.map((e) =>
-        e.id === selectedEmployeeId ? { ...e, is_assigned: true, is_available: false } : e
-      )
-    );
+    const res = await getAllUsers();
+    console.log("Raw users from API:", res);
 
-    const result = await assignEmployeeToBooking(selectedBookingId, selectedEmployeeId);
 
-    // If server returned an issue updating status, show a non-blocking warning.
-    if (result && result.statusUpdated === false) {
-      message.warning(
-        "Employee assigned, but booking status could not be updated. Please check the booking."
-      );
-    } else {
-      message.success("Employee assigned and booking updated.");
-    }
+    const usersWithFullName = res.map((user: any) => ({
+      ...user,
+      name: `${user.first_name} ${user.last_name}`,
+      location: user.location_name || "Unknown",
+      status: user.is_assigned ? "Assigned" : "Available",  // ✅ use backend field
+      phone: user.mobile || "N/A",
+      depts: user.depts || []                               // ✅ include departments if provided
+    }));
 
-    // refresh bookings from server to ensure UI is consistent
-    const bookingsData = await getallBookings();
-    if (bookingsData) {
-      bookingsData.sort((a: any, b: any) => b.id - a.id);
-      setBookings(bookingsData || []);
-    }
-
-    closeAssignModal();
-  } catch (error: any) {
-    console.error("Assign failed:", error);
-
-    // revert optimistic change
-    setEmployees((prev) =>
-      prev.map((e) => (e.id === selectedEmployeeId ? { ...e, is_assigned: false } : e))
-    );
-
-    message.error(error?.message || "Failed to assign employee.");
+    setEmployees(usersWithFullName);
+  } catch (error) {
+    console.error("Error fetching users:", error);
   }
 };
 
 
-  const openDeleteModal = (bookingId: number) => {
-    setSelectedBookingId(bookingId);
-    setDeleteModalVisible(true);
-  };
 
-  const closeDeleteModal = () => {
-    setDeleteModalVisible(false);
-    setSelectedBookingId(null);
-  };
-
-  const handleDeleteBooking = async () => {
-    if (!selectedBookingId) return;
-    setIsDeleting(true);
+  const getAllLocationsApi = async() => {
     try {
-      await deleteBookingById(selectedBookingId);
-      message.success(`Booking #${selectedBookingId} deleted successfully.`);
-      setBookings((prevBookings: any[]) =>
-        prevBookings.filter((booking: any) => booking.id !== selectedBookingId)
-      );
-      closeDeleteModal();
-    } catch (error: any) {
-      console.error("Failed to delete booking:", error);
-      message.error(error.message || "Failed to delete booking.");
-    } finally {
-      setIsDeleting(false);
+      const res = await getAllLocations()
+      // console.log("Locations fetched:", res);
+      if(res){
+        const locationNames = res.map((loc:any) => ({label: loc.location_name, value: loc.id}));
+        setLocationsData(locationNames);
+      }
+    } catch (error) {
+      console.error("Error fetching locations:", error);
     }
+  }
+
+  useEffect(()=>{
+    getAllUsersApi()
+    getAllLocationsApi()
+  },[])
+
+
+
+  useEffect(() => {
+
+    let employeesToFilter = employees;
+    if (locationFilter !== 'All Locations') {
+      employeesToFilter = employees.filter((emp:any) => emp.location === locationFilter);
+    }
+    setFilteredEmployees(employeesToFilter);
+  }, [locationFilter, employees]);
+
+
+  const showModal = () => setIsModalVisible(true);
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    form.resetFields();
   };
 
-  const getSlotTime = (slotId: number): string => {
-    const slot = Slots.find((s) => s.id === slotId);
-    return slot ? slot.slot_time : "No Time";
-  };
+  const handleAddEmployee = async(values: any) => {
+    const newEmployee: any = {
+      id: Date.now(),
+      ...values,
+      status: 'Available',
+    };
+    // console.log('New Employee Data:', newEmployee);
 
-  const selectedBooking = bookings.find((b: any) => b.id === selectedBookingId);
+    newEmployee.role_id = newEmployee.Role === 'Admin' ? 2 : newEmployee.Role === 'Super Admin' ? 3 : 1;
+    newEmployee.dept_id = [newEmployee.services]
+    newEmployee.first_name = newEmployee.name
+    newEmployee.last_name = newEmployee.name
+    newEmployee.mobile = newEmployee.phone
+    newEmployee.location_id = newEmployee.location
+
+    delete newEmployee.Role;
+    delete newEmployee.services;
+
+    try {
+       const res = await createEmployee(newEmployee);
+       console.log('Employee created successfully:', res);
+    } catch (error) {
+        console.error("Error creating employee:", error);      
+    }
+    // console.log('New Employee Data:', newEmployee);
+
+    setEmployees((prev:any) => [newEmployee, ...prev]);
+    message.success('Employee added successfully!');
+    handleCancel();
+  };
+  
+  const locationOptions: SelectProps['options'] = [
+    {
+        value: 'All Locations',
+        label: (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <EnvironmentFilled style={{ color: '#ef4444', fontSize: '16px' }} />
+                <span>All Locations</span>
+            </div>
+        )
+    },
+    ...locations.map(loc => ({ label: loc, value: loc }))
+  ];
 
   return (
-    <div style={{ padding: 24 }}>
-      <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 24 }}>
-        Bookings Management
-      </Title>
-
-      <div
-        className="scrollable-content"
-        style={{
-          maxHeight: "calc(100vh - 180px)",
-          overflowY: "auto",
-          paddingRight: 12,
-          paddingLeft: 4,
-        }}
-      >
-        <Row gutter={[20, 20]}>
-          {bookings.length > 0 ? (
-            bookings.map((item: any) => (
-              <Col xs={24} key={item.id}>
-                <Card
-                  hoverable
-                  variant="outlined"
-                  style={{
-                    borderRadius: 16,
-                    transition: "all 0.3s",
-                    borderColor: "#e5e7eb",
-                    borderWidth: 1,
-                    cursor: "default",
-                  }}
-                  bodyStyle={{ padding: "20px 24px" }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                    const target = e.currentTarget as HTMLDivElement;
-                    target.style.borderColor = "#0D9488";
-                    target.style.borderWidth = "2px";
-                    target.style.boxShadow = "0 4px 15px rgba(13, 148, 136, 0.3)";
-                  }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                    const target = e.currentTarget as HTMLDivElement;
-                    target.style.borderColor = "#e5e7eb";
-                    target.style.borderWidth = "1px";
-                    target.style.boxShadow = "none";
-                  }}
-                >
-                  <Space
-                    direction="horizontal"
-                    style={{
-                      width: "100%",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Space direction="vertical" size={4}>
-                      <Title
-                        level={5}
-                        style={{
-                          fontSize: 16,
-                          color: "#115e59",
-                          fontWeight: 600,
-                          margin: 0,
-                        }}
-                      >
-                        {item.department?.department_name || "Unknown Department"}
-                      </Title>
-
-                      <Text
-                        type="secondary"
-                        style={{ fontSize: 13, fontWeight: 500, paddingBottom: 4 }}
-                      >
-                        Plan:{" "}
-                        {item.is_premium
-                          ? "Premium"
-                          : item.is_ultimate
-                          ? "Ultimate"
-                          : item.is_regular
-                          ? "Regular"
-                          : "N/A"}
-                      </Text>
-
-                      <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>
-                        <Text style={{ fontSize: 14 }}>
-                          <UserOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
-                          {item.full_name || "N/A"}
-                        </Text>
-                        <Text style={{ fontSize: 14 }}>
-                          <PhoneOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
-                          {item.phone || "N/A"}
-                        </Text>
-                        <Text style={{ fontSize: 14 }}>
-                          <EnvironmentOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
-                          {item.address || "N/A"}
-                        </Text>
-                        <Text style={{ fontSize: 14 }}>
-                          <CalendarOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
-                          {item.preferred_date
-                            ? moment(item.preferred_date).format("MMM D, YYYY")
-                            : "N/A"}{" "}
-                          - {getSlotTime(item.slot_id)}
-                        </Text>
-                      </Space>
-                    </Space>
-
-                    <Space direction="vertical" align="end" size={"middle"}>
-                      <span
-                        style={{
-                          backgroundColor:
-                            item.status?.status === "Pending"
-                              ? "#fef3c7"
-                              : item.status?.status === "Open"
-                              ? "#e0f2fe"
-                              : item.status?.status === "Completed"
-                              ? "#dcfce7"
-                              : item.status?.status === "In-Progress"
-                              ? "#ccfbf1"
-                              : "#f3f4f6",
-                          color:
-                            item.status?.status === "Pending"
-                              ? "#b45309"
-                              : item.status?.status === "Open"
-                              ? "#0284c7"
-                              : item.status?.status === "Completed"
-                              ? "#15803d"
-                              : item.status?.status === "In-Progress"
-                              ? "#0f766e"
-                              : "#4b5563",
-                          fontWeight: "bold",
-                          padding: "4px 12px",
-                          borderRadius: "16px",
-                          textAlign: "center",
-                          minWidth: 100,
-                          fontSize: 12,
-                        }}
-                      >
-                        {item.status?.status || "Unknown"}
-                      </span>
-                      <Button
-                        type="primary"
-                        className="sw-action-btn sw-assign"
-                        onClick={() => openAssignModal(item.id)}
-                        disabled={!item.status || item.status.status !== "Open"}
-                        style={{
-                          backgroundColor: "#0D9488",
-                          borderColor: "#0D9488",
-                        }}
-                      >
-                        Assign Employee
-                      </Button>
-                      <Button
-                        type="primary"
-                        danger
-                        className="sw-action-btn"
-                        onClick={() => openDeleteModal(item.id)}
-                      >
-                        Delete Booking
-                      </Button>
-                    </Space>
-                  </Space>
-                </Card>
-              </Col>
-            ))
-          ) : (
-            <Col xs={24} style={{ textAlign: "center", marginTop: 40 }}>
-              <Card
-                variant="outlined"
-                style={{
-                  borderRadius: 16,
-                  padding: "40px 0",
-                  borderColor: "#e5e7eb",
-                }}
-              >
-                <CalendarOutlined
-                  style={{ fontSize: 48, color: "#cbd5e1", marginBottom: 16 }}
-                />
-                <br />
-                <Text strong type="secondary" style={{ fontSize: 16, color: "#9ca3af" }}>
-                  No bookings found.
-                </Text>
-              </Card>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', animation: 'fadeIn 0.5s' }}>
+        <Row justify="space-between" align="middle" style={{ paddingBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+            <Col>
+                <Title level={2} style={{ margin: 0 }}>Employees</Title>
             </Col>
-          )}
+            <Col>
+                <Space wrap>
+                    <Select
+                        defaultValue="All Locations"
+                        style={{ width: 180 }}
+                        onChange={setLocationFilter}
+                        options={locationOptions} 
+                    />
+                    <Button className='color' icon={<PlusOutlined />} onClick={showModal}>
+                        Add Employee
+                    </Button>
+                </Space>
+            </Col>
         </Row>
-      </div>
 
-      {/* Assign Employee Modal */}
-      <Modal
-        title={
-          <div>
-            <Title level={4} style={{ margin: 0 }}>Assign Employee</Title>
-            {selectedBooking && (
-              <Text type="secondary" style={{ fontSize: 13 }}>
-                {moment(selectedBooking.preferred_date).format("MMM D, YYYY")} -{" "}
-                {getSlotTime(selectedBooking.slot_id)}
-              </Text>
-            )}
-          </div>
-        }
-        open={assignModalVisible}
-        onCancel={closeAssignModal}
-        footer={[
-          <Button key="back" onClick={closeAssignModal}>
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={handleAssignEmployee}
-            style={{ backgroundColor: "#0D9488", borderColor: "#0D9488" }}
-            disabled={!selectedEmployeeId || checkingAvailability}
-          >
-            Assign
-          </Button>,
-        ]}
-        width={650}
-        bodyStyle={{ padding: "16px 24px" }}
-      >
-        {checkingAvailability && (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "20px 0",
-              background: "#f0f9ff",
-              borderRadius: 8,
-              marginBottom: 16,
-            }}
-          >
-            <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-            <Text style={{ display: "block", marginTop: 12, color: "#0284c7" }}>
-              Checking employee availability...
-            </Text>
-          </div>
-        )}
-
-        <div
-          style={{
-            maxHeight: 400,
-            overflowY: "auto",
-            marginTop: 16,
-            paddingRight: 8,
-          }}
-        >
-          {loadingEmployees ? (
-            <div style={{ textAlign: "center", padding: "40px 0" }}>
-              <Spin size="large" />
-              <Text style={{ display: "block", marginTop: 12 }}>Loading employees...</Text>
-            </div>
-          ) : employees.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "40px 0" }}>
-              <UserOutlined style={{ fontSize: 48, color: "#cbd5e1", marginBottom: 16 }} />
-              <br />
-              <Text type="secondary" style={{ fontSize: 15 }}>
-                No available employees to assign.
-              </Text>
-              <br />
-              <Text type="secondary" style={{ fontSize: 13, display: 'block', marginTop: 8 }}>
-                All employees are currently assigned to other bookings.
-              </Text>
-            </div>
-          ) : (
-            employees.map((employee: Employee) => {
-              const fullName = `${employee.first_name || ""} ${
-                employee.last_name || ""
-              }`.trim();
-              const firstLetter = employee.first_name?.[0]?.toUpperCase() || "U";
-              const isAvailable = employee.is_available;
-              const isChecking = employee.availability_status === "checking";
-
-              return (
-                <Card
-                  key={employee.id}
-                  hoverable={isAvailable}
-                  style={{
-                    marginBottom: 12,
-                    borderRadius: 12,
-                    border:
-                      selectedEmployeeId === employee.id
-                        ? "2px solid #14b8a6"
-                        : isAvailable
-                        ? "1px solid #e8e8e8"
-                        : "1px solid #fca5a5",
-                    cursor: isAvailable ? "pointer" : "not-allowed",
-                    transition: "all 0.2s",
-                    boxShadow:
-                      selectedEmployeeId === employee.id
-                        ? "0 0 0 2px rgba(20, 184, 166, 0.2)"
-                        : "none",
-                    userSelect: "none",
-                    opacity: isAvailable ? 1 : 0.6,
-                    background: isAvailable ? "#ffffff" : "#fef2f2",
-                  }}
-                  onClick={() => isAvailable && setSelectedEmployeeId(employee.id)}
-                  bodyStyle={{ padding: 16 }}
-                >
-                  <Space
-                    style={{ width: "100%", justifyContent: "space-between" }}
-                    align="center"
-                  >
-                    <Space size="middle" align="center">
-                      <Badge
-                        count={
-                          isChecking ? (
-                            <LoadingOutlined style={{ color: "#14b8a6" }} />
-                          ) : isAvailable ? (
-                            <CheckCircleOutlined
-                              style={{ color: "#22c55e", fontSize: 18 }}
-                            />
-                          ) : (
-                            <CloseCircleOutlined
-                              style={{ color: "#ef4444", fontSize: 18 }}
-                            />
-                          )
-                        }
-                        offset={[-5, 5]}
-                      >
-                        <Avatar
-                          style={{
-                            backgroundColor: isAvailable ? "#14b8a6" : "#9ca3af",
-                            verticalAlign: "middle",
-                          }}
-                          size="large"
-                        >
-                          {firstLetter}
-                        </Avatar>
-                      </Badge>
-                      <div>
-                        <div style={{ fontSize: 16, lineHeight: 1.2, fontWeight: 500 }}>
-                          {fullName || "Unnamed Employee"}
-                        </div>
-                        <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
-                          {employee.email}
-                        </div>
-                        {employee.mobile && (
-                          <div style={{ fontSize: 12, color: "#999", marginTop: 2 }}>
-                            📞 {employee.mobile}
-                          </div>
-                        )}
-                      </div>
-                    </Space>
-
-                    <Tooltip
-                      title={
-                        isAvailable
-                          ? "Available for assignment"
-                          : "Not available for this time slot"
-                      }
-                    >
-                      <span
-                        style={{
-                          padding: "4px 12px",
-                          borderRadius: 12,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          background: isAvailable ? "#dcfce7" : "#fee2e2",
-                          color: isAvailable ? "#15803d" : "#991b1b",
-                        }}
-                      >
-                        {isChecking
-                          ? "Checking..."
-                          : isAvailable
-                          ? "Available"
-                          : "Unavailable"}
-                      </span>
-                    </Tooltip>
-                  </Space>
-                </Card>
-              );
-            })
-          )}
+        <div className="scrollable-grid" style={{ flex: 1, overflowY: 'auto' }}>
+            <Row gutter={[24, 24]}>
+                {filteredEmployees.map(employee => (
+                    <Col xs={24} sm={12} lg={8} xl={6} key={employee.id}>
+                        <EmployeeCard employee={employee} />
+                    </Col>
+                ))}
+            </Row>
         </div>
-      </Modal>
 
-      {/* Delete Modal */}
-      <Modal
-        title={
-          <Title level={3} style={{ color: "#ef4444" }}>
-            Confirm Deletion
-          </Title>
-        }
-        open={deleteModalVisible}
-        onCancel={closeDeleteModal}
-        footer={[
-          <Button key="back" onClick={closeDeleteModal}>
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            danger
-            loading={isDeleting}
-            onClick={handleDeleteBooking}
-          >
-            Confirm Delete
-          </Button>,
-        ]}
-        centered
-      >
-        <Text style={{ fontSize: 15 }}>
-          Are you sure you want to delete this booking?
-        </Text>
-        {selectedBooking && (
-          <div
-            style={{
-              marginTop: 16,
-              padding: "12px 16px",
-              background: "#fff1f2",
-              borderRadius: 8,
-              border: "1px solid #ffccc7",
-            }}
-          >
-            <Text strong>
-              {selectedBooking.department?.department_name || "N/A"}
-            </Text>
-            <br />
-            <Text type="secondary" style={{ fontSize: 13 }}>
-              Plan: {selectedBooking.services || "N/A"}
-            </Text>
-            <br />
-            <Text type="secondary" style={{ fontSize: 13 }}>
-              Customer: {selectedBooking.full_name || "N/A"}
-            </Text>
-            <br />
-            <Text type="secondary" style={{ fontSize: 13 }}>
-              Date:{" "}
-              {moment(selectedBooking.preferred_date).format("MMM D, YYYY") ||
-                "N/A"}{" "}
-              - {getSlotTime(selectedBooking.slot_id)}
-            </Text>
-          </div>
-        )}
-        <Text
-          type="danger"
-          style={{ display: "block", marginTop: 16, fontWeight: "600" }}
+        <Modal
+            title="Add New Employee"
+            open={isModalVisible}
+            onCancel={handleCancel}
+            footer={[
+                <Button key="back" style={{borderColor:'#14B8A6',color:'black'}} onClick={handleCancel}>Cancel</Button>,
+                <Button key="submit" style={{backgroundColor:' #14B8A6',color:'#ffffff',borderColor:'#14B8A6'}} onClick={() => form.submit()}>Add Employee</Button>
+            ]}
         >
-          This action cannot be undone.
-        </Text>
-      </Modal>
+            <Form form={form} layout="vertical" onFinish={handleAddEmployee}>
+                <Form.Item name="name" label="Full Name" rules={[{ required: true }]}>
+                    <Input placeholder="Enter full name"/>
+                </Form.Item>
+                 <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
+                    <Input placeholder="Enter email address"/>
+                </Form.Item>
+                <Form.Item name="phone" label="Phone Number" rules={[{ required: true }]}>
+                    <Input placeholder="Enter phone number" />
+                </Form.Item>
+                <Form.Item name="location" label="Location" rules={[{ required: true }]}>
+                    <Select options={locationsData} placeholder="Select location"/>
+                </Form.Item>
+                <Form.Item name="services" label="Services" rules={[{ required: true }]}>
+                    <Select allowClear options={allServices.map((sl,index:any) => ({ label: sl, value: index+1 }))} placeholder="Select services"/>
+                </Form.Item>
+                  <Form.Item name="Role" label="Role" rules={[{ required: true }]}>
+                    <Select allowClear options={Role.map(s => ({ label: s, value: s }))} placeholder="Select Role"/>
+                </Form.Item>
+            </Form>
+        </Modal>
+
+        <style>
+        {`
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .ant-card-hoverable:hover {
+                border-color: #14b8a6 !important;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            }
+            .scrollable-grid::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollable-grid {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        `}
+        </style>
     </div>
   );
 };
 
-export default Bookings;
+export default Employees;
