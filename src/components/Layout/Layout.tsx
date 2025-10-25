@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { NotificationOutlined, UserOutlined, LogoutOutlined, CalendarOutlined, ScheduleOutlined, UsergroupAddOutlined, SettingOutlined } from '@ant-design/icons';
+import { NotificationOutlined, UserOutlined, LogoutOutlined, CalendarOutlined, ScheduleOutlined, UsergroupAddOutlined, SettingOutlined,FileTextOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import { Outlet, useNavigate } from 'react-router-dom';
@@ -15,6 +15,7 @@ const MenuItems: any = [
   { menuIcon: CalendarOutlined, label: 'Bookings' },
   { menuIcon: ScheduleOutlined, label: 'Tickets' },
   { menuIcon: UsergroupAddOutlined, label: 'Employees' },
+   { menuIcon: FileTextOutlined, label: 'MIS-Reports' },
   { menuIcon: SettingOutlined, label: 'Settings' },
   { menuIcon: LogoutOutlined, label: 'Logout' },
 ];
@@ -65,6 +66,7 @@ const LayoutComponent: React.FC = () => {
     if (e.key === 'Services') navigate('/app/services');
     if (e.key === 'Bookings') navigate('/app/bookings');
     if (e.key === 'Tickets') navigate('/app/Tickets');
+     if (e.key === 'MIS-Reports') navigate('/app/reports');
 
     if (e.key === 'Logout') {
       localStorage.removeItem('user');

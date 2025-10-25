@@ -7,6 +7,8 @@ import Tickets from "../../pages/tickets/Tickets";
 import Bookings from "../../pages/bookings/Bookings";
 // import Profile from "../../pages/profile/Profile";
 import Employees from "../../pages/employees/Employees";
+import Reports from "../../pages/Reports/Reports";
+
 export const SecureRoutes = () => {
     
     return <Routes>
@@ -18,6 +20,7 @@ export const SecureRoutes = () => {
             <Route path="services" element={<Services />} />
             <Route path="tickets" element={<Tickets />} />
             <Route path="bookings" element={<Bookings />} />
+            <Route path="reports" element={<Reports />} />
 
 
         </Route>

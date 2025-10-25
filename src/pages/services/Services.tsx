@@ -10,6 +10,7 @@ import {
   DatePicker,
   message,
   Table,
+  
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -18,6 +19,7 @@ import {
   MailOutlined,
   CheckOutlined,
   CloseOutlined,
+  CalendarOutlined,
 } from '@ant-design/icons';
 import dayjs, { Dayjs } from "dayjs";
 import type { TableProps } from 'antd';
@@ -192,86 +194,164 @@ const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, b
   };
 
   return (
-    <Card style={{ maxWidth: 980, margin: '20px auto', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-      <Row align="middle" wrap={false} style={{ marginBottom: 24, borderBottom: '1px solid #f0f0f0' }}>
-        <Col flex="none" style={{ marginRight: 12 }}>
-          <BackButton onClick={goBack} ariaLabel="Go back" />
-        </Col>
-        <Col flex="auto">
-          <Title level={4} style={{ margin: 0, fontWeight: 600 }}>Booking Details</Title>
-          <Text type="secondary">
-            {bookingDetails?.category ?? 'Service'} {bookingDetails?.plan ? `• ${bookingDetails.plan} Plan` : ''}
-          </Text>
-        </Col>
-      </Row>
+    <div style={{ padding: '20px', minHeight: '100vh', background: '#f5f7fa' }}>
+  <Card style={{ 
+    maxWidth: 1100, 
+    margin: '0 auto', 
+    borderRadius: 16,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+  }}>
+    <Row align="middle" wrap={false} style={{ marginBottom: 20 }}>
+      <Col flex="none" style={{ marginRight: 12 }}>
+        <BackButton onClick={goBack} ariaLabel="Go back" />
+      </Col>
+      <Col flex="auto">
+        <Title level={4} style={{ margin: 0 }}>Booking Details</Title>
+        <Text type="secondary">
+          {bookingDetails?.category ?? ''} {bookingDetails?.plan ? `• ${bookingDetails.plan}` : ''}
+        </Text>
+      </Col>
+    </Row>
 
-      <Form form={form} layout="vertical" onFinish={onFinish} requiredMark="optional">
+    <div style={{ 
+      maxHeight: 'calc(100vh - 200px)', 
+      overflowY: 'auto',
+      paddingRight: '8px',
+      paddingBottom: '20px'
+    }}>
+      <Form form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
         <Row gutter={32}>
           <Col xs={24} md={12}>
-            <Title level={5} style={{ fontWeight: 500}}>Your Information</Title>
-            <Form.Item name="name" label="Full Name" rules={[{ required: true, message: 'Please enter your full name' }]}>
-              <Input size="large" prefix={<UserOutlined style={{color: '#9ca3af'}}/>} placeholder="e.g., Jane Doe" />
-            </Form.Item>
-            <Form.Item
-              name="phone"
-              label="Phone Number"
+            <Title level={5} style={{ marginTop: 0, marginBottom: 20, fontSize: 16 }}>
+              Your Information
+            </Title>
+
+            <Form.Item 
+              name="name" 
+              label="Full name" 
               rules={[
-                { required: true, message: 'Please enter your 10-digit phone number' },
-                { pattern: /^\d{10}$/, message: 'Must be exactly 10 digits' },
+                { required: true, message: 'Enter your full name' },
+                { min: 3, message: 'Name must be at least 3 characters' },
+                { 
+                  pattern: /^[a-zA-Z\s]+$/, 
+                  message: 'Name should only contain letters' 
+                }
               ]}
+              style={{ marginBottom: 16 }}
             >
-              <Input
+              <Input 
+                prefix={<UserOutlined />} 
+                placeholder="e.g., Jane Doe" 
+                maxLength={50}
                 size="large"
-                value={phone}
-                placeholder="9876543210"
-                inputMode="numeric"
-                maxLength={10}
-                onChange={(e) => {
-                  const only = e.target.value.replace(/\D/g, '');
-                  setPhone(only);
-                  form.setFieldsValue({ phone: only });
-                }}
               />
             </Form.Item>
+
+             <Form.Item
+            name="phone"
+            label="Phone"
+            rules={[
+              { required: true, message: 'Enter your phone number' },
+              { 
+                pattern: /^[6-9]\d{9}$/, 
+                message: 'Enter a valid 10-digit mobile number starting with 6-9' 
+              },
+            ]}
+          >
+            <Input
+              value={phone}
+              placeholder="9876543210"
+              inputMode="numeric"
+              maxLength={10}
+              onChange={(e) => {
+                const only = e.target.value.replace(/\D/g, '');
+                setPhone(only);
+                form.setFieldsValue({ phone: only });
+              }}
+              onKeyDown={(e) => {
+                const allow = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                if (allow.includes(e.key)) return;
+                if (!/^\d$/.test(e.key)) e.preventDefault();
+              }}
+            />
+          </Form.Item>
+
             <Form.Item
               name="email"
-              label="Email Address"
-              rules={[{ type: 'email', message: 'Please enter a valid email address' }, { required: true, message: 'Please enter your email' }]}
+              label="Email"
+              rules={[
+                { required: true, message: 'Enter your email' },
+                { type: 'email', message: 'Enter a valid email address' }
+              ]}
+              style={{ marginBottom: 16 }}
             >
-              <Input size="large" prefix={<MailOutlined style={{color: '#9ca3af'}}/>} placeholder="name@example.com" />
+              <Input 
+                prefix={<MailOutlined />} 
+                placeholder="name@example.com" 
+                maxLength={100}
+                size="large"
+              />
             </Form.Item>
-            <Form.Item name="address" label="Full Address" rules={[{ required: true, message: 'Please enter your service address' }]}>
-              <Input.TextArea size="large" rows={3} placeholder="Flat/House No., Street Name, Landmark, City, Pincode" />
+
+            <Form.Item 
+              name="address" 
+              label="Address" 
+              rules={[
+                { required: true, message: 'Enter your address' },
+                { min: 10, message: 'Address must be at least 10 characters' }
+              ]}
+              style={{ marginBottom: 24 }}
+            >
+              <Input.TextArea 
+                rows={4} 
+                placeholder="Flat, street, landmark, city, postal code" 
+                maxLength={200}
+                style={{ 
+                  resize: 'none',
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  minHeight: 100
+                }}
+                showCount
+              />
             </Form.Item>
           </Col>
 
           <Col xs={24} md={12}>
-            <Title level={5} style={{marginBottom: 16, fontWeight: 500}}>Scheduling</Title>
-            <Form.Item name="date" label="Preferred Date" rules={[{ required: true, message: 'Please select a service date' }]}>
+            <Title level={5} style={{ marginTop: 0, marginBottom: 20, fontSize: 16 }}>
+              Scheduling
+            </Title>
+
+            <Form.Item 
+              name="date" 
+              label="Preferred date" 
+              rules={[{ required: true, message: 'Pick a date' }]}
+              style={{ marginBottom: 16 }}
+            >
               <DatePicker
-                size="large"
                 style={{ width: '100%' }}
                 placeholder="Select date"
-                disabledDate={(d: Dayjs) => d && !d.isAfter(dayjs().subtract(1, 'day').endOf('day'))}
-                value={selectedDate}
-                onChange={(d: Dayjs | null) => {
-                    if (d) {
-                        setSelectedDate(d);
-                        if (selectedTime && !canUseSlot(d, selectedTime)) {
-                            setSelectedTime(null);
-                        }
-                        form.setFieldsValue({ date: d });
-                    } else {
-                        setSelectedDate(null); 
-                        setSelectedTime(null);
-                        form.setFieldsValue({ date: null });
-                    }
+                size="large"
+                suffixIcon={<CalendarOutlined />}
+                disabledDate={(d: Dayjs) => {
+                  if (!d) return false;
+                  const today = dayjs().startOf('day');
+                  const maxDate = dayjs().add(90, 'days');
+                  return d.isBefore(today) || d.isAfter(maxDate);
                 }}
-                 inputReadOnly
+                value={selectedDate}
+                onChange={(d) => {
+                  setSelectedDate(d);
+                  if (selectedTime && d && !canUseSlot(d, selectedTime)) {
+                    setSelectedTime(null);
+                  }
+                  form.setFieldsValue({ date: d });
+                }}
               />
             </Form.Item>
-            <Form.Item label="Preferred Time Slot" required>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+
+            <Form.Item label="Preferred time" required style={{ marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {timeSlots.map((slot) => {
                   const enabled = canUseSlot(selectedDate, slot);
                   const isSelected = enabled && selectedTime === slot;
@@ -285,39 +365,62 @@ const BookingFormView: React.FC<BookingFormViewProps> = ({ navigateTo, goBack, b
                       size="large"
                       style={
                         isSelected
-                          ? { background: "#14b8a6", borderColor: "#14b8a6", color: '#fff', fontWeight: 500, boxShadow: '0 2px 6px rgba(20, 184, 166, 0.3)' }
-                          : { background: enabled ? "#f0fdfa" : "#f1f5f9",
-                              borderColor: enabled ? "#a7f3d0" : "#e5e7eb",
-                              color: enabled ? "#0f766e" : "#9ca3af",
+                          ? { 
+                              background: "#14b8a6", 
+                              borderColor: "#14b8a6", 
+                              height: 50,
                               fontWeight: 500
                             }
+                          : { 
+                              background: enabled ? "#f2f7f6" : "#f5f5f5", 
+                              borderColor: enabled ? "#14b8a6" : "#eee", 
+                              color: enabled ? "#111" : "#aaa",
+                              height: 50
+                            }
                       }
-                      title={!enabled && selectedDate ? "This time slot is unavailable today" : undefined}
+                      title={!enabled && selectedDate ? "This slot has already started" : undefined}
+                      aria-label={`Time slot ${slot}`}
                     >
                       {slot}
                     </Button>
                   );
                 })}
               </div>
-               {!selectedTime && <Text type="danger" style={{fontSize: 12, marginTop: 4, display: 'block'}}>Please select a time slot.</Text>}
+              {!selectedDate && (
+                <Text type="secondary" style={{ fontSize: 12, marginTop: 8, display: 'block' }}>
+                  Please select a date first
+                </Text>
+              )}
+              {!selectedTime && selectedDate && (
+                <Text type="danger" style={{ fontSize: 12, marginTop: 8, display: 'block' }}>
+                  Please select a time slot
+                </Text>
+              )}
             </Form.Item>
 
-            <Form.Item style={{ marginTop: 24 }}>
-              <Button
-                type="primary"
-                htmlType="submit"
-                block
-                size="large"
-                loading={submitting}
-                style={{ background: '#0D9488', borderColor: '#0D9488', height: 48, fontWeight: 600 }}
-              >
-                Confirm & Place Order
-              </Button>
-            </Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={submitting}
+              disabled={submitting || !selectedTime}
+              style={{ 
+                background: '#14b8a6', 
+                borderColor: '#14b8a6',
+                height: 52,
+                fontSize: 16,
+                fontWeight: 600
+              }}
+            >
+              {submitting ? 'Placing Order...' : 'Confirm & Place Order'}
+            </Button>
           </Col>
         </Row>
       </Form>
-    </Card>
+    </div>
+  </Card>
+</div>
   );
 };
 
