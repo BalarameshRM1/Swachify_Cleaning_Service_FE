@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Modal, Form, Input, Checkbox, message, Menu, Drawer } from 'antd';
 import { 
   PhoneOutlined, 
-  MailOutlined, 
+  MailOutlined,
   EnvironmentOutlined, 
   ClockCircleOutlined,
   MenuOutlined,
