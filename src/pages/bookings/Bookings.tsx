@@ -339,6 +339,7 @@ const Bookings: React.FC = () => {
           overflowY: "auto",
           paddingRight: 12,
           paddingLeft: 4,
+          paddingBottom: 60,
         }}
       >
         <Row gutter={[20, 20]}>
@@ -355,7 +356,7 @@ const Bookings: React.FC = () => {
                     borderWidth: 1,
                     cursor: "default",
                   }}
-                  bodyStyle={{ padding: "20px 24px" }}
+                  bodyStyle={{ padding: "20px 24px  " }}
                   onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                     const target = e.currentTarget as HTMLDivElement;
                     target.style.borderColor = "#0D9488";
