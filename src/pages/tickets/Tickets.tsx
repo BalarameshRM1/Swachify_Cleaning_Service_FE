@@ -8,16 +8,6 @@ import { getAllUsers } from "../../app/services/auth";
 
 const { Text, Title } = Typography;
 
-// interface Ticket {
-//   id: number;
-//   service: string;
-//   employee: string;
-//   customerName: string;
-//   address: string;
-//   time: string;
-//   status: "open" | "Pending" | "In-Progress" | "Completed";
-// }
-
 const Slots = [
   {
     "id": 1,
@@ -45,7 +35,6 @@ const Slots = [
   }
 ]
 
-// const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 
 const Tickets: React.FC = () => {
   const [filter, setFilter] = useState<"all" | "Open" | "Pending" | "In-Progress" | "Completed">("all");
@@ -334,7 +323,6 @@ const Tickets: React.FC = () => {
                   </Row>
 
                   <Title level={4} style={{ marginTop: "8px" }}>
-                    {/* {ticket?.service} */}
                     {ticket?.department?.department_name}
                   </Title>
 
@@ -357,10 +345,8 @@ const Tickets: React.FC = () => {
                   <br />
                   <Text>
                     <CalendarOutlined /> {moment(ticket?.preferred_date).format("LLL") || "No Date Provided"} - {Slots.find((slot) => slot.id === ticket?.slot_id)?.slot_time}
-                    {/* {ticket?.created_date} */}
                   </Text>
 
-                                      {/* Action buttons */}
 
                   {getUserDetails('user')?.role_id === 3 && (
                     <Row justify="end" style={{ marginTop: 12, gap: 8 }}>
@@ -413,36 +399,12 @@ const Tickets: React.FC = () => {
                       )}
                     </Row>                    
                   )}
-
-
-                  {/* {ticket?.status?.status === "Completed" && (
-                    <Row justify="end" style={{ marginTop: 12 }}>
-                      <Col>
-                        <Card
-                          size="small"
-                          style={{
-                            backgroundColor: "#f3f4f6",
-                            borderRadius: 6,
-                            width: 180,
-                            textAlign: "center",
-                          }}
-                        >
-                          <Text style={{ fontWeight: 500 }}>Customer's OTP</Text>
-                          <br />
-                          <Text style={{ color: "red", fontWeight: 600, fontSize: 16 }}>
-                            {generateOTP()}
-                          </Text>
-                        </Card>
-                      </Col>
-                    </Row>
-                  )} */}
                 </Card>
               </Col>
             ))
           )}
         </Row>
       </div>
-            {/* OTP Modal */}
       <Modal
         title={<b>Verify Start OTP</b>}
         centered
