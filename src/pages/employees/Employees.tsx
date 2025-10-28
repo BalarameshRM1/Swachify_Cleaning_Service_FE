@@ -3,6 +3,12 @@ import type { SelectProps } from 'antd';
 import { Card, Col, Row, Select, Typography, Avatar, Tag, Button, Modal, Form, Input, message, Space, Divider } from 'antd';
 import { PhoneFilled, EnvironmentFilled, PlusOutlined } from '@ant-design/icons'; 
 import { createEmployee, getAllUsers, getAllLocations } from "../../app/services/auth";
+import { Popconfirm } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
+import { deleteEmployeeById } from '../../app/services/auth';
+
+
+
 // import { services } from '../../utils/constants/data';
 
 
@@ -40,7 +46,10 @@ const Role = ['Employee','Admin','Super Admin'];
 
 
 
-const EmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => (
+
+const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => void }> = ({ employee, onDelete }) => (
+  
+
   <Card
     hoverable
     style={{
@@ -50,6 +59,25 @@ const EmployeeCard: React.FC<{ employee: Employee }> = ({ employee }) => (
       transition: 'all 0.3s ease',
     }}
   >
+    <Popconfirm
+  title="Are you sure you want to delete this employee?"
+  onConfirm={() => onDelete(employee.id)}
+  okText="Yes"
+  cancelText="No"
+>
+  <Button
+    type="text"
+    danger
+    icon={<DeleteOutlined />}
+    style={{
+      position: "absolute",
+      top: 8,
+      right: 8,
+      borderRadius: "8px",
+    }}
+  />
+</Popconfirm>
+
     <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
       <Avatar
         size={64}
@@ -222,6 +250,18 @@ const Employees: React.FC = () => {
     },
     ...locations.map(loc => ({ label: loc, value: loc }))
   ];
+ const handleDeleteEmployee = async (id: number) => {
+  try {
+    await deleteEmployeeById(id);
+    setEmployees((prev: any) => prev.filter((emp: any) => emp.id !== id));
+    message.success("Employee deleted successfully!");
+  } catch (error) {
+    console.error("Error deleting employee:", error);
+    message.error("Failed to delete employee!");
+  }
+};
+
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', animation: 'fadeIn 0.5s' }}>
@@ -248,7 +288,9 @@ const Employees: React.FC = () => {
             <Row gutter={[24, 24]}>
                 {filteredEmployees.map(employee => (
                     <Col xs={24} sm={12} lg={8} xl={6} key={employee.id}>
-                        <EmployeeCard employee={employee} />
+<EmployeeCard employee={employee} onDelete={handleDeleteEmployee} />
+
+
                     </Col>
                 ))}
             </Row>
