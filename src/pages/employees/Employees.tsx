@@ -238,7 +238,7 @@ const Employees: React.FC = () => {
                         options={locationOptions} 
                     />
                     <Button className='color' icon={<PlusOutlined />} onClick={showModal}>
-                        Add Employee
+                        Add User
                     </Button>
                 </Space>
             </Col>
@@ -255,7 +255,7 @@ const Employees: React.FC = () => {
         </div>
 
         <Modal
-            title="Add New Employee"
+            title="Add New User"
             open={isModalVisible}
             onCancel={handleCancel}
             footer={[
@@ -264,15 +264,37 @@ const Employees: React.FC = () => {
             ]}
         >
             <Form form={form} layout="vertical" onFinish={handleAddEmployee}>
-                <Form.Item name="name" label="Full Name" rules={[{ required: true }]}>
-                    <Input placeholder="Enter full name"/>
-                </Form.Item>
-                 <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
-                    <Input placeholder="Enter email address"/>
-                </Form.Item>
-                <Form.Item name="phone" label="Phone Number" rules={[{ required: true }]}>
-                    <Input placeholder="Enter phone number" />
-                </Form.Item>
+               <Form.Item name="name" label="Full Name" rules={[{ required: true, message: 'Please enter full name' },
+              {
+              pattern: /^[A-Za-z]{2,}\s[A-Za-z]{2,}$/,
+              message: 'Enter valid full name (First and Last name, letters only, one space)'
+              } ]}>
+            <Input placeholder="Enter full name" />
+              </Form.Item>
+
+                <Form.Item name="email" label="Email" rules={[ { required: true, message: 'Please enter email' },
+                {
+               type: 'email',
+               message: 'Please enter a valid email',
+                },
+               {
+                pattern: /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
+               message: 'Email must be a valid Gmail address', }, ]}
+               normalize={(value) => value?.trim()} >
+              <Input placeholder="Enter email address" />
+              </Form.Item>
+
+
+               <Form.Item name="phone" label="Phone Number" rules={[ { required: true, message: 'Phone number is required' },
+                 {
+                  pattern: /^\d{10}$/,
+                  message: 'Phone number must be exactly 10 digits',
+                  },
+                   ]}>
+                 <Input placeholder="Enter 10-digit phone number" maxLength={10}
+                   onKeyPress={(e) => { if (!/[0-9]/.test(e.key)) { e.preventDefault(); } }}/>
+               </Form.Item>
+
                 <Form.Item name="location" label="Location" rules={[{ required: true }]}>
                     <Select options={locationsData} placeholder="Select location"/>
                 </Form.Item>
