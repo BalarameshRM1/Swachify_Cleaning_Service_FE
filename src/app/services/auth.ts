@@ -137,6 +137,25 @@ export const createEmployee = async (empData:any) => {
     throw error;
   }
 };
+export const deleteEmployeeById = async (id: number) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/User/deleteuser?id=${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    if (!response.ok) {
+      const errorBody = await response.json();
+      throw new Error(JSON.stringify(errorBody));
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleteEmployeeById:", error);
+    throw error;
+  }
+};
+
 
 
 export const serviceForm = async(bookingId:any ,deptId:any ,serviceId:any,slotId:any,createdBy:any,full_name:any ,modifiedBy:any ,email:any ,phone:any ,address:any ,services:any,isActive:any, preferredDate:any,is_regular: boolean, is_premium: boolean, is_ultimate: boolean ) =>{
