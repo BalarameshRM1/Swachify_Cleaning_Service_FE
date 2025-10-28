@@ -1,35 +1,32 @@
 import { useEffect } from 'react';
-import { Routes, Route } from "react-router-dom";
-// import Login from "../../pages/login/Login";
-import { useNavigate} from "react-router-dom";
-// import Register from '../../pages/register/Register';
+import { Routes, Route, useNavigate } from "react-router-dom";
 import ForgotPassword from '../../pages/forgotpassword/ForgotPassword';
-// import Dashboard from '../../pages/dashboard/Dashboard';
 import Landing from '../../pages/landing/landingpage';
+import PrivacyPolicy from '../../pages/privacy/PrivacyPolicy';
+import TermsOfService from '../../pages/terms/TermsOfService';
 import { getUserDetails } from '../../utils/helpers/storage';
 
-
 export const NonSecureRoutes = () => {
-    const navigate = useNavigate()
-    
-        useEffect(()=>{
+  const navigate = useNavigate();
 
-            let userData:any = getUserDetails('user')
-    
-            if(userData != null){
-                navigate('/app/dashboard')
-            }else{
-                navigate('/landing')
-            }
-        },[])
+  useEffect(() => {
+    const userData: any = getUserDetails('user');
+    const currentPath = window.location.pathname;
 
-    return <Routes>
-        <Route path="/landing" element={<Landing />} />
-        {/* <Route path="/login" element={<Login />} /> */}
-        {/* <Route path="/register" element={<Register />} /> */}
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
-        {/* <Route path='/dashboard' element={<Dashboard/>} /> */}
-        {/* <Route path="/services" element={<Services />} /> */}
-         
+    if (userData && !currentPath.startsWith('/app')) {
+      navigate('/app/dashboard');
+    } else if (!userData && (currentPath === '/' || currentPath === '')) {
+      navigate('/landing');
+    }
+  }, [navigate]);
+
+  return (
+    <Routes>
+      <Route path="/landing" element={<Landing />} />
+      <Route path="/forgotpassword" element={<ForgotPassword />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
     </Routes>
-}
+  );
+};
+ 

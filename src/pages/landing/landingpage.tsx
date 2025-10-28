@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { Button, Modal, Form, Input, Checkbox, message, Menu, Drawer } from 'antd';
 import { 
   PhoneOutlined, 
@@ -26,24 +26,67 @@ const Landing = () => {
   const [activeTab] = useState('login');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loginForm] = Form.useForm();
+
+
+
 // const [registerForm] = Form.useForm();
-// const [users, setUsers] = useState<any[]>([]);  
-// const [currentUserData, setCurrentUserData] = useState<any>(null);  
+// const [users, setUsers] = useState<any[]>([]);  // ✅ Added persistent storage
+// const [currentUserData, setCurrentUserData] = useState<any>(null);  // ✅ Track logged-in user
 const navigate = useNavigate();
 const dispatch = useAppDispatch();
 const { loading} = useAppSelector((state) => state.user);
 
   // const saveUser = (user: any) => {
-  //   setUsers(prevUsers => [...prevUsers, user]);  
+  //   setUsers(prevUsers => [...prevUsers, user]);  // ✅ Properly updates state
   // };
 
 // const findUser = (email: string) => {
-//   return users.find((u: any) => u.email === email);  
+//   return users.find((u: any) => u.email === email);  // ✅ Reads from actual state
 // };
 
+useEffect(() => {
+  const savedUsers = JSON.parse(localStorage.getItem('savedUsers') || '[]');
+  const lastUsed = localStorage.getItem('lastUsedEmail');
+
+  if (savedUsers.length > 0) {
+    const matchedUser = savedUsers.find((u: any) => u.email === lastUsed) || savedUsers[0];
+    loginForm.setFieldsValue({
+      email: matchedUser.email,
+      password: matchedUser.password,
+      remember: true,
+    });
+  }
+}, [loginForm]);
+
+
+
+
+
 const handleLogin = async (values: any) => {
+    const { email, password, remember } = values;
+
+  if (remember) {
+    const savedUsers = JSON.parse(localStorage.getItem('savedUsers') || '[]');
+
+    // Check if user already exists
+    const userExists = savedUsers.some((u: any) => u.email === email);
+
+    if (!userExists) {
+      savedUsers.push({ email, password });
+    } else {
+      // update existing user’s password
+      const updatedUsers = savedUsers.map((u: any) =>
+        u.email === email ? { email, password } : u
+      );
+      localStorage.setItem('savedUsers', JSON.stringify(updatedUsers));
+    }
+
+    localStorage.setItem('savedUsers', JSON.stringify(savedUsers));
+    localStorage.setItem('lastUsedEmail', email);
+  }
   const response = await dispatch(loginUser({ email: values.email, password: values.password }));
   // console.log('Login response:', response);
+ 
 
   if(response.meta.requestStatus === 'rejected') {
     message.error(response.payload || 'Login failed. Please try again.');
@@ -175,14 +218,14 @@ const handleLogin = async (values: any) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      overflow: 'hidden', 
+      overflow: 'hidden', // 👈 ensures image fits inside rounded box
     }}
   >
     <img
       src={BrandLogo}
       alt="Swachify Logo"
       style={{
-        width: '100%',  
+        width: '100%',  // 👈 adjust size as needed
         height: '100%',
         objectFit: 'contain',
       }}
@@ -270,7 +313,7 @@ const handleLogin = async (values: any) => {
         </Menu>
       </Drawer>
 
-     
+      {/* Hero Section */}
       <section style={{
         position: 'relative',
         overflow: 'hidden',
@@ -486,7 +529,7 @@ const handleLogin = async (values: any) => {
         </div>
       </section>
 
-     
+      {/* Services Section */}
       <section id="services" style={{ maxWidth: 1280, margin: '0 auto', padding: '96px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
           <h2 style={{ fontSize: window.innerWidth > 768 ? 40 : 32, fontWeight: 700, marginBottom: 16 }}>
@@ -557,7 +600,7 @@ const handleLogin = async (values: any) => {
         </div>
       </section>
 
-     
+      {/* How It Works */}
       <section id="how-it-works" style={{
         background: 'linear-gradient(135deg, #f8fafc 0%, #f0fdfa 100%)',
         padding: '96px 24px'
@@ -631,7 +674,7 @@ const handleLogin = async (values: any) => {
         </div>
       </section>
 
-      
+      {/* Pricing */}
       <section id="pricing" style={{ maxWidth: 1280, margin: '0 auto', padding: '96px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
           <h2 style={{ fontSize: window.innerWidth > 768 ? 40 : 32, fontWeight: 700, marginBottom: 16 }}>
@@ -917,7 +960,7 @@ const handleLogin = async (values: any) => {
         </div>
       </section>
 
-      
+      {/* Contact/CTA */}
       <section id="contact" style={{
         background: 'linear-gradient(135deg, #0f172a 0%, #115e59 100%)',
         color: '#fff',
@@ -956,7 +999,7 @@ const handleLogin = async (values: any) => {
             <Button
               size="large"
               icon={<PhoneOutlined />}
-              href="tel:+919876543210"
+              href="tel:+1(905)588-2122"
               style={{
                 borderRadius: 12,
                 height: 56,
@@ -968,7 +1011,7 @@ const handleLogin = async (values: any) => {
                 background: 'transparent'
               }}
             >
-              Call +1 (905) 588-2122
+              Call +91 98765 43210
             </Button>
           </div>
 
@@ -993,19 +1036,10 @@ const handleLogin = async (values: any) => {
 
           <div style={{ marginTop: 48, color: '#cbd5e1', fontSize: 15, lineHeight: 2 }}>
             <p>
-              <MailOutlined /> Email:{' '}
-              <a
-                 href="https://mail.google.com/mail/?view=cm&fs=1&to=info@swachify.com"
-              target="_blank"
-             rel="noopener noreferrer"
-             style={{ color: '#5eead4' }}
-             >
-            info@swachify.com
-             </a>
+              <MailOutlined /> Email: <a href="mailto:info@swachify.com" style={{ color: '#5eead4' }}>support@swachify.com</a>
             </p>
-
             <p>
-              <EnvironmentOutlined /> Address: 76 King St W,Oshawa, ONL1H 1A6,Canada
+              <EnvironmentOutlined /> Address: 123 Clean Street, Green City, India - 400001
             </p>
             <p>
               <ClockCircleOutlined /> Working Hours: Mon-Sat: 8AM-8PM, Sun: 9AM-6PM
@@ -1014,7 +1048,7 @@ const handleLogin = async (values: any) => {
         </div>
       </section>
 
-    
+      {/* Footer */}
       <footer style={{ background: '#0f172a', color: '#cbd5e1', padding: '48px 24px', borderTop: '1px solid #1e293b' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{
@@ -1122,7 +1156,7 @@ const handleLogin = async (values: any) => {
           Book Your Cleaning
         </h3>
 
-       
+        {/* ---------- Custom Button Tabs ---------- */}
         <div
           style={{
             display: 'flex',
@@ -1215,7 +1249,7 @@ const handleLogin = async (values: any) => {
               }}
             >
               <Form.Item name="remember" valuePropName="checked" noStyle>
-                <Checkbox>Remember me</Checkbox>
+                <Checkbox style={{marginTop:8,}}>Remember me</Checkbox>
               </Form.Item>
               <Button
                 type="link"
@@ -1308,24 +1342,36 @@ const handleLogin = async (values: any) => {
           </Form>
         )} */}
 
-        <p
-          style={{
-            marginTop: 24,
-            textAlign: 'center',
-            fontSize: 12,
-            color: '#94a3b8',
-          }}
-        >
-          By continuing, you agree to our{' '}
-          <a href="#" style={{ color: '#14b8a6' }}>
-            Terms
-          </a>{' '}
-          and{' '}
-          <a href="#" style={{ color: '#14b8a6' }}>
-            Privacy Policy
-          </a>
-          .
-        </p>
+ <p
+  style={{
+    marginTop: 24,
+    textAlign: 'center',
+    fontSize: 12,
+    color: '#94a3b8',
+  }}
+>
+  By continuing, you agree to our{' '}
+  <a
+    href="/terms"
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{ color: '#14b8a6' }}
+  >
+    Terms of Service
+  </a>{' '}
+  and{' '}
+  <a
+    href="/privacy"
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{ color: '#14b8a6' }}
+  >
+    Privacy Policy
+  </a>
+  .
+</p>
+
+
       </div>
     </Modal>
 
@@ -1336,6 +1382,9 @@ const handleLogin = async (values: any) => {
           66% { transform: translate(-20px, 20px) scale(0.9); }
         }
       `}</style>
+
+  
+
     </div>
   );
 };
