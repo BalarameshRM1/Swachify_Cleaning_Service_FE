@@ -2,7 +2,7 @@ import { useState,useEffect } from 'react';
 import { Button, Modal, Form, Input, Checkbox, message, Menu, Drawer } from 'antd';
 import { 
   PhoneOutlined, 
-  MailOutlined, 
+  MailOutlined,
   EnvironmentOutlined, 
   ClockCircleOutlined,
   MenuOutlined,
@@ -1254,7 +1254,7 @@ const handleLogin = async (values: any) => {
               <Button
                 type="link"
                 onClick={handleForgotPassword}
-                style={{ padding: 0 }}
+                style={{ padding: 0 ,color: "rgb(20, 184, 166)"}}
               >
                 Forgot password?
               </Button>

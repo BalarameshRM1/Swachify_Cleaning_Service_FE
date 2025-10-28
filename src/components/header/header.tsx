@@ -11,6 +11,7 @@ import {
   Grid,
   message,
   Menu,
+  Modal,
 } from "antd";
 import {
   BellOutlined,
@@ -19,6 +20,7 @@ import {
   UserOutlined,
   LogoutOutlined,
   SettingOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import BrandLogo from "../../assets/SWACHIFY_gif.gif";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +29,7 @@ const { Header } = Layout;
 const { Text } = Typography;
 const { Option } = Select;
 const { useBreakpoint } = Grid;
+const { confirm } = Modal;
 
 const HeaderBar: React.FC = () => {
   const screens = useBreakpoint();
@@ -42,7 +45,6 @@ const HeaderBar: React.FC = () => {
     if (userDetails) setUserData(userDetails);
   }, []);
 
-  // Pages for global search
   const pages = [
     { label: "Dashboard", path: "/app/dashboard" },
     { label: "Services", path: "/app/services" },
@@ -50,24 +52,29 @@ const HeaderBar: React.FC = () => {
     { label: "Employees", path: "/app/employees" },
     { label: "Bookings", path: "/app/bookings" },
     { label: "Settings", path: "/app/settings" },
+    { label: "MIS-Reports", path: "/app/reports" },
   ];
 
-  // Filter pages based on search input
   const handleSearch = (value: string) => {
-    setSearchValue(value);
-    if (!value) {
+    const noSpaces = value.replace(/\s/g, "");
+    setSearchValue(noSpaces);
+
+    if (!noSpaces) {
       setSearchSuggestions([]);
       return;
     }
+
     const filtered = pages.filter((page) =>
-      page.label.toLowerCase().includes(value.toLowerCase())
+      page.label.toLowerCase().includes(noSpaces.toLowerCase())
     );
+
     setSearchSuggestions(filtered);
   };
 
-  // Navigate to selected page
   const handleSelect = (value: string) => {
-    const selected = pages.find((page) => page.label === value);
+    const selected = pages.find(
+      (page) => page.label.toLowerCase() === value.toLowerCase()
+    );
     if (selected) {
       navigate(selected.path);
       setSearchValue("");
@@ -75,15 +82,42 @@ const HeaderBar: React.FC = () => {
     }
   };
 
-  // User dropdown menu
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === " ") e.preventDefault();
+    if (e.key === "Enter" && searchSuggestions.length > 0) {
+      handleSelect(searchSuggestions[0].label);
+    }
+  };
+
+  // **Logout modal with custom color**
+  const handleLogout = () => {
+    confirm({
+      title: "Are you sure you want to log out?",
+      icon: <ExclamationCircleOutlined />,
+      okText: "Yes",
+      okType: "default",
+      cancelText: "No",
+      okButtonProps: {
+        style: { backgroundColor: "rgb(20, 184, 166)", color: "#fff" },
+      },
+      cancelButtonProps: {
+        style: { backgroundColor: "rgb(20, 184, 166)", color: "#fff" },
+      },
+      onOk() {
+        localStorage.removeItem("user");
+        message.success("Logged out successfully!");
+        navigate("/landing");
+      },
+      onCancel() {
+        message.info("Logout cancelled");
+      },
+    });
+  };
+
   const userMenu = (
     <Menu
       onClick={({ key }) => {
-        if (key === "logout") {
-          localStorage.removeItem("user");
-          message.success("Logged out successfully!");
-          navigate("/landing");
-        }
+        if (key === "logout") handleLogout();
         if (key === "settings") navigate("/app/settings");
         if (key === "profile") navigate("/app/profile");
       }}
@@ -142,14 +176,12 @@ const HeaderBar: React.FC = () => {
 
       {/* Search + Location */}
       <Space size="middle" align="center">
-        {/* Search Bar */}
         <AutoComplete
-          options={searchSuggestions.map((item) => ({
-            value: item.label,
-          }))}
+          options={searchSuggestions.map((item) => ({ value: item.label }))}
           value={searchValue}
           onSearch={handleSearch}
           onSelect={handleSelect}
+          filterOption={false}
           style={{ width: screens.xl ? 360 : screens.lg ? 320 : 280 }}
         >
           <Input
@@ -157,6 +189,7 @@ const HeaderBar: React.FC = () => {
             placeholder="Search pages..."
             value={searchValue}
             onChange={(e) => handleSearch(e.target.value)}
+            onKeyDown={handleKeyPress}
             style={{
               borderRadius: 10,
               backgroundColor: "#f1f5f9",
