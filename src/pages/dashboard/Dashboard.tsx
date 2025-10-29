@@ -224,8 +224,9 @@ const Dashboard: React.FC = () => {
             <div style={{ 
               height: "100%", 
               overflowY: "auto",
-              padding: "20px 24px",
+              padding: "20px 24px 60px",
               background: '#fafafa',
+               
             }}>
               {dashboardTasks?.recent?.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -332,8 +333,9 @@ const Dashboard: React.FC = () => {
             <div style={{ 
               height: "100%", 
               overflowY: "auto",
-              padding: "20px 24px",
+              padding: "20px 24px 60px",
               background: '#fafafa',
+               
             }}>
               {dashboardTasks?.pending?.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
