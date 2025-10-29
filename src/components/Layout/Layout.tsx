@@ -37,13 +37,8 @@ const MenuItemsEmp = [
 ];
 
 const LayoutComponent: React.FC = () => {
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
+  const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
   const [userDetails, setUserDetails] = React.useState<any>(null);
-  const [collapsed, setCollapsed] = React.useState(false);
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -52,15 +47,15 @@ const LayoutComponent: React.FC = () => {
     setUserDetails(userData);
   }, []);
 
-  const menuData = (menu: any) =>
-    menu.map((ele: any) => ({
-      key: ele.path || ele.label,
-      icon: React.createElement(ele.menuIcon),
-      label: ele.label,
-    }));
+  const menuData = (menu: any) => menu.map((ele: any) => ({
+    key: ele.path || ele.label,
+    icon: React.createElement(ele.menuIcon),
+    label: ele.label
+  }));
 
   const items = userDetails?.role_id === 3 ? menuData(MenuItemsEmp) : menuData(MenuItems);
 
+  // **Logout modal same as header**
   const handleLogout = () => {
     confirm({
       title: 'Are you sure you want to log out?',
@@ -72,7 +67,7 @@ const LayoutComponent: React.FC = () => {
         style: { backgroundColor: 'rgb(20, 184, 166)', color: '#fff' },
       },
       cancelButtonProps: {
-        style: { backgroundColor: '#fff', color: 'rgb(20, 184, 166)', border: '1px solid rgb(20, 184, 166)' },
+        style: { backgroundColor: 'rgb(20, 184, 166)', color: '#fff' },
       },
       onOk() {
         localStorage.removeItem('user');
@@ -88,10 +83,10 @@ const LayoutComponent: React.FC = () => {
   const onClick = (e: any) => {
     if (e.key === 'Logout') {
       handleLogout();
-      return;
+      return; 
     }
 
-    const selected = [...MenuItems, ...MenuItemsEmp].find((item) => item.path === e.key);
+    const selected = [...MenuItems, ...MenuItemsEmp].find(item => item.path === e.key);
     if (selected?.path) navigate(selected.path);
   };
 
@@ -99,17 +94,7 @@ const LayoutComponent: React.FC = () => {
     <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       <HeaderBar />
       <Layout>
-        <Sider
-          collapsible
-          collapsed={collapsed}
-          onCollapse={(value) => setCollapsed(value)}
-          width={200}
-          style={{
-            background: colorBgContainer,
-            transition: 'all 0.3s ease',
-          }}
-          theme="light"
-        >
+        <Sider width={200} style={{ background: colorBgContainer }} breakpoint="lg" collapsedWidth="0">
           <Menu
             mode="inline"
             selectedKeys={[location.pathname]}
@@ -118,25 +103,8 @@ const LayoutComponent: React.FC = () => {
             items={items}
           />
         </Sider>
-
-        <Layout
-          style={{
-            padding: '0 24px 24px',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <Content
-            style={{
-              padding: 24,
-              margin: 0,
-              borderRadius: borderRadiusLG,
-              flex: 1,
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
+        <Layout style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column' }}>
+          <Content style={{ padding: 24, margin: 0, borderRadius: borderRadiusLG, flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <Outlet />
           </Content>
         </Layout>
