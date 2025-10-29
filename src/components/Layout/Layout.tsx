@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 import { NotificationOutlined, UserOutlined, LogoutOutlined, CalendarOutlined, ScheduleOutlined, UsergroupAddOutlined, SettingOutlined,FileTextOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
@@ -33,6 +34,8 @@ const LayoutComponent: React.FC = () => {
   } = theme.useToken();
 
   const [userDetails, setUserDetails] = React.useState<any>(null);  
+  const [collapsed, setCollapsed] = React.useState(false);
+
 
   React.useEffect(() => {
     const userData = getUserDetails('user');
@@ -78,7 +81,20 @@ const LayoutComponent: React.FC = () => {
     <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       <HeaderBar />
       <Layout>
-        <Sider width={200} style={{ background: colorBgContainer }} breakpoint="lg" collapsedWidth="0">
+       <Sider
+  collapsible
+  collapsed={collapsed}
+  onCollapse={(value) => setCollapsed(value)}
+  width={200}
+  style={{
+    background: colorBgContainer, 
+    transition: 'all 0.3s ease',
+  }}
+  theme="light"
+>
+
+
+
           <Menu
             mode="inline"
             defaultSelectedKeys={['Dashboard']}

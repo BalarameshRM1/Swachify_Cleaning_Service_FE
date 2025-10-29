@@ -53,9 +53,10 @@ const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => voi
   <Card
     hoverable
     style={{
-      borderRadius: '16px',
-      border: '2px solid #dcfce7',
-      height: '100%',
+      borderRadius: '10px',
+      border: '1px solid #dcfce7',
+      height: '220px',
+      
       transition: 'all 0.3s ease',
     }}
   >
@@ -78,9 +79,9 @@ const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => voi
   />
 </Popconfirm>
 
-    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 16 }}>
       <Avatar
-        size={64}
+        size={30}
         style={{
           backgroundColor: '#14b8a6',
           fontSize: 24,
@@ -128,14 +129,25 @@ const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => voi
       </div>
     </div>
 
-    <Paragraph style={{ margin: 0, color: '#6b7280' }}>
-      <EnvironmentFilled style={{ marginRight: 8, color: '#ef4444' }} /> {employee.location}
-    </Paragraph>
+    <div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "8px",
+  }}
+>
+  <Paragraph style={{ margin: 0, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6 }}>
+    <EnvironmentFilled style={{ color: '#ef4444' }} /> {employee.location || 'Unknown'}
+  </Paragraph>
 
-    <Paragraph style={{ margin: 0, color: '#6b7280' }}>
-      <PhoneFilled style={{ marginRight: 8, color: '#ef4444' }} />{' '}
-      {employee.phone ? employee.phone : '+1 999-9999-99'}
-    </Paragraph>
+  <Paragraph style={{ margin: 0, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6 }}>
+    <PhoneFilled style={{ color: '#ef4444' }} />
+    {employee.phone || '+1 999-9999-99'}
+  </Paragraph>
+</div>
+
   </Card>
 );
 
@@ -158,9 +170,9 @@ const Employees: React.FC = () => {
       ...user,
       name: `${user.first_name} ${user.last_name}`,
       location: user.location_name || "Unknown",
-      status: user.is_assigned ? "Assigned" : "Available",  // ✅ use backend field
+      status: user.is_assigned ? "Assigned" : "Available",  
       phone: user.mobile || "N/A",
-      depts: user.depts || []                               // ✅ include departments if provided
+      depts: user.depts || []                               
     }));
 
     setEmployees(usersWithFullName);
@@ -231,7 +243,7 @@ const Employees: React.FC = () => {
     } catch (error) {
         console.error("Error creating employee:", error);      
     }
-    // console.log('New Employee Data:', newEmployee);
+    
 
     setEmployees((prev:any) => [newEmployee, ...prev]);
     message.success('Employee added successfully!');
@@ -273,7 +285,7 @@ const Employees: React.FC = () => {
                 <Space wrap>
                     <Select
                         defaultValue="All Locations"
-                        style={{ width: 180 }}
+                        style={{ width: 150 }}
                         onChange={setLocationFilter}
                         options={locationOptions} 
                     />
