@@ -299,8 +299,12 @@ const Employees: React.FC = () => {
       <Modal
       title="Add New User"
       open={isModalVisible}
-      width={800} // makes modal wider for landscape
+      width={1000} 
       onCancel={handleCancel}
+         style={{
+        height: "90vh", 
+        bottom:80,
+      }}
       footer={[
         <Button
           key="back"
@@ -326,7 +330,7 @@ const Employees: React.FC = () => {
         form={form}
         layout="vertical"
         onFinish={handleAddEmployee}
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 28 }}
       >
         <Row gutter={24}>
           {/* Full Name */}
