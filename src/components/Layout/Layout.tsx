@@ -43,7 +43,7 @@ const LayoutComponent: React.FC = () => {
 
   const [userDetails, setUserDetails] = React.useState<any>(null);
   const [collapsed, setCollapsed] = React.useState(false);
-  
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -61,7 +61,6 @@ const LayoutComponent: React.FC = () => {
 
   const items = userDetails?.role_id === 3 ? menuData(MenuItemsEmp) : menuData(MenuItems);
 
-  // ✅ Logout modal confirmation
   const handleLogout = () => {
     confirm({
       title: 'Are you sure you want to log out?',
@@ -119,6 +118,7 @@ const LayoutComponent: React.FC = () => {
             items={items}
           />
         </Sider>
+
         <Layout
           style={{
             padding: '0 24px 24px',
