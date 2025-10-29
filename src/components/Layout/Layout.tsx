@@ -1,30 +1,38 @@
 import React from 'react';
-
-
-import { NotificationOutlined, UserOutlined, LogoutOutlined, CalendarOutlined, ScheduleOutlined, UsergroupAddOutlined, SettingOutlined,FileTextOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Layout, Menu, theme } from 'antd';
-import { Outlet, useNavigate } from 'react-router-dom';
+import {
+  NotificationOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  CalendarOutlined,
+  ScheduleOutlined,
+  UsergroupAddOutlined,
+  SettingOutlined,
+  FileTextOutlined,
+  ExclamationCircleOutlined
+} from '@ant-design/icons';
+import { Layout, Menu, theme, Modal, message } from 'antd';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import HeaderBar from '../header/header';
 import { getUserDetails } from '../../utils/helpers/storage';
 
 const { Content, Sider } = Layout;
+const { confirm } = Modal;
 
-const MenuItems: any = [
-  { menuIcon: UserOutlined, label: 'Dashboard' },
-  { menuIcon: NotificationOutlined, label: 'Services' },
-  { menuIcon: CalendarOutlined, label: 'Bookings' },
-  { menuIcon: ScheduleOutlined, label: 'Tickets' },
-  { menuIcon: UsergroupAddOutlined, label: 'Employees' },
-   { menuIcon: FileTextOutlined, label: 'MIS-Reports' },
-  { menuIcon: SettingOutlined, label: 'Settings' },
+const MenuItems = [
+  { menuIcon: UserOutlined, label: 'Dashboard', path: '/app/dashboard' },
+  { menuIcon: NotificationOutlined, label: 'Services', path: '/app/services' },
+  { menuIcon: CalendarOutlined, label: 'Bookings', path: '/app/bookings' },
+  { menuIcon: ScheduleOutlined, label: 'Tickets', path: '/app/tickets' },
+  { menuIcon: UsergroupAddOutlined, label: 'Employees', path: '/app/employees' },
+  { menuIcon: FileTextOutlined, label: 'MIS-Reports', path: '/app/reports' },
+  { menuIcon: SettingOutlined, label: 'Settings', path: '/app/settings' },
   { menuIcon: LogoutOutlined, label: 'Logout' },
 ];
 
-const MenuItemsEmp: any = [
-  { menuIcon: UserOutlined, label: 'Dashboard' },
-  { menuIcon: ScheduleOutlined, label: 'Tickets' },
-  { menuIcon: SettingOutlined, label: 'Settings' },
+const MenuItemsEmp = [
+  { menuIcon: UserOutlined, label: 'Dashboard', path: '/app/dashboard' },
+  { menuIcon: ScheduleOutlined, label: 'Tickets', path: '/app/tickets' },
+  { menuIcon: SettingOutlined, label: 'Settings', path: '/app/settings' },
   { menuIcon: LogoutOutlined, label: 'Logout' },
 ];
 
@@ -33,79 +41,91 @@ const LayoutComponent: React.FC = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const [userDetails, setUserDetails] = React.useState<any>(null);  
+  const [userDetails, setUserDetails] = React.useState<any>(null);
   const [collapsed, setCollapsed] = React.useState(false);
-
+  
+  const navigate = useNavigate();
+  const location = useLocation();
 
   React.useEffect(() => {
     const userData = getUserDetails('user');
     setUserDetails(userData);
   }, []);
 
-  const navigate = useNavigate();
-
-  const MenuData = (menu:any) => menu.map((ele: any) => {
-    return {
-      key: ele.label,
+  const menuData = (menu: any) =>
+    menu.map((ele: any) => ({
+      key: ele.path || ele.label,
       icon: React.createElement(ele.menuIcon),
       label: ele.label,
-      children:
-        ele?.subMenu?.length > 0 &&
-        ele?.subMenu.map((s: any) => {
-          return {
-            key: s.label,
-            label: s.label,
-          };
-        }),
-    };
-  }); 
+    }));
 
-  const items2: MenuProps['items'] = userDetails?.role_id === 3 ?  MenuData(MenuItemsEmp) : MenuData(MenuItems)
+  const items = userDetails?.role_id === 3 ? menuData(MenuItemsEmp) : menuData(MenuItems);
 
-  const onClick: MenuProps['onClick'] = (e) => {
-    if (e.key === 'Dashboard') navigate('/app/dashboard');
-    if (e.key === 'Employees') navigate('/app/employees');
-    if (e.key === 'Settings') navigate('/app/settings');
-    if (e.key === 'Services') navigate('/app/services');
-    if (e.key === 'Bookings') navigate('/app/bookings');
-    if (e.key === 'Tickets') navigate('/app/Tickets');
-     if (e.key === 'MIS-Reports') navigate('/app/reports');
+  // ✅ Logout modal confirmation
+  const handleLogout = () => {
+    confirm({
+      title: 'Are you sure you want to log out?',
+      icon: <ExclamationCircleOutlined />,
+      okText: 'Yes',
+      cancelText: 'No',
+      okType: 'default',
+      okButtonProps: {
+        style: { backgroundColor: 'rgb(20, 184, 166)', color: '#fff' },
+      },
+      cancelButtonProps: {
+        style: { backgroundColor: '#fff', color: 'rgb(20, 184, 166)', border: '1px solid rgb(20, 184, 166)' },
+      },
+      onOk() {
+        localStorage.removeItem('user');
+        message.success('Logged out successfully!');
+        navigate('/landing');
+      },
+      onCancel() {
+        message.info('Logout cancelled');
+      },
+    });
+  };
 
+  const onClick = (e: any) => {
     if (e.key === 'Logout') {
-      localStorage.removeItem('user');
-      navigate('/landing');
+      handleLogout();
+      return;
     }
+
+    const selected = [...MenuItems, ...MenuItemsEmp].find((item) => item.path === e.key);
+    if (selected?.path) navigate(selected.path);
   };
 
   return (
     <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       <HeaderBar />
       <Layout>
-       <Sider
-  collapsible
-  collapsed={collapsed}
-  onCollapse={(value) => setCollapsed(value)}
-  width={200}
-  style={{
-    background: colorBgContainer, 
-    transition: 'all 0.3s ease',
-  }}
-  theme="light"
->
-
-
-
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+          width={200}
+          style={{
+            background: colorBgContainer,
+            transition: 'all 0.3s ease',
+          }}
+          theme="light"
+        >
           <Menu
             mode="inline"
-            defaultSelectedKeys={['Dashboard']}
+            selectedKeys={[location.pathname]}
             onClick={onClick}
             style={{ height: '100%', borderInlineEnd: 0 }}
-            items={items2}
+            items={items}
           />
         </Sider>
-
-        <Layout style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column' }}>
-        
+        <Layout
+          style={{
+            padding: '0 24px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           <Content
             style={{
               padding: 24,
