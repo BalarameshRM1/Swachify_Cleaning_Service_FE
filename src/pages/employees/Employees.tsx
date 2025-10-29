@@ -296,58 +296,150 @@ const Employees: React.FC = () => {
             </Row>
         </div>
 
-        <Modal
-            title="Add New User"
-            open={isModalVisible}
-            onCancel={handleCancel}
-            footer={[
-                <Button key="back" style={{borderColor:'#14B8A6',color:'black'}} onClick={handleCancel}>Cancel</Button>,
-                <Button key="submit" style={{backgroundColor:' #14B8A6',color:'#ffffff',borderColor:'#14B8A6'}} onClick={() => form.submit()}>Add Employee</Button>
-            ]}
+      <Modal
+      title="Add New User"
+      open={isModalVisible}
+      width={800} // makes modal wider for landscape
+      onCancel={handleCancel}
+      footer={[
+        <Button
+          key="back"
+          style={{ borderColor: "#14B8A6", color: "black" }}
+          onClick={handleCancel}
         >
-            <Form form={form} layout="vertical" onFinish={handleAddEmployee}>
-               <Form.Item name="name" label="Full Name" rules={[{ required: true, message: 'Please enter full name' },
-              {
-              pattern: /^[A-Za-z]{2,}\s[A-Za-z]{2,}$/,
-              message: 'Enter valid full name (First and Last name, letters only, one space)'
-              } ]}>
-            <Input placeholder="Enter full name" />
-              </Form.Item>
-
-                <Form.Item name="email" label="Email" rules={[ { required: true, message: 'Please enter email' },
+          Cancel
+        </Button>,
+        <Button
+          key="submit"
+          style={{
+            backgroundColor: "#14B8A6",
+            color: "#ffffff",
+            borderColor: "#14B8A6",
+          }}
+          onClick={() => form.submit()}
+        >
+          Add Employee
+        </Button>,
+      ]}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleAddEmployee}
+        style={{ marginTop: 10 }}
+      >
+        <Row gutter={24}>
+          {/* Full Name */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              name="name"
+              label="Full Name"
+              rules={[
+                { required: true, message: "Please enter full name" },
                 {
-               type: 'email',
-               message: 'Please enter a valid email',
+                  pattern: /^[A-Za-z]{2,}\s[A-Za-z]{2,}$/,
+                  message:
+                    "Enter valid full name (First and Last name, letters only, one space)",
                 },
-               {
-                pattern: /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
-               message: 'Email must be a valid Gmail address', }, ]}
-               normalize={(value) => value?.trim()} >
+              ]}
+            >
+              <Input placeholder="Enter full name" />
+            </Form.Item>
+          </Col>
+
+          {/* Email */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              name="email"
+              label="Email"
+              normalize={(value) => value?.trim()}
+              rules={[
+                { required: true, message: "Please enter email" },
+                { type: "email", message: "Please enter a valid email" },
+                {
+                  pattern: /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
+                  message: "Email must be a valid Gmail address",
+                },
+              ]}
+            >
               <Input placeholder="Enter email address" />
-              </Form.Item>
+            </Form.Item>
+          </Col>
 
-
-               <Form.Item name="phone" label="Phone Number" rules={[ { required: true, message: 'Phone number is required' },
-                 {
+          {/* Phone Number */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              name="phone"
+              label="Phone Number"
+              rules={[
+                { required: true, message: "Phone number is required" },
+                {
                   pattern: /^\d{10}$/,
-                  message: 'Phone number must be exactly 10 digits',
-                  },
-                   ]}>
-                 <Input placeholder="Enter 10-digit phone number" maxLength={10}
-                   onKeyPress={(e) => { if (!/[0-9]/.test(e.key)) { e.preventDefault(); } }}/>
-               </Form.Item>
+                  message: "Phone number must be exactly 10 digits",
+                },
+              ]}
+            >
+              <Input
+                placeholder="Enter 10-digit phone number"
+                maxLength={10}
+                onKeyPress={(e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+              />
+            </Form.Item>
+          </Col>
 
-                <Form.Item name="location" label="Location" rules={[{ required: true }]}>
-                    <Select options={locationsData} placeholder="Select location"/>
-                </Form.Item>
-                <Form.Item name="services" label="Services" rules={[{ required: true }]}>
-                    <Select allowClear options={allServices.map((sl,index:any) => ({ label: sl, value: index+1 }))} placeholder="Select services"/>
-                </Form.Item>
-                  <Form.Item name="Role" label="Role" rules={[{ required: true }]}>
-                    <Select allowClear options={Role.map(s => ({ label: s, value: s }))} placeholder="Select Role"/>
-                </Form.Item>
-            </Form>
-        </Modal>
+          {/* Location */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              name="location"
+              label="Location"
+              rules={[{ required: true, message: "Please select a location" }]}
+            >
+              <Select options={locationsData} placeholder="Select location" />
+            </Form.Item>
+          </Col>
+
+          {/* Services */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              name="services"
+              label="Services"
+              rules={[{ required: true, message: "Please select a service" }]}
+            >
+              <Select
+                allowClear
+                options={allServices.map((sl: string, index: number) => ({
+                  label: sl,
+                  value: index + 1,
+                }))}
+                placeholder="Select services"
+              />
+            </Form.Item>
+          </Col>
+
+          {/* Role */}
+          <Col xs={24} sm={12}>
+            <Form.Item
+              name="Role"
+              label="Role"
+              rules={[{ required: true, message: "Please select a role" }]}
+            >
+              <Select
+                allowClear
+                options={Role.map((s: string) => ({
+                  label: s,
+                  value: s,
+                }))}
+                placeholder="Select Role"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+    </Modal>
 
         <style>
         {`
