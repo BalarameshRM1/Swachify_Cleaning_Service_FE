@@ -226,9 +226,10 @@ const Services: React.FC = () => {
   const [discountPct, setDiscountPct] = useState<number>(0);
   const [customerRequest, setCustomerRequest] = useState<number>(0);
 
+  // Form states for customer info
   const [fullName, setFullName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [email] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [date, setDate] = useState<dayjs.Dayjs | null>(null);
 
@@ -307,6 +308,7 @@ const Services: React.FC = () => {
     }
   };
 
+  /* Customer Details with validation */
   const CustomerDetails = (
     <>
       <div style={styles.stepsWrap}>
@@ -324,7 +326,7 @@ const Services: React.FC = () => {
       </div>
       <Card bordered style={styles.compactCard}>
         <Space direction="vertical" size={2} style={{ width: "100%" }}>
-                    <Title level={4} style={{ margin: 0 }}>Booking Details</Title>
+          <Title level={4} style={{ margin: 0 }}>Booking Details</Title>
         </Space>
         <Form
           layout="vertical"
@@ -377,8 +379,8 @@ const Services: React.FC = () => {
                 required
                 rules={[
                   { required: true, message: "Please enter your phone number" },
-                  { pattern: /^[0-9]+$/, message: "Only digits are allowed" }, 
-                  { len: 10, message: "Phone number must be 10 digits" } 
+                  { pattern: /^[0-9]+$/, message: "Only digits are allowed" }, // allows any length digits only
+                  { len: 10, message: "Phone number must be 10 digits" } // exactly 10 digits
                 ]}
               >
                 <Input
@@ -386,7 +388,7 @@ const Services: React.FC = () => {
                   prefix={<PhoneOutlined />}
                   placeholder="9876543210"
                   value={phone}
-                  onChange={e => setPhone(e.target.value.replace(/\D/g, ""))} 
+                  onChange={e => setPhone(e.target.value.replace(/\D/g, ""))} // strips non-digits
                   maxLength={10}
                 />
               </Form.Item>
@@ -416,10 +418,7 @@ const Services: React.FC = () => {
                         }
                         if (/^\s/.test(value)) {
                           return Promise.reject(new Error("Address cannot start with a space"));
-                        }
-                        if (value.trim().length === 0) {
-                          return Promise.reject(new Error("Address cannot be just spaces"));
-                        }
+                        } 
                         return Promise.resolve();
                       }
                     }
@@ -506,6 +505,7 @@ const Services: React.FC = () => {
     );
   };
 
+  /* Card UI updates for grid alignment & no vacant spaces */
   const SectionCard: React.FC<{ section: SectionKey }> = ({ section }) => {
     const meta = SECTION_META[section];
     const state = serviceForm[section];
@@ -571,6 +571,7 @@ const Services: React.FC = () => {
     );
   };
 
+  /* Service Selection step with improved grid alignment for summary */
   const ServicesSelection = (
     <>
       <div style={styles.stepsWrap}>
