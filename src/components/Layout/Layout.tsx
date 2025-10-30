@@ -8,9 +8,11 @@ import {
   UsergroupAddOutlined,
   SettingOutlined,
   FileTextOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined
 } from '@ant-design/icons';
-import { Layout, Menu, theme, Modal, message } from 'antd';
+import { Layout, Menu, theme, Modal, message, Button } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import HeaderBar from '../header/header';
 import { getUserDetails } from '../../utils/helpers/storage';
@@ -39,6 +41,7 @@ const MenuItemsEmp = [
 const LayoutComponent: React.FC = () => {
   const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
   const [userDetails, setUserDetails] = React.useState<any>(null);
+  const [collapsed, setCollapsed] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -94,14 +97,36 @@ const LayoutComponent: React.FC = () => {
     <Layout style={{ height: '100vh', overflow: 'hidden' }}>
       <HeaderBar />
       <Layout>
-        <Sider width={200} style={{ background: colorBgContainer }} breakpoint="lg" collapsedWidth="0">
+       <Sider
+  collapsible
+  collapsed={collapsed}
+  onCollapse={setCollapsed}
+  trigger={null}
+  width={200}
+  style={{ background: colorBgContainer }}
+>
+<div style={{ padding: 10, textAlign: 'right' }}>
+  <Button
+    type="text"
+    icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+    onClick={() => setCollapsed(!collapsed)}
+    style={{ fontSize: 18, color: '#000' }}
+  />
+</div>
+
           <Menu
-            mode="inline"
-            selectedKeys={[location.pathname]}
-            onClick={onClick}
-            style={{ height: '100%', borderInlineEnd: 0 }}
-            items={items}
-          />
+  mode="inline"
+  selectedKeys={[location.pathname]}
+  onClick={onClick}
+  style={{
+    height: '100%',
+    borderInlineEnd: 0,
+    background: colorBgContainer,
+  }}
+  items={items}
+  theme="light"
+  inlineCollapsed={collapsed}
+/>
         </Sider>
         <Layout style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column' }}>
           <Content style={{ padding: 24, margin: 0, borderRadius: borderRadiusLG, flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
