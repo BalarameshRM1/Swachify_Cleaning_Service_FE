@@ -6,6 +6,7 @@ import { createEmployee, getAllUsers, getAllLocations } from "../../app/services
 import { Popconfirm } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { deleteEmployeeById } from '../../app/services/auth';
+import LoaderGif from "../../assets/SWACHIFY_gif.gif"; 
 
 
 
@@ -42,10 +43,6 @@ const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
 // ];
 const allServices = ['Kitchen','Bathrooms','Bedrooms','Living Areas'];
 const Role = ['Employee','Admin','Super Admin'];
-
-
-
-
 
 const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => void }> = ({ employee, onDelete }) => (
   
@@ -159,12 +156,12 @@ const Employees: React.FC = () => {
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>(employees);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true); 
 
   const getAllUsersApi = async () => {
   try {
     const res = await getAllUsers();
     console.log("Raw users from API:", res);
-
 
     const usersWithFullName = res.map((user: any) => ({
       ...user,
@@ -182,11 +179,9 @@ const Employees: React.FC = () => {
 };
 
 
-
   const getAllLocationsApi = async() => {
     try {
       const res = await getAllLocations()
-      // console.log("Locations fetched:", res);
       if(res){
         const locationNames = res.map((loc:any) => ({label: loc.location_name, value: loc.id}));
         setLocationsData(locationNames);
@@ -197,21 +192,20 @@ const Employees: React.FC = () => {
   }
 
   useEffect(()=>{
-    getAllUsersApi()
-    getAllLocationsApi()
-  },[])
-
-
+    const fetchData = async () => {
+      await Promise.all([getAllUsersApi(), getAllLocationsApi()]);
+      setLoading(false);
+    };
+    fetchData();
+  },[]);
 
   useEffect(() => {
-
     let employeesToFilter = employees;
     if (locationFilter !== 'All Locations') {
       employeesToFilter = employees.filter((emp:any) => emp.location === locationFilter);
     }
     setFilteredEmployees(employeesToFilter);
   }, [locationFilter, employees]);
-
 
   const showModal = () => setIsModalVisible(true);
   const handleCancel = () => {
@@ -225,7 +219,6 @@ const Employees: React.FC = () => {
       ...values,
       status: 'Available',
     };
-    // console.log('New Employee Data:', newEmployee);
 
     newEmployee.role_id = newEmployee.Role === 'Admin' ? 2 : newEmployee.Role === 'Super Admin' ? 3 : 1;
     newEmployee.dept_id = [newEmployee.services]
@@ -262,6 +255,7 @@ const Employees: React.FC = () => {
     },
     ...locations.map(loc => ({ label: loc, value: loc }))
   ];
+
  const handleDeleteEmployee = async (id: number) => {
   try {
     await deleteEmployeeById(id);
@@ -274,6 +268,13 @@ const Employees: React.FC = () => {
 };
 
 
+if (loading) {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
+      <img src={LoaderGif} alt="Loading..." style={{ width: "150px" }} />
+    </div>
+  );
+}
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', animation: 'fadeIn 0.5s' }}>
@@ -300,9 +301,7 @@ const Employees: React.FC = () => {
             <Row gutter={[24, 24]}>
                 {filteredEmployees.map(employee => (
                     <Col xs={24} sm={12} lg={8} xl={6} key={employee.id}>
-<EmployeeCard employee={employee} onDelete={handleDeleteEmployee} />
-
-
+                      <EmployeeCard employee={employee} onDelete={handleDeleteEmployee} />
                     </Col>
                 ))}
             </Row>
