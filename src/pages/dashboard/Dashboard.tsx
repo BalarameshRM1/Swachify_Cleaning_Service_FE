@@ -311,112 +311,62 @@ const Dashboard: React.FC = () => {
         </Col>
 
         <Col xs={24} lg={12}>
-          <Card
-            title={<Title level={4} style={{ margin: 0, fontWeight: 600 }}>Active Tickets</Title>}
-            className="activity-card"
-            style={{ 
-              borderRadius: "20px", 
-              height: "480px",
-              border: 'none',
-              boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)",
-              transition: "all 0.3s ease",
+         <Card
+      title={<Title level={4}>Active Tickets</Title>}
+      bordered
+      style={{ borderRadius: "16px", height: "350px", overflowY: "auto" }}
+    >
+      {dashboardTasks?.pending?.length > 0 ? (
+        dashboardTasks.pending.map((booking: any) => (
+          <div
+            key={booking.id}
+            style={{
               display: "flex",
-              flexDirection: "column",
-              background: 'white',
-            }}
-            bodyStyle={{
-              padding: 0,
-              flex: 1,
-              overflow: "hidden",
-            }}
-            headStyle={{
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "12px 16px",
               borderBottom: "1px solid #f0f0f0",
-              padding: "20px 24px",
-              background: 'white',
-              borderRadius: '20px 20px 0 0',
+              borderRadius: 8,
+              marginBottom: 8,
+              background: "#fafafa",
             }}
           >
-            <div style={{ 
-              height: "100%", 
-              overflowY: "auto",
-              padding: "20px 24px 60px",
-              background: '#fafafa',
-               
-            }}>
-              {dashboardTasks?.pending?.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {dashboardTasks.pending.map((booking: any) => (
-                    <div
-                      key={booking.id}
-                      className="booking-item"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "20px",
-                        border: "none",
-                        borderRadius: 12,
-                        background: "white",
-                        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                        cursor: "pointer",
-                        gap: "20px",
-                      }}
-                    >
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <Text strong style={{ fontSize: 16, display: 'block', marginBottom: 10, color: '#1f2937' }}>
-                          {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`}
-                        </Text>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          <Text style={{ fontSize: 14, color: '#6b7280' }}>
-                            Customer: <span style={{ color: '#374151' }}>{booking.full_name || "Unknown"}</span>
-                          </Text>
-                          <Text style={{ fontSize: 14, color: '#6b7280' }}>
-                            Date: <span style={{ color: '#374151' }}>{booking.preferred_date || "N/A"}</span>
-                          </Text>
-                        </div>
-                      </div>
-
-                      <div style={{ flexShrink: 0 }}>
-                        <Tag
-                          className="status-tag"
-                          color={
-                            booking.status?.status === "Pending"
-                              ? "orange"
-                              : booking.status?.status === "In-Progress"
-                              ? "blue"
-                              : "green"
-                          }
-                          style={{ 
-                            fontWeight: "600", 
-                            minWidth: 110, 
-                            textAlign: "center",
-                            padding: "8px 16px",
-                            fontSize: "14px",
-                            borderRadius: 8,
-                            transition: "all 0.3s ease",
-                            margin: 0,
-                            border: 'none',
-                          }}
-                        >
-                          {booking.status?.status}
-                        </Tag>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  height: '100%',
-                }}>
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No active tickets" />
-                </div>
-              )}
+            
+            <div>
+              <Text strong style={{ fontSize: 16 }}>
+                {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`}
+              </Text>
+              <br />
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Customer: {booking.full_name || "Unknown"}
+              </Text>
+              <br />
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Date: {booking.preferred_date || "N/A"}
+              </Text>
             </div>
-          </Card>
+
+            {/* Right Side */}
+            <div>
+              <Tag
+                color={
+                  booking.status?.status === "Pending"
+                    ? "orange"
+                    : booking.status?.status === "In-Progress"
+                    ? "blue"
+                    : "green"
+                }
+                style={{ fontWeight: "bold", minWidth: 100, textAlign: "center" }}
+              >
+                {booking.status?.status}
+              </Tag>
+            </div>
+          </div>
+        ))
+      ) : (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No active tickets" />
+      )}
+    </Card>
         </Col>
       </Row>
     </div>

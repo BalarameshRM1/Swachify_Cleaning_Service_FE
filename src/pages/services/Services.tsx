@@ -799,157 +799,242 @@ const Services: React.FC = () => {
 
         <Col xs={24} lg={8} style={{ height: "100%", minHeight: 0 }}>
           <Card
-            bordered
-            style={styles.rightCard}
-            bodyStyle={styles.rightCardBody}
-            title={<Text strong>Selection Summary</Text>}
-            extra={
-              <Button
-                type="text"
-                size="small"
-                icon={<ReloadOutlined />}
-                onClick={() => {
-                  (["bedroom", "bathroom", "kitchen", "living"] as SectionKey[]).forEach((k) => resetSection(k));
-                  setAddonsOpen({ bedroom: false, bathroom: false, kitchen: false, living: false });
-                  setDiscount(0);
-                  setCustomerRequest(0);
-                  setDiscountPct(0);
-                  message.success("Selections cleared");
+  bordered
+  style={styles.rightCard}
+  bodyStyle={styles.rightCardBody}
+  title={<Text strong>Selection Summary</Text>}
+  extra={
+    <Button
+      size="small"
+      type="primary"
+      ghost
+      icon={<ReloadOutlined />}
+      onClick={() => {
+        (["bedroom", "bathroom", "kitchen", "living"] as SectionKey[]).forEach((k) => resetSection(k));
+        setAddonsOpen({ bedroom: false, bathroom: false, kitchen: false, living: false });
+        setDiscount(0);
+        setCustomerRequest(0);
+        setDiscountPct(0);
+        message.success("Selections cleared");
+      }}
+      style={{
+        borderRadius: 8,
+        background: "#16a394",
+        borderColor: "#16a394",
+        color: "#fff",
+      }}
+    >
+      Reset
+    </Button>
+  }
+>
+  {/* Scrollable content */}
+  <div
+    style={{
+      padding: 12,
+      borderTop: "1px solid #f0f2f5",
+      overflowY: "auto",
+      flex: 1,
+      minHeight: 0,
+      maxHeight: "60vh",
+    }}
+  >
+    {(Object.keys(serviceForm) as SectionKey[])
+      .map((k) => ({ section: k, plan: serviceForm[k] }))
+      .filter(({ plan }) => plan.type || plan.subService || plan.addOnHours.length > 0)
+      .map(({ section, plan }) => {
+        const title = SECTION_META[section].title;
+        const total = calcSectionTotal(section, plan);
+        const subLabel = SUBSERVICES[section].find((o) => o.value === plan.subService)?.label;
+
+        return (
+          <div
+            key={section}
+            style={{
+              border: "1px solid #eef2f7",
+              borderRadius: 10,
+              background: "#fff",
+              boxShadow: "0 0 0 1px rgba(0,0,0,0.02)",
+              padding: 10,
+              marginBottom: 12,
+            }}
+          >
+            {/* Header row */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text strong>{title}</Text>
+              <Text strong>{usdFormatter(total)}</Text>
+            </div>
+
+            {/* Tags + Actions */}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                alignItems: "center",
+                marginTop: 10,
+              }}
+            >
+              {subLabel && (
+                <Tag
+                  style={{
+                    background: "#ecfeff",
+                    color: "#0891b2",
+                    borderColor: "#06b6d4",
+                    margin: 0,
+                    padding: "2px 8px",
+                    borderRadius: 6,
+                  }}
+                >
+                  {subLabel}
+                </Tag>
+              )}
+              {plan.type && (
+                <Tag
+                  style={{
+                    background: "#e6fffb",
+                    color: "#14b8a6",
+                    borderColor: "#14b8a6",
+                    margin: 0,
+                    padding: "2px 8px",
+                    borderRadius: 6,
+                  }}
+                >
+                  {plan.type}
+                </Tag>
+              )}
+              <Tag
+                style={{
+                  background: "#fff7e6",
+                  color: "#ad6800",
+                  borderColor: "#ffd666",
+                  margin: 0,
+                  padding: "2px 8px",
+                  borderRadius: 6,
                 }}
               >
-                Reset
-              </Button>
-            }
-          >
-            <div style={styles.itemsScroll}>
-              <List
-                itemLayout="vertical"
-                dataSource={(Object.keys(serviceForm) as SectionKey[]).map((k) => ({ section: k, plan: serviceForm[k] }))}
-                rowKey={(item) => `${item.section}`}
-                locale={{ emptyText: "No services selected yet. Select services from the left panel." }}
-                renderItem={({ section, plan }) => {
-                  const title = SECTION_META[section].title;
-                  const total = calcSectionTotal(section, plan);
-                  const subLabel = SUBSERVICES[section].find((o) => o.value === plan.subService)?.label;
+                {PRICING.minHours}h min
+              </Tag>
 
-                  const has = plan.subService || plan.type || (plan.addOnHours?.length ?? 0) > 0;
-                  if (!has) return null;
+              {plan.addOnHours.map((h) => (
+                <Tag key={h} style={{ padding: "2px 8px", borderRadius: 6 }}>
+                  +{h}h
+                </Tag>
+              ))}
 
-                  return (
-                    <List.Item
-                      actions={[
-                        <Tooltip key="edit" title="Edit">
-                          <Button
-                            size="small"
-                            type="text"
-                            icon={<EditOutlined />}
-                            onClick={() => {
-                              setMaster(section);
-                              setTimeout(() => {
-                                anchors[section].current?.scrollIntoView({
-                                  behavior: "smooth",
-                                  block: "nearest",
-                                });
-                              }, 0);
-                            }}
-                          />
-                        </Tooltip>,
-                        <Tooltip key="remove" title="Remove">
-                          <Button
-                            size="small"
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => {
-                              resetSection(section);
-                              message.success(`${title} removed`);
-                            }}
-                          />
-                        </Tooltip>,
-                      ]}
-                      style={{
-                        padding: 8,
-                        borderRadius: 8,
-                        background: "#f8fafc",
-                        border: "1px solid #eef2f7",
-                        marginBottom: 8,
-                      }}
-                    >
-                      <List.Item.Meta
-                        title={<Text strong>{title}</Text>}
-                        description={
-                          <Space wrap size={[8, 8]}>
-                            {subLabel && <Tag color={ACCENT} style={styles.accentTag}>{subLabel}</Tag>}
-                            {plan.type && (
-                              <Tag color={ACCENT} style={styles.accentTag}>
-                                {plan.type}
-                              </Tag>
-                            )}
-                            <Tag color="gold">{PRICING.minHours}h min</Tag>
-                            {plan.addOnHours.map((h) => (
-                              <Tag key={h}>+{h}h</Tag>
-                            ))}
-                          </Space>
-                        }
-                      />
-                      <Text strong>{usdFormatter(total)}</Text>
-                    </List.Item>
-                  );
-                }}
-              />
-              <Divider style={{ margin: "12px 0" }} />
-              <Space direction="vertical" style={{ width: "100%" }} size={8}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Text type="secondary">Subtotal</Text>
-                  <Text strong>{usdFormatter(grandTotal)}</Text>
-                </div>
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <Text type="secondary">Customer Requested Amount</Text>
-                  </div>
-                  <InputNumber
-                    style={{ width: "100%" }}
-                    min={0}
-                    max={grandTotal}
-                    value={customerRequest}
-                    onChange={(v) => setCustomerRequest((v as number) ?? 0)}
-                    formatter={usdFormatter as any}
-                    parser={usdParser as any}
-                    placeholder="$ 0"
+              <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+                <Tooltip title="Edit">
+                  <Button
+                    size="small"
+                    type="primary"
+                    shape="circle"
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      setMaster(section);
+                      setTimeout(() => {
+                        anchors[section].current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "nearest",
+                        });
+                      }, 0);
+                    }}
                   />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Text type="secondary">Discount Amount</Text>
-                  <Text strong>{usdFormatter(discount)}</Text>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                  <Text type="secondary">Discount %</Text>
-                  <Text strong>{discountPct}%</Text>
-                </div>
-                <div style={styles.summaryFooter}>
-              <Space direction="vertical" size={8} style={{ width: "100%" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Text strong style={{ fontSize: 16 }}>Total Amount:</Text>
-                  <Text strong style={{ fontSize: 18, color: ACCENT }}>{usdFormatter(discountedTotal)}</Text>
-                </div>
-                <Button 
-                  type="primary" 
-                  size="large"
-                  icon={<CheckCircleOutlined />} 
-                  onClick={handleSubmit}
-                  loading={loading}
-                  disabled={grandTotal === 0}
-                  block 
-                  style={styles.primaryBtn}
-                >
-                  Submit Booking
-                </Button>
-              </Space>
+                </Tooltip>
+                <Tooltip title="Remove">
+                  <Button
+                    size="small"
+                    danger
+                    type="primary"
+                    shape="circle"
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                      resetSection(section);
+                      message.success(`${title} removed`);
+                    }}
+                  />
+                </Tooltip>
+              </div>
             </div>
-              </Space>
-            </div>
-            
-          </Card>
+          </div>
+        );
+      })}
+
+    {/* Summary Section */}
+    <div style={{ borderTop: "1px solid #f0f2f5", paddingTop: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Text type="secondary">Subtotal</Text>
+        <Text strong>{usdFormatter(grandTotal)}</Text>
+      </div>
+
+      <div style={{ marginTop: 8 }}>
+        <div style={{ marginBottom: 6 }}>
+          <Text type="secondary">Customer Requested Amount</Text>
+        </div>
+        <InputNumber
+          style={{ width: "100%", textAlign: "right" }}
+          min={0}
+          max={grandTotal}
+          value={customerRequest}
+          onChange={(v) => setCustomerRequest((v as number) ?? 0)}
+          formatter={usdFormatter as any}
+          parser={usdParser as any}
+          placeholder="$ 0"
+        />
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+        <Text type="secondary">Discount</Text>
+        <Text strong>{usdFormatter(discount)}</Text>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Text type="secondary">Discount %</Text>
+        <Text strong>{`${discountPct}%`}</Text>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Text type="secondary">Discounted Total</Text>
+        <Text strong>{usdFormatter(Math.max(grandTotal - discount, 0))}</Text>
+      </div>
+       <div
+    style={{
+      position: "sticky",
+      bottom: 0,
+      background: "#fff",
+      padding: "8px 12px 12px 12px",
+      borderTop: "1px solid #eef2f7",
+      zIndex: 3,
+    }}
+  >
+    <Button
+      type="primary"
+      icon={<CheckCircleOutlined />}
+      size="large"
+      onClick={handleSubmit}
+      loading={loading}
+      disabled={grandTotal === 0}
+      block
+      style={{
+        background: "#16a394",
+        borderColor: "#16a394",
+        borderRadius: 8,
+        fontWeight: 600,
+      }}
+    >
+      Submit Booking
+    </Button>
+  </div>
+    </div>
+  </div>
+
+  {/* Sticky Submit Button */}
+ 
+</Card>
+
         </Col>
       </Row>
     </>
