@@ -1,3 +1,4 @@
+import './landingpage.css';
 import { useState,useEffect } from 'react';
 import { Button, Modal, Form, Input, Checkbox, message, Menu, Drawer } from 'antd';
 import { 
@@ -218,14 +219,14 @@ const handleLogin = async (values: any) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      overflow: 'hidden', // 👈 ensures image fits inside rounded box
+      overflow: 'hidden', 
     }}
   >
     <img
       src={BrandLogo}
       alt="Swachify Logo"
       style={{
-        width: '100%',  // 👈 adjust size as needed
+        width: '100%',  
         height: '100%',
         objectFit: 'contain',
       }}
@@ -278,6 +279,7 @@ const handleLogin = async (values: any) => {
               type="primary"
               size="large"
               onClick={() => setAuthModalOpen(true)}
+               className="book-now-btn"
               style={{
                 background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
                 border: 'none',
@@ -817,6 +819,7 @@ const handleLogin = async (values: any) => {
               <Button
                 size="large"
                 onClick={() => setAuthModalOpen(true)}
+                  className="join-customers-btn"
                 style={{
                   background: '#fff',
                   color: '#14b8a6',
@@ -1011,7 +1014,7 @@ const handleLogin = async (values: any) => {
                 background: 'transparent'
               }}
             >
-              Call +91 98765 43210
+              Call +1(905) 588-2122
             </Button>
           </div>
 
@@ -1036,10 +1039,10 @@ const handleLogin = async (values: any) => {
 
           <div style={{ marginTop: 48, color: '#cbd5e1', fontSize: 15, lineHeight: 2 }}>
             <p>
-              <MailOutlined /> Email: <a href="mailto:info@swachify.com" style={{ color: '#5eead4' }}>support@swachify.com</a>
+              <MailOutlined /> Email: <a href="mailto:info@swachify.com" style={{ color: '#5eead4' }}>info@swachify.com</a>
             </p>
             <p>
-              <EnvironmentOutlined /> Address: 123 Clean Street, Green City, India - 400001
+              <EnvironmentOutlined /> Address: 76 King St W, Oshawa, ON L1H 1A6, Canada
             </p>
             <p>
               <ClockCircleOutlined /> Working Hours: Mon-Sat: 8AM-8PM, Sun: 9AM-6PM
@@ -1132,13 +1135,31 @@ const handleLogin = async (values: any) => {
             fontSize: 14
           }}>
             <div>© {new Date().getFullYear()} Swachify. All rights reserved.</div>
-            <div style={{ display: 'flex', gap: 24 }}>
-              {['Facebook', 'Instagram', 'Twitter', 'LinkedIn'].map((social, idx) => (
-                <a key={idx} href="#" style={{ color: '#cbd5e1' }}>
-                  {social}
-                </a>
-              ))}
-            </div>
+           <div style={{ display: 'flex', gap: 24 }}>
+  {[
+    { name: 'Facebook', link: 'https://www.facebook.com/swachify' },
+    { name: 'Instagram', link: 'https://www.instagram.com/swachify' },
+    { name: 'Twitter', link: 'https://twitter.com/swachify' },
+    { name: 'LinkedIn', link: 'https://www.linkedin.com/company/swachify' }
+  ].map((social, idx) => (
+    <a
+      key={idx}
+      href={social.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        color: '#cbd5e1',
+        textDecoration: 'none',
+        transition: 'color 0.3s ease'
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.color = '#14b8a6')}
+      onMouseLeave={(e) => (e.currentTarget.style.color = '#cbd5e1')}
+    >
+      {social.name}
+    </a>
+  ))}
+</div>
+
           </div>
         </div>
       </footer>
