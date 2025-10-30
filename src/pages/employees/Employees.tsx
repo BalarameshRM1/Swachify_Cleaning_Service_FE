@@ -6,6 +6,7 @@ import { createEmployee, getAllUsers, getAllLocations } from "../../app/services
 import { Popconfirm } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { deleteEmployeeById } from '../../app/services/auth';
+import LoaderGif from "../../assets/SWACHIFY_gif.gif"; 
 
 
 
@@ -43,19 +44,16 @@ const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
 const allServices = ['Kitchen','Bathrooms','Bedrooms','Living Areas'];
 const Role = ['Employee','Admin','Super Admin'];
 
-
-
-
-
 const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => void }> = ({ employee, onDelete }) => (
   
 
   <Card
     hoverable
     style={{
-      borderRadius: '16px',
-      border: '2px solid #dcfce7',
-      height: '100%',
+      borderRadius: '10px',
+      border: '1px solid #dcfce7',
+      height: '220px',
+      
       transition: 'all 0.3s ease',
     }}
   >
@@ -78,9 +76,9 @@ const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => voi
   />
 </Popconfirm>
 
-    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 16 }}>
       <Avatar
-        size={64}
+        size={30}
         style={{
           backgroundColor: '#14b8a6',
           fontSize: 24,
@@ -128,14 +126,25 @@ const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => voi
       </div>
     </div>
 
-    <Paragraph style={{ margin: 0, color: '#6b7280' }}>
-      <EnvironmentFilled style={{ marginRight: 8, color: '#ef4444' }} /> {employee.location}
-    </Paragraph>
+    <div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "8px",
+  }}
+>
+  <Paragraph style={{ margin: 0, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6 }}>
+    <EnvironmentFilled style={{ color: '#ef4444' }} /> {employee.location || 'Unknown'}
+  </Paragraph>
 
-    <Paragraph style={{ margin: 0, color: '#6b7280' }}>
-      <PhoneFilled style={{ marginRight: 8, color: '#ef4444' }} />{' '}
-      {employee.phone ? employee.phone : '+1 999-9999-99'}
-    </Paragraph>
+  <Paragraph style={{ margin: 0, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6 }}>
+    <PhoneFilled style={{ color: '#ef4444' }} />
+    {employee.phone || '+1 999-9999-99'}
+  </Paragraph>
+</div>
+
   </Card>
 );
 
@@ -147,20 +156,20 @@ const Employees: React.FC = () => {
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>(employees);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true); 
 
   const getAllUsersApi = async () => {
   try {
     const res = await getAllUsers();
     console.log("Raw users from API:", res);
 
-
     const usersWithFullName = res.map((user: any) => ({
       ...user,
       name: `${user.first_name} ${user.last_name}`,
       location: user.location_name || "Unknown",
-      status: user.is_assigned ? "Assigned" : "Available",  // ✅ use backend field
+      status: user.is_assigned ? "Assigned" : "Available",  
       phone: user.mobile || "N/A",
-      depts: user.depts || []                               // ✅ include departments if provided
+      depts: user.depts || []                               
     }));
 
     setEmployees(usersWithFullName);
@@ -170,11 +179,9 @@ const Employees: React.FC = () => {
 };
 
 
-
   const getAllLocationsApi = async() => {
     try {
       const res = await getAllLocations()
-      // console.log("Locations fetched:", res);
       if(res){
         const locationNames = res.map((loc:any) => ({label: loc.location_name, value: loc.id}));
         setLocationsData(locationNames);
@@ -185,21 +192,20 @@ const Employees: React.FC = () => {
   }
 
   useEffect(()=>{
-    getAllUsersApi()
-    getAllLocationsApi()
-  },[])
-
-
+    const fetchData = async () => {
+      await Promise.all([getAllUsersApi(), getAllLocationsApi()]);
+      setLoading(false);
+    };
+    fetchData();
+  },[]);
 
   useEffect(() => {
-
     let employeesToFilter = employees;
     if (locationFilter !== 'All Locations') {
       employeesToFilter = employees.filter((emp:any) => emp.location === locationFilter);
     }
     setFilteredEmployees(employeesToFilter);
   }, [locationFilter, employees]);
-
 
   const showModal = () => setIsModalVisible(true);
   const handleCancel = () => {
@@ -213,7 +219,6 @@ const Employees: React.FC = () => {
       ...values,
       status: 'Available',
     };
-    // console.log('New Employee Data:', newEmployee);
 
     newEmployee.role_id = newEmployee.Role === 'Admin' ? 2 : newEmployee.Role === 'Super Admin' ? 3 : 1;
     newEmployee.dept_id = [newEmployee.services]
@@ -231,7 +236,7 @@ const Employees: React.FC = () => {
     } catch (error) {
         console.error("Error creating employee:", error);      
     }
-    // console.log('New Employee Data:', newEmployee);
+    
 
     setEmployees((prev:any) => [newEmployee, ...prev]);
     message.success('Employee added successfully!');
@@ -250,6 +255,7 @@ const Employees: React.FC = () => {
     },
     ...locations.map(loc => ({ label: loc, value: loc }))
   ];
+
  const handleDeleteEmployee = async (id: number) => {
   try {
     await deleteEmployeeById(id);
@@ -262,6 +268,13 @@ const Employees: React.FC = () => {
 };
 
 
+if (loading) {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
+      <img src={LoaderGif} alt="Loading..." style={{ width: "150px" }} />
+    </div>
+  );
+}
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', animation: 'fadeIn 0.5s' }}>
@@ -273,7 +286,7 @@ const Employees: React.FC = () => {
                 <Space wrap>
                     <Select
                         defaultValue="All Locations"
-                        style={{ width: 180 }}
+                        style={{ width: 150 }}
                         onChange={setLocationFilter}
                         options={locationOptions} 
                     />
@@ -288,9 +301,7 @@ const Employees: React.FC = () => {
             <Row gutter={[24, 24]}>
                 {filteredEmployees.map(employee => (
                     <Col xs={24} sm={12} lg={8} xl={6} key={employee.id}>
-<EmployeeCard employee={employee} onDelete={handleDeleteEmployee} />
-
-
+                      <EmployeeCard employee={employee} onDelete={handleDeleteEmployee} />
                     </Col>
                 ))}
             </Row>

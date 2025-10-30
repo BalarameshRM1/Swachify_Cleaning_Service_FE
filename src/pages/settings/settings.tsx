@@ -304,10 +304,10 @@ const BusinessProfile: React.FC = () => {
         onFinish={onFinish}
         initialValues={{
           businessName: 'Swachify Cleaning Services',
-          supportEmail: 'support@swachify.com',
-          phone: '+91 9876543210',
+          supportEmail: 'info@swachify.com',
+          phone: '+1 (905) 588 2122',
           website: 'www.swachify.com',
-          address: 'Hyderabad, Telangana, India',
+          address: '76 King St W,Oshawa,ON L1H 1A6,Canada',
           businessType: 'cleaning',
           description: 'Professional cleaning services for homes and offices',
         }}
@@ -501,54 +501,69 @@ const AccountSecurity: React.FC = () => {
         onFinish={onFinish}
       >
         <Form.Item
-          name="currentPassword"
-          label={<span style={{ fontWeight: 600, color: '#374151' }}>Current Password</span>}
-          rules={[{ required: true, message: 'Please enter current password' }]}
+                name="currentPassword"
+                label={<span style={{ fontWeight: 600, color: '#374151' }}>Current Password</span>}
+                rules={[ { required: true, message: 'Please enter your current password' },
+                {
+                pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
+                message:
+        'Password must contain at least 8 characters, including letters and numbers',
+              },]}
         >
-          <Input.Password
+           <Input.Password
+           size="large"
+           prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
+           placeholder="Enter current password"
+          />
+       </Form.Item>
+
+       <Form.Item
+           name="newPassword"
+           label={<span style={{ fontWeight: 600, color: '#374151' }}>New Password</span>}
+           dependencies={['currentPassword']}
+           rules={[ { required: true, message: 'Please enter a new password' },
+          {pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
+          message:
+         'Password must contain at least 8 characters, including letters and numbers',
+          },
+         ({ getFieldValue }) => ({
+         validator(_, value) {
+        if (!value || getFieldValue('currentPassword') !== value) {
+          return Promise.resolve();
+        }
+        return Promise.reject(
+          new Error('New password must be different from current password')); },
+        }),
+        ]}
+        >
+           <Input.Password
             size="large"
             prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
-            placeholder="Enter current password"
+            placeholder="Enter new password (min 8 chars, letters + numbers)"
           />
-        </Form.Item>
+       </Form.Item>
 
-        <Form.Item
-          name="newPassword"
-          label={<span style={{ fontWeight: 600, color: '#374151' }}>New Password</span>}
-          rules={[
-            { required: true, message: 'Please enter new password' },
-            { min: 8, message: 'Password must be at least 8 characters' },
-          ]}
-        >
-          <Input.Password
-            size="large"
-            prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
-            placeholder="Enter new password (min 8 characters)"
-          />
-        </Form.Item>
-
-        <Form.Item
+       <Form.Item
           name="confirmPassword"
           label={<span style={{ fontWeight: 600, color: '#374151' }}>Confirm New Password</span>}
           dependencies={['newPassword']}
-          rules={[
-            { required: true, message: 'Please confirm password' },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                if (!value || getFieldValue('newPassword') === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(new Error('Passwords do not match!'));
-              },
-            }),
-          ]}
+          rules={[ { required: true, message: 'Please confirm password' },
+          ({ getFieldValue }) => ({
+           validator(_, value) {
+          if (!value || getFieldValue('newPassword') === value) {
+          return Promise.resolve();
+        }
+        return Promise.reject(new Error('Passwords do not match!')); },
+        }),
+       ]}
         >
-          <Input.Password
-            size="large"
-            prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
-            placeholder="Confirm new password"
-          />
-        </Form.Item>
+        <Input.Password
+          size="large"
+          prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
+          placeholder="Confirm new password"
+         />
+       </Form.Item>
+
 
         <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
           <Button

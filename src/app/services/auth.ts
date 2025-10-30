@@ -22,6 +22,55 @@ export const getAllUsersById = async(userId:any) =>{
     }
 }
 
+export const createBooking = async (bookingData: any) => {
+  try {
+    const response = await fetch(`${baseUrl}/Booking`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...bookingData,
+        id: 0,
+        createdDate: new Date().toISOString(),
+        modifiedDate: new Date().toISOString(),
+        isActive: true,
+        services: bookingData.services?.map((s: any) => ({
+          deptId: s.deptId,
+          serviceId: s.serviceId,
+          serviceTypeId: s.serviceTypeId,
+        })) || [],
+      }),
+    });
+
+   
+    if (response.status < 200 || response.status >= 300) {
+      const errorText = await response.text();
+      console.error("Booking creation failed:", errorText);
+      throw new Error(`Booking creation failed with status ${response.status}`);
+    }
+
+  
+    const text = await response.text();
+    let data = {};
+    if (text && text.trim() !== "") {
+      try {
+        data = JSON.parse(text);
+      } catch (parseErr) {
+        console.warn("⚠️ Could not parse response JSON:", parseErr);
+      }
+    }
+
+    console.log("✅ Booking created successfully:", data);
+    return { status: response.status, data };
+  } catch (error) {
+    console.error("Error in createBooking:", error);
+    throw error;
+  }
+};
+
+
+
 export const getAllDepartments = async() =>{
     try {
         const response = await fetch(`${baseUrl}/Master/getalldepartments`);

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { 
   Card, 
@@ -8,7 +7,6 @@ import {
   DatePicker, 
   Select, 
   Table, 
-  Spin, 
   message, 
   Tag,
   Space 
@@ -21,6 +19,7 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { getAllUsers, getAllDepartments, getallBookings } from "../../app/services/auth";
 import * as XLSX from "xlsx";
+import LoaderGif from "../../assets/SWACHIFY_gif.gif"; 
 
 // Extend dayjs with plugins
 dayjs.extend(isSameOrAfter);
@@ -139,6 +138,28 @@ const Reports: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <img 
+          src={LoaderGif} 
+          alt="Loading..." 
+          style={{ width: "160px", marginBottom: "20px" }} 
+        />
+        <p style={{ fontSize: "16px", color: "#555" }}>Loading Reports...</p>
+      </div>
+    );
+  }
+
   // Get unique customer names from bookings
   const getUniqueCustomers = (): string[] => {
     const names = bookings.map(b => b.full_name).filter(Boolean);
@@ -207,7 +228,6 @@ const Reports: React.FC = () => {
   // Export to Excel
   const handleExportExcel = () => {
     try {
-      // Prepare data for export
       const exportData = filteredBookings.map((booking, index) => ({
         "S.No": index + 1,
         "Booking ID": booking.id,
@@ -228,35 +248,18 @@ const Reports: React.FC = () => {
         "Service Type": booking.is_regular ? "Regular" : booking.is_premium ? "Premium" : booking.is_ultimate ? "Ultimate" : "N/A"
       }));
 
-      // Create worksheet
       const ws = XLSX.utils.json_to_sheet(exportData);
-
-      // Set column widths
       const wscols = [
-        { wch: 6 },  
-        { wch: 12 }, 
-        { wch: 20 }, 
-        { wch: 15 }, 
-        { wch: 25 }, 
-        { wch: 20 }, 
-        { wch: 30 }, 
-        { wch: 20 }, 
-        { wch: 15 }, 
-        { wch: 12 }, 
-        { wch: 20 }, 
-        { wch: 20 }, 
-        { wch: 15 }, 
+        { wch: 6 }, { wch: 12 }, { wch: 20 }, { wch: 15 }, { wch: 25 }, 
+        { wch: 20 }, { wch: 30 }, { wch: 20 }, { wch: 15 }, { wch: 12 },
+        { wch: 20 }, { wch: 20 }, { wch: 15 }
       ];
-      ws['!cols'] = wscols;
+      ws["!cols"] = wscols;
 
-     
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Booking Reports");
 
-      
       const fileName = `Booking_Reports_${dayjs().format("YYYY-MM-DD_HHmm")}.xlsx`;
-
-    
       XLSX.writeFile(wb, fileName);
 
       message.success(`Exported ${exportData.length} bookings to Excel successfully!`);
@@ -266,57 +269,35 @@ const Reports: React.FC = () => {
     }
   };
 
-  
   const handleExportCSV = () => {
     try {
-      
       const headers = [
-        "S.No",
-        "Booking ID",
-        "Customer Name",
-        "Phone",
-        "Email",
-        "Department",
-        "Address",
-        "Assigned Employee",
-        "Preferred Date",
-        "Status",
-        "Created By",
-        "Created Date",
-        "Service Type"
+        "S.No","Booking ID","Customer Name","Phone","Email","Department",
+        "Address","Assigned Employee","Preferred Date","Status",
+        "Created By","Created Date","Service Type"
       ];
 
       const csvData = filteredBookings.map((booking, index) => [
-        index + 1,
-        booking.id,
-        booking.full_name || "N/A",
-        booking.phone || "N/A",
-        booking.email || "N/A",
-        booking.department?.department_name || "N/A",
-        booking.address || "N/A",
-        booking.assign_to_name || "Not Assigned",
+        index + 1, booking.id, booking.full_name || "N/A", booking.phone || "N/A",
+        booking.email || "N/A", booking.department?.department_name || "N/A",
+        booking.address || "N/A", booking.assign_to_name || "Not Assigned",
         booking.preferred_date ? dayjs(booking.preferred_date).format("MMM DD, YYYY") : "N/A",
-        booking.status?.status || "Unknown",
-        booking.created_by_name || "N/A",
+        booking.status?.status || "Unknown", booking.created_by_name || "N/A",
         booking.created_date ? dayjs(booking.created_date).format("MMM DD, YYYY HH:mm") : "N/A",
         booking.is_regular ? "Regular" : booking.is_premium ? "Premium" : booking.is_ultimate ? "Ultimate" : "N/A"
       ]);
 
-      // Create CSV content
       const csvContent = [
         headers.join(","),
         ...csvData.map(row => row.map(cell => `"${cell}"`).join(","))
       ].join("\n");
 
-      // Create blob and download
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
-      
       link.setAttribute("href", url);
       link.setAttribute("download", `Booking_Reports_${dayjs().format("YYYY-MM-DD_HHmm")}.csv`);
       link.style.visibility = "hidden";
-      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -328,7 +309,6 @@ const Reports: React.FC = () => {
     }
   };
 
-  // Table columns
   const columns: ColumnsType<Booking> = [
     {
       title: "Booking ID",
@@ -410,7 +390,6 @@ const Reports: React.FC = () => {
       dataIndex: "status",
       key: "status",
       width: 130,
-      
       render: (status: StatusInfo) => {
         const statusText = status?.status || "Unknown";
         const color = STATUS_COLOR_MAP[statusText] || "default";
@@ -437,23 +416,22 @@ const Reports: React.FC = () => {
         overflow: "hidden"
       }}
     >
-      <Spin spinning={loading} style={{ height: "100%" }}>
-        <Card
-          title={<span style={{ fontSize: "20px", fontWeight: 600 }}>Booking Reports</span>}
-          bordered={false}
-          style={{
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          }}
-          bodyStyle={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}
-        >
+      <Card
+        title={<span style={{ fontSize: "20px", fontWeight: 600 }}>Booking Reports</span>}
+        bordered={false}
+        style={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+        bodyStyle={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
           {/* Filters Section - Fixed at top */}
           <div style={{ flexShrink: 0 }}>
             <Row gutter={[16, 16]}>
@@ -585,9 +563,9 @@ const Reports: React.FC = () => {
             />
           </div>
         </Card>
-      </Spin>
+      
     </div>
   );
 };
 
-export default Reports;
+export default Reports; 
