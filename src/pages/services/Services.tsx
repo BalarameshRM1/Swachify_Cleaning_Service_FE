@@ -15,6 +15,7 @@ import {
   DatePicker,
   Input,
   Form,
+  ConfigProvider, // <-- Added ConfigProvider
 } from "antd";
 import {
   HomeOutlined,
@@ -347,13 +348,21 @@ const Services: React.FC = () => {
   const CustomerDetails = (
     <>
       <div style={styles.stepsWrap}>
-        <Steps
-          current={currentStep}
-          onChange={(idx) => setCurrentStep(idx as StepKey)}
-          items={[{ title: "Customer Details" }, { title: "Service Selection" }]}
-          size="small"
-          style={styles.stepsBar}
-        />
+        <ConfigProvider
+          theme={{
+            token: {
+              colorPrimary: '#14b8a6',
+            },
+          }}
+        >
+          <Steps
+            current={currentStep}
+            onChange={(idx) => setCurrentStep(idx as StepKey)}
+            items={[{ title: "Customer Details" }, { title: "Service Selection" }]}
+            size="small"
+            style={styles.stepsBar}
+          />
+        </ConfigProvider>
       </div>
       <Card bordered style={{ borderRadius: 12 }}>
         <Space direction="vertical" size={2} style={{ width: "100%" }}>
@@ -656,12 +665,20 @@ const Services: React.FC = () => {
   const ServicesSelection = (
     <>
       <div style={styles.stepsWrap}>
-        <Steps
-          current={1}
-          items={[{ title: "Customer Details" }, { title: "Service Selection" }]}
-          size="small"
-          style={styles.stepsBar}
-        />
+        <ConfigProvider
+          theme={{
+            token: {
+              colorPrimary: '#14b8a6',
+            },
+          }}
+        >
+          <Steps
+            current={1}
+            items={[{ title: "Customer Details" }, { title: "Service Selection" }]}
+            size="small"
+            style={styles.stepsBar}
+          />
+        </ConfigProvider>
       </div>
 
       <Row justify="space-between" align="middle" style={{ marginBottom: 8 }}>
