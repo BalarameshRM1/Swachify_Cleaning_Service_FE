@@ -5,12 +5,10 @@ import {
   Col,
   Typography,
   Select,
-  Divider,
   Space,
   Button,
   Tag,
   App,
-  List,
   Tooltip,
   InputNumber,
   Steps,
@@ -54,7 +52,10 @@ const MASTER_OPTIONS = [
 ];
 
 const PRICING = {
-  base: { bedroom: 300, bathroom: 400, kitchen: 500, living: 350 } as Record<SectionKey, number>,
+  base: { bedroom: 300, bathroom: 400, kitchen: 500, living: 350 } as Record<
+    SectionKey,
+    number
+  >,
   typeDelta: { Normal: 0, Deep: 150 } as Record<CleanType, number>,
   addOnPerHour: 120,
   minHours: 3,
@@ -90,14 +91,21 @@ type ServicePlan = {
 };
 type FormState = Record<SectionKey, ServicePlan>;
 
-const SECTION_META: Record<SectionKey, { icon: React.ReactNode; title: string }> = {
+const SECTION_META: Record<
+  SectionKey,
+  { icon: React.ReactNode; title: string }
+> = {
   bedroom: { icon: <HomeOutlined />, title: "Bedroom" },
   bathroom: { icon: <ApartmentOutlined />, title: "Bathroom" },
   kitchen: { icon: <AppstoreOutlined />, title: "Kitchen" },
   living: { icon: <BankOutlined />, title: "Living" },
 };
 
+const isActivePlan = (plan: ServicePlan) =>
+  Boolean(plan?.subService || plan?.type || (plan?.addOnHours?.length ?? 0) > 0);
+
 const calcSectionTotal = (section: SectionKey, plan: ServicePlan) => {
+  if (!isActivePlan(plan)) return 0;
   const base = PRICING.base[section] ?? 0;
   const typeDelta = plan.type ? PRICING.typeDelta[plan.type] : 0;
   const addOnSum = (plan.addOnHours?.reduce((a, b) => a + b, 0) ?? 0) * PRICING.addOnPerHour;
@@ -105,38 +113,49 @@ const calcSectionTotal = (section: SectionKey, plan: ServicePlan) => {
 };
 const usdFormatter = (value?: string | number) => {
   if (value === undefined || value === null) return "";
-  const n = typeof value === "number" ? value : Number(String(value).replace(/[^\d.-]/g, ""));
+  const n =
+    typeof value === "number"
+      ? value
+      : Number(String(value).replace(/[^\d.-]/g, ""));
   if (Number.isNaN(n)) return "";
   return `$ ${n}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
-const usdParser = (value?: string) => (!value ? 0 : Number(String(value).replace(/[^0-9.-]+/g, "")) || 0);
+const usdParser = (value?: string) =>
+  !value ? 0 : Number(String(value).replace(/[^0-9.-]+/g, "")) || 0;
 
 const styles = {
   pageWrap: {
-    height: "calc(100vh - 32px)",
+    height: "calc(100vh - 16px)",
     display: "flex",
     flexDirection: "column",
     minHeight: 0,
   } as React.CSSProperties,
 
-  contentRow: { flex: 1, display: "flex", minHeight: 0 } as React.CSSProperties,
-
   stepsWrap: {
     position: "sticky",
-    textColor: "#fff",
     top: 0,
     zIndex: 5,
-    background: "#14b8a6",
-    paddingTop: 6,
-    paddingBottom: 6,
-    marginTop: 0,
-    marginBottom: 6,
-    borderBottom: "1px solid #f0f2f5",
-    borderRadius: "60px",
+    background: "#fff",
+    padding: "6px 0 10px 0",
+    marginBottom: 8,
+    borderRadius: 60,
   } as React.CSSProperties,
-  stepsBar: { margin: 0, borderRadius: "150px", color: "#fff" } as React.CSSProperties,
 
-  compactCard: { borderRadius: 12, padding: 10 } as React.CSSProperties,
+  stepsBar: {
+    margin: 0,
+  } as React.CSSProperties,
+
+  moneyRight: {
+    textAlign: "right",
+  } as React.CSSProperties,
+
+
+
+  contentRow: {
+    flex: 1,
+    display: "flex",
+    minHeight: 0,
+  } as React.CSSProperties,
 
   leftPane: {
     height: "100%",
@@ -146,6 +165,26 @@ const styles = {
     overflowY: "auto",
     paddingRight: 8,
     minHeight: 0,
+  } as React.CSSProperties,
+
+  sectionCard: {
+    borderRadius: 12,
+  } as React.CSSProperties,
+
+  sectionBody: {
+    padding: 16,
+  } as React.CSSProperties,
+
+  primaryBtn: {
+    background: ACCENT_GRADIENT,
+    border: "none",
+    marginBottom: 120,
+  } as React.CSSProperties,
+
+  accentTag: {
+    background: "#e6fffb",
+    color: ACCENT,
+    borderColor: ACCENT,
   } as React.CSSProperties,
 
   rightCard: {
@@ -165,17 +204,16 @@ const styles = {
     minHeight: 0,
   } as React.CSSProperties,
 
-  summaryHeader: { padding: "12px 12px 0 12px" } as React.CSSProperties,
+  summaryHeader: {
+    padding: "12px 12px 8px 12px",
+    borderBottom: "1px solid #eef2f7",
+  } as React.CSSProperties,
 
   itemsScroll: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "16px",
     flex: 1,
     minHeight: 0,
     overflowY: "auto",
     padding: "8px 12px",
-    paddingBottom: 140,
   } as React.CSSProperties,
 
   summaryFooter: {
@@ -185,13 +223,8 @@ const styles = {
     padding: "8px 12px 12px 12px",
     borderTop: "1px solid #eef2f7",
     zIndex: 3,
+    marginBottom: "40px",
   } as React.CSSProperties,
-
-  sectionCard: { borderRadius: 12 } as React.CSSProperties,
-  sectionBody: { padding: 120 } as React.CSSProperties,
-
-  primaryBtn: { background: ACCENT_GRADIENT, border: "none" } as React.CSSProperties,
-  accentTag: { background: "#e6fffb", color: ACCENT, borderColor: ACCENT } as React.CSSProperties,
 };
 
 const Services: React.FC = () => {
@@ -206,7 +239,7 @@ const Services: React.FC = () => {
   };
 
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
-  const [master, setMaster] = useState<SectionKey>("bedroom");
+  const [master, setMaster] = useState<SectionKey>("living"); // default to Living per SS
 
   const [serviceForm, setServiceForm] = useState<FormState>({
     bedroom: { subService: null, type: null, addOnHours: [] },
@@ -219,14 +252,14 @@ const Services: React.FC = () => {
     bedroom: false,
     bathroom: false,
     kitchen: false,
-    living: false,
+    living: true,
   });
 
   const [discount, setDiscount] = useState<number>(0);
   const [discountPct, setDiscountPct] = useState<number>(0);
   const [customerRequest, setCustomerRequest] = useState<number>(0);
 
-  // Form states for customer info
+  // Customer info
   const [fullName, setFullName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [email] = useState<string>("");
@@ -261,7 +294,11 @@ const Services: React.FC = () => {
   const sectionsToShow: SectionKey[] = [master];
 
   const grandTotal = useMemo(
-    () => (Object.keys(serviceForm) as SectionKey[]).reduce((sum, s) => sum + calcSectionTotal(s, serviceForm[s]), 0),
+    () =>
+      (Object.keys(serviceForm) as SectionKey[]).reduce(
+        (sum, s) => sum + calcSectionTotal(s, serviceForm[s]),
+        0
+      ),
     [serviceForm]
   );
 
@@ -279,7 +316,6 @@ const Services: React.FC = () => {
     [grandTotal, discount]
   );
 
-  // Form Submit
   const handleSubmit = async () => {
     try {
       await form.validateFields();
@@ -308,31 +344,24 @@ const Services: React.FC = () => {
     }
   };
 
-  /* Customer Details with validation */
   const CustomerDetails = (
     <>
       <div style={styles.stepsWrap}>
         <Steps
           current={currentStep}
           onChange={(idx) => setCurrentStep(idx as StepKey)}
-          items={[
-            { title: "Customer Details" },
-            { title: "Service Selection" },
-          ]}
+          items={[{ title: "Customer Details" }, { title: "Service Selection" }]}
           size="small"
           style={styles.stepsBar}
-
         />
       </div>
-      <Card bordered style={styles.compactCard}>
+      <Card bordered style={{ borderRadius: 12 }}>
         <Space direction="vertical" size={2} style={{ width: "100%" }}>
-          <Title level={4} style={{ margin: 0 }}>Booking Details</Title>
+          <Title level={4} style={{ margin: 0 }}>
+            Booking Details
+          </Title>
         </Space>
-        <Form
-          layout="vertical"
-          form={form}
-          style={{ marginTop: 8 }}
-        >
+        <Form layout="vertical" form={form} style={{ marginTop: 8 }}>
           <Row gutter={[8, 0]}>
             <Col xs={24} md={12}>
               <Form.Item
@@ -341,7 +370,10 @@ const Services: React.FC = () => {
                 required
                 rules={[
                   { required: true, message: "Please enter your name" },
-                  { pattern: /^[A-Za-z]{2,}\s[A-Za-z]{2,}$/, message: 'Enter valid full name (First and Last name)' },
+                  {
+                    pattern: /^[A-Za-z]{2,}\s[A-Za-z]{2,}$/,
+                    message: "Enter valid full name (First and Last name)",
+                  },
                 ]}
               >
                 <Input
@@ -354,7 +386,7 @@ const Services: React.FC = () => {
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
-             <Form.Item
+              <Form.Item
                 label="Preferred date"
                 name="date"
                 required
@@ -363,24 +395,23 @@ const Services: React.FC = () => {
                 <DatePicker
                   size="middle"
                   style={{ width: "100%" }}
-                  value={date}                 // dayjs | null
-                  onChange={(d) => setDate(d)} // keep as dayjs
+                  value={date}
+                  onChange={(d) => setDate(d)}
                   suffixIcon={<CalendarOutlined />}
                   disabledDate={(d) => d && d < dayjs().startOf("day")}
-                  format="DD-MM-YYYY"          // display as dd-mm-yyyy
+                  format="DD-MM-YYYY"
                 />
               </Form.Item>
-
             </Col>
             <Col xs={24} md={12}>
-             <Form.Item
+              <Form.Item
                 label="Phone"
                 name="phone"
                 required
                 rules={[
                   { required: true, message: "Please enter your phone number" },
-                  { pattern: /^[0-9]+$/, message: "Only digits are allowed" }, // allows any length digits only
-                  { len: 10, message: "Phone number must be 10 digits" } // exactly 10 digits
+                  { pattern: /^[0-9]+$/, message: "Only digits are allowed" },
+                  { len: 10, message: "Phone number must be 10 digits" },
                 ]}
               >
                 <Input
@@ -388,53 +419,64 @@ const Services: React.FC = () => {
                   prefix={<PhoneOutlined />}
                   placeholder="9876543210"
                   value={phone}
-                  onChange={e => setPhone(e.target.value.replace(/\D/g, ""))} // strips non-digits
+                  onChange={(e) =>
+                    setPhone(e.target.value.replace(/\D/g, ""))
+                  }
                   maxLength={10}
                 />
               </Form.Item>
-
             </Col>
             <Col xs={24} md={12}>
-             <Form.Item name="email" label="Email" rules={[
-            { required: true, message: 'Please enter email' },
-            { type: 'email', message: 'Please enter a valid email' },
-            { pattern: /^[a-zA-Z0-9._%+-]+@gmail\.com$/, message: 'Email must be a valid Gmail address' }
-          ]} normalize={(value) => value?.trim()} >
-            <Input placeholder="Enter email address" />
-          </Form.Item>
-
-
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter email" },
+                  { type: "email", message: "Please enter a valid email" },
+                  {
+                    pattern: /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
+                    message: "Email must be a valid Gmail address",
+                  },
+                ]}
+                normalize={(value) => value?.trim()}
+              >
+                <Input placeholder="Enter email address" />
+              </Form.Item>
             </Col>
             <Col xs={24}>
-             <Form.Item
-                  label={`Address (${address.length}/200)`}
-                  name="address"
-                  rules={[
-                    { required: true, message: "Please enter your address" },
-                    {
-                      validator: (_, value) => {
-                        if (!value) {
-                          return Promise.reject(new Error("Please enter your address"));
-                        }
-                        if (/^\s/.test(value)) {
-                          return Promise.reject(new Error("Address cannot start with a space"));
-                        } 
-                        return Promise.resolve();
+              <Form.Item
+                label={`Address (${address.length}/200)`}
+                name="address"
+                rules={[
+                  { required: true, message: "Please enter your address" },
+                  {
+                    validator: (_, value) => {
+                      if (!value) {
+                        return Promise.reject(
+                          new Error("Please enter your address")
+                        );
                       }
-                    }
-                  ]}
-                >
-                  <Input.TextArea
-                    rows={3}
-                    maxLength={200}
-                    placeholder="Flat, street, landmark, city, postal code"
-                    value={address}
-                    onChange={e => setAddress(e.target.value.replace(/^\s+/, ""))}
-                    style={{ resize: "vertical" }}
-                  />
+                      if (/^\s/.test(value)) {
+                        return Promise.reject(
+                          new Error("Address cannot start with a space")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
+                <Input.TextArea
+                  rows={3}
+                  maxLength={200}
+                  placeholder="Flat, street, landmark, city, postal code"
+                  value={address}
+                  onChange={(e) =>
+                    setAddress(e.target.value.replace(/^\s+/, ""))
+                  }
+                  style={{ resize: "vertical" }}
+                />
               </Form.Item>
-
-
             </Col>
           </Row>
           <Row justify="end">
@@ -443,7 +485,9 @@ const Services: React.FC = () => {
                 size="large"
                 type="primary"
                 icon={<ArrowRightOutlined />}
-                onClick={() => form.validateFields().then(() => setCurrentStep(1))}
+                onClick={() =>
+                  form.validateFields().then(() => setCurrentStep(1))
+                }
                 block
                 style={styles.primaryBtn}
               >
@@ -456,27 +500,33 @@ const Services: React.FC = () => {
     </>
   );
 
-  /* Category Row UI remains unchanged */
   const CategoryRow: React.FC<{ section: SectionKey }> = ({ section }) => {
-    const state = serviceForm[section];
-    return (
-      <div>
-        <Text type="secondary" style={{ display: "block", marginBottom: 6 }}>
-          Category
-        </Text>
-        <Space.Compact block>
+  const state = serviceForm[section];
+  return (
+    <div>
+      <Row gutter={[8, 8]} align="middle">
+        <Col xs={24} md={12}>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>
+            Sub Category
+          </Text>
           <Select
             value={state.subService ?? undefined}
             placeholder="Select sub‑service"
-            style={{ width: "50%" }}
+            style={{ width: "100%" }}
             options={SUBSERVICES[section]}
             onChange={(v) => setSection(section, "subService", v as string)}
             allowClear
           />
+        </Col>
+
+        <Col xs={24} md={12}>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>
+            Sub Category Type
+          </Text>
           <Select
             value={state.type ?? undefined}
             placeholder="Select cleaning type"
-            style={{ width: "50%" }}
+            style={{ width: "100%" }}
             onChange={(v) => setSection(section, "type", (v as CleanType) ?? null)}
             allowClear
             options={[
@@ -484,7 +534,9 @@ const Services: React.FC = () => {
                 label: (
                   <Space size={6}>
                     <span>Normal</span>
-                    <Tag color={ACCENT} style={styles.accentTag}>+${PRICING.typeDelta.Normal}</Tag>
+                    <Tag color={ACCENT} style={styles.accentTag}>
+                      +${PRICING.typeDelta.Normal}
+                    </Tag>
                   </Space>
                 ),
                 value: "Normal",
@@ -493,19 +545,22 @@ const Services: React.FC = () => {
                 label: (
                   <Space size={6}>
                     <span>Deep Cleaning</span>
-                    <Tag color={ACCENT} style={styles.accentTag}>+${PRICING.typeDelta.Deep}</Tag>
+                    <Tag color={ACCENT} style={styles.accentTag}>
+                      +${PRICING.typeDelta.Deep}
+                    </Tag>
                   </Space>
                 ),
                 value: "Deep",
               },
             ]}
           />
-        </Space.Compact>
-      </div>
-    );
-  };
+        </Col>
+      </Row>
+    </div>
+  );
+};
 
-  /* Card UI updates for grid alignment & no vacant spaces */
+
   const SectionCard: React.FC<{ section: SectionKey }> = ({ section }) => {
     const meta = SECTION_META[section];
     const state = serviceForm[section];
@@ -519,27 +574,48 @@ const Services: React.FC = () => {
         title={
           <Space size="small">
             {meta.icon}
-            <Text strong style={{ fontSize: 16 }}>{meta.title}</Text>
+            <Text strong style={{ fontSize: 16 }}>
+              {meta.title}
+            </Text>
           </Space>
         }
         extra={
-          <Button size="small" type="text" onClick={() => resetSection(section)} icon={<ReloadOutlined />}>
+          <Button
+            size="small"
+            type="text"
+            onClick={() => resetSection(section)}
+            icon={<ReloadOutlined />}
+          >
             Clear
           </Button>
         }
       >
         <Space direction="vertical" size="small" style={{ width: "100%" }}>
           <CategoryRow section={section} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <Text type="secondary">Minimum cleaning hours</Text>
             <Tag color="gold">{PRICING.minHours} hours</Tag>
           </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <Text type="secondary">Add‑on hours</Text>
             <Button
               type="link"
               size="small"
-              onClick={() => setAddonsOpen((o) => ({ ...o, [section]: !o[section] }))}
+              onClick={() =>
+                setAddonsOpen((o) => ({ ...o, [section]: !o[section] }))
+              }
               style={{ padding: 0, height: "auto", color: ACCENT }}
             >
               {addonsOpen[section] ? "Hide" : "Select hours"}
@@ -562,7 +638,13 @@ const Services: React.FC = () => {
               })}
             </Space>
           )}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <Text type="secondary">Section Total</Text>
             <Text strong>{usdFormatter(calcSectionTotal(section, state))}</Text>
           </div>
@@ -571,28 +653,25 @@ const Services: React.FC = () => {
     );
   };
 
-  /* Service Selection step with improved grid alignment for summary */
   const ServicesSelection = (
     <>
       <div style={styles.stepsWrap}>
         <Steps
           current={1}
-          items={[
-            { title: "Customer Details" },
-            { title: "Service Selection" },
-          ]}
+          items={[{ title: "Customer Details" }, { title: "Service Selection" }]}
           size="small"
           style={styles.stepsBar}
         />
       </div>
+
       <Row justify="space-between" align="middle" style={{ marginBottom: 8 }}>
         <Col>
           <Space size="large" align="center">
-            <Title level={2} style={{ margin: 0 }}>
-              Service Selection
+            <Title level={3} style={{ margin: 0 }}>
+              Select Service Category
             </Title>
             <Space>
-              <Text type="secondary">Master Category</Text>
+              {/* <Text type="secondary">Master Category</Text> */}
               <Select
                 style={{ minWidth: 220 }}
                 value={master}
@@ -609,6 +688,7 @@ const Services: React.FC = () => {
           </Button>
         </Col>
       </Row>
+
       <Row gutter={[16, 16]} style={styles.contentRow}>
         <Col xs={24} lg={16} style={styles.leftPane}>
           {sectionsToShow.includes("bedroom") && <SectionCard section="bedroom" />}
@@ -616,148 +696,163 @@ const Services: React.FC = () => {
           {sectionsToShow.includes("kitchen") && <SectionCard section="kitchen" />}
           {sectionsToShow.includes("living") && <SectionCard section="living" />}
         </Col>
+
         <Col xs={24} lg={8} style={{ height: "100%", minHeight: 0 }}>
           <Card
-            bordered
-            style={styles.rightCard}
-            bodyStyle={styles.rightCardBody}
-            title={<Text strong>Selection Summary</Text>}
-            extra={
-              <Button
-                type="text"
-                size="small"
-                icon={<ReloadOutlined />}
-                onClick={() => {
-                  (["bedroom", "bathroom", "kitchen", "living"] as SectionKey[]).forEach((k) => resetSection(k));
-                  setAddonsOpen({ bedroom: false, bathroom: false, kitchen: false, living: false });
-                  setDiscount(0);
-                  setCustomerRequest(0);
-                  setDiscountPct(0);
-                  message.success("Selections cleared");
-                }}
-              >
-                Reset
-              </Button>
-            }
-          >
-            <div style={styles.summaryHeader} />
-            <div style={styles.itemsScroll}>
-              <List
-                itemLayout="vertical"
-                dataSource={(Object.keys(serviceForm) as SectionKey[]).map((k) => ({ section: k, plan: serviceForm[k] }))}
-                rowKey={(item) => `${item.section}`}
-                renderItem={({ section, plan }) => {
-                  const title = SECTION_META[section].title;
-                  const total = calcSectionTotal(section, plan);
-                  const subLabel =
-                    SUBSERVICES[section].find((o) => o.value === plan.subService)?.label;
+  bordered
+  style={styles.rightCard}
+  bodyStyle={styles.rightCardBody}
+  title={<Text strong>Selection Summary</Text>}
+  extra={
+    <Button
+      size="small"
+      type="primary"
+      ghost
+      icon={<ReloadOutlined />}
+      onClick={() => {
+        (["bedroom","bathroom","kitchen","living"] as SectionKey[]).forEach((k) => resetSection(k));
+        setAddonsOpen({ bedroom:false, bathroom:false, kitchen:false, living:false });
+        setDiscount(0);
+        setCustomerRequest(0);
+        setDiscountPct(0);
+        message.success("Selections cleared");
+      }}
+      style={{ borderRadius: 8, background: "#16a394", borderColor: "#16a394", color: "#fff" }}
+    >
+      Reset
+    </Button>
+  }
+>
+  {/* Scrollable content */}
+  <div style={{ padding: 12, borderTop: "1px solid #f0f2f5", overflowY: "auto", flex: 1, minHeight: 0 }}>
+    {(Object.keys(serviceForm) as SectionKey[])
+      .map((k) => ({ section: k, plan: serviceForm[k] }))
+      .filter(({ plan }) => plan.type || plan.subService || plan.addOnHours.length > 0)
+      .map(({ section, plan }) => {
+        const title = SECTION_META[section].title;
+        const total = calcSectionTotal(section, plan);
 
-                  const has = plan.subService || plan.type || (plan.addOnHours?.length ?? 0) > 0;
-                  if (!has) return null;
+        return (
+        <div
+  key={section}
+  style={{
+    border: "1px solid #eef2f7",
+    borderRadius: 10,
+    background: "#fff",
+    boxShadow: "0 0 0 1px rgba(0,0,0,0.02)",
+    padding: 10,
+    marginBottom: 12,
+  }}
+>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Text strong>{title}</Text>
+    <Text strong>{usdFormatter(total)}</Text>
+  </div>
 
-                  return (
-                    <List.Item
-                      actions={[
-                        <Tooltip key="edit" title="Edit">
-                          <Button
-                            size="small"
-                            type="text"
-                            icon={<EditOutlined />}
-                            onClick={() => {
-                              setMaster(section);
-                              setTimeout(() => {
-                                anchors[section].current?.scrollIntoView({
-                                  behavior: "smooth",
-                                  block: "nearest",
-                                });
-                              }, 0);
-                            }}
-                          />
-                        </Tooltip>,
-                        <Tooltip key="remove" title="Remove">
-                          <Button
-                            size="small"
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => {
-                              resetSection(section);
-                              message.success(`${title} removed`);
-                            }}
-                          />
-                        </Tooltip>,
-                      ]}
-                      style={{
-                        padding: 8,
-                        borderRadius: 8,
-                        background: "#f8fafc",
-                        border: "1px solid #eef2f7",
-                        marginBottom: 8,
-                      }}
-                    >
-                      <List.Item.Meta
-                        title={<Text strong>{title}</Text>}
-                        description={
-                          <Space wrap size={[8, 8]}>
-                            {subLabel && <Tag color={ACCENT} style={styles.accentTag}>{subLabel}</Tag>}
-                            {plan.type && (
-                              <Tag color={ACCENT} style={styles.accentTag}>
-                                {plan.type}
-                              </Tag>
-                            )}
-                            <Tag color="gold">{PRICING.minHours}h min</Tag>
-                            {plan.addOnHours.map((h) => (
-                              <Tag key={h}>+{h}h</Tag>
-                            ))}
-                          </Space>
-                        }
-                      />
-                      <Text strong>{usdFormatter(total)}</Text>
-                    </List.Item>
-                  );
-                }}
-              />
-              <Divider style={{ margin: "8px 0" }} />
-              <Space direction="vertical" style={{ width: "100%" }} size={8}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Text type="secondary">Subtotal</Text>
-                  <Text strong>{usdFormatter(grandTotal)}</Text>
-                </div>
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <Text type="secondary">Customer Requested</Text>
-                    <Text type="secondary">Auto-discount</Text>
-                  </div>
-                  <InputNumber
-                    style={{ width: "100%" }}
-                    min={0}
-                    value={customerRequest}
-                    onChange={(v) => setCustomerRequest((v as number) ?? 0)}
-                    formatter={usdFormatter as any}
-                    parser={usdParser as any}
-                    placeholder="$ 0"
+  <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 10, flexWrap: "wrap" }}>
+    {plan.type && (
+      <Tag style={{ background: "#e6fffb", color: "#14b8a6", borderColor: "#14b8a6", margin: 0, padding: "2px 8px", borderRadius: 6 }}>
+        {plan.type}
+      </Tag>
+    )}
+
+    <Tag style={{ background: "#fff7e6", color: "#ad6800", borderColor: "#ffd666", margin: 0, padding: "2px 8px", borderRadius: 6 }}>
+      {PRICING.minHours}h min
+    </Tag>
+
+    {Array.isArray(plan.addOnHours) && plan.addOnHours.map((h) => (
+      <Tag
+        key={`addon-${h}`}
+        style={{ background: "#f6ffed", color: "#237804", borderColor: "#b7eb8f", margin: 0, padding: "2px 8px", borderRadius: 6 }}
+      >
+        +{h}h (${h * PRICING.addOnPerHour})
+      </Tag>
+    ))}
+              <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+                <Tooltip title="Edit">
+                  <Button
+                    size="small"
+                    type="primary"
+                    shape="circle"
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      setMaster(section);
+                      setTimeout(() => {
+                        anchors[section].current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                      }, 0);
+                    }}
                   />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Text type="secondary">Discount</Text>
-                  <Text strong>{usdFormatter(discount)}</Text>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Text type="secondary">Discount %</Text>
-                  <Text strong>{`${discountPct}%`}</Text>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Text type="secondary">Discounted Total</Text>
-                  <Text strong>{usdFormatter(discountedTotal)}</Text>
-                </div>
-                <div style={styles.summaryFooter}>
-                  <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleSubmit} block style={styles.primaryBtn}>
-                    Submit
-                  </Button>
-                </div>
-              </Space>
+                </Tooltip>
+                <Tooltip title="Remove">
+                  <Button
+                    size="small"
+                    danger
+                    type="primary"
+                    shape="circle"
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                      resetSection(section);
+                      message.success(`${title} removed`);
+                    }}
+                  />
+                </Tooltip>
+              </div>
             </div>
-          </Card>
+          </div>
+        );
+      })}
+
+    <div style={{ borderTop: "1px solid #f0f2f5", paddingTop: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Text strong style={{ display: "block", marginBottom: 6 }}>
+          Subtotal
+        </Text>
+        <Text strong>{usdFormatter(grandTotal)}</Text>
+      </div>
+
+      <div style={{ marginTop: 8 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>
+            Customer Requested
+          </Text>
+          {/* <Text type="secondary">Auto-discount</Text>
+        </div> */}
+        <InputNumber
+          style={{ width: "100%", textAlign: "right" }}
+          min={0}
+          value={customerRequest}
+          onChange={(v) => setCustomerRequest((v as number) ?? 0)}
+          formatter={usdFormatter as any}
+          parser={usdParser as any}
+          placeholder="$ 0"
+          className="money-right"
+        />
+        </div>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+        <Text strong>Discount</Text>
+        <Text strong>{usdFormatter(discount)}</Text>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Text strong>Discount %</Text>
+        <Text strong>{`${discountPct}%`}</Text>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Text strong>Discounted Total</Text>
+        <Text strong>{usdFormatter(Math.max(grandTotal - discount, 0))}</Text>
+      </div>
+    </div>
+  </div>
+
+  {/* Sticky submit button inside card */}
+  <div style={{ position: "sticky", bottom: 0, background: "#fff", padding: "8px 12px 12px 12px", borderTop: "1px solid #eef2f7", zIndex: 3 }}>
+    <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleSubmit} block style={styles.primaryBtn}>
+      Submit
+    </Button>
+  </div>
+</Card>
+
         </Col>
       </Row>
     </>
@@ -767,11 +862,26 @@ const Services: React.FC = () => {
     <div style={{ padding: 12 }}>
       <div style={styles.pageWrap}>
         {currentStep === 0 ? (
-          <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
             {CustomerDetails}
           </div>
         ) : (
-          <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             {ServicesSelection}
           </div>
         )}
