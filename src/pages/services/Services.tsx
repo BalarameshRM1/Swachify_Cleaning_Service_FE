@@ -727,64 +727,124 @@ const Services: React.FC = () => {
       ghost
       icon={<ReloadOutlined />}
       onClick={() => {
-        (["bedroom","bathroom","kitchen","living"] as SectionKey[]).forEach((k) => resetSection(k));
-        setAddonsOpen({ bedroom:false, bathroom:false, kitchen:false, living:false });
+        (["bedroom", "bathroom", "kitchen", "living"] as SectionKey[]).forEach((k) => resetSection(k));
+        setAddonsOpen({ bedroom: false, bathroom: false, kitchen: false, living: false });
         setDiscount(0);
         setCustomerRequest(0);
         setDiscountPct(0);
         message.success("Selections cleared");
       }}
-      style={{ borderRadius: 8, background: "#16a394", borderColor: "#16a394", color: "#fff" }}
+      style={{
+        borderRadius: 8,
+        background: "#16a394",
+        borderColor: "#16a394",
+        color: "#fff",
+      }}
     >
       Reset
     </Button>
   }
 >
   {/* Scrollable content */}
-  <div style={{ padding: 12, borderTop: "1px solid #f0f2f5", overflowY: "auto", flex: 1, minHeight: 0 }}>
+  <div
+    style={{
+      padding: 12,
+      borderTop: "1px solid #f0f2f5",
+      overflowY: "auto",
+      flex: 1,
+      minHeight: 0,
+      maxHeight: "60vh",
+    }}
+  >
     {(Object.keys(serviceForm) as SectionKey[])
       .map((k) => ({ section: k, plan: serviceForm[k] }))
       .filter(({ plan }) => plan.type || plan.subService || plan.addOnHours.length > 0)
       .map(({ section, plan }) => {
         const title = SECTION_META[section].title;
         const total = calcSectionTotal(section, plan);
+        const subLabel = SUBSERVICES[section].find((o) => o.value === plan.subService)?.label;
 
         return (
-        <div
-  key={section}
-  style={{
-    border: "1px solid #eef2f7",
-    borderRadius: 10,
-    background: "#fff",
-    boxShadow: "0 0 0 1px rgba(0,0,0,0.02)",
-    padding: 10,
-    marginBottom: 12,
-  }}
->
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-    <Text strong>{title}</Text>
-    <Text strong>{usdFormatter(total)}</Text>
-  </div>
+          <div
+            key={section}
+            style={{
+              border: "1px solid #eef2f7",
+              borderRadius: 10,
+              background: "#fff",
+              boxShadow: "0 0 0 1px rgba(0,0,0,0.02)",
+              padding: 10,
+              marginBottom: 12,
+            }}
+          >
+            {/* Header row */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text strong>{title}</Text>
+              <Text strong>{usdFormatter(total)}</Text>
+            </div>
 
-  <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 10, flexWrap: "wrap" }}>
-    {plan.type && (
-      <Tag style={{ background: "#e6fffb", color: "#14b8a6", borderColor: "#14b8a6", margin: 0, padding: "2px 8px", borderRadius: 6 }}>
-        {plan.type}
-      </Tag>
-    )}
+            {/* Tags + Actions */}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                alignItems: "center",
+                marginTop: 10,
+              }}
+            >
+              {subLabel && (
+                <Tag
+                  style={{
+                    background: "#ecfeff",
+                    color: "#0891b2",
+                    borderColor: "#06b6d4",
+                    margin: 0,
+                    padding: "2px 8px",
+                    borderRadius: 6,
+                  }}
+                >
+                  {subLabel}
+                </Tag>
+              )}
+              {plan.type && (
+                <Tag
+                  style={{
+                    background: "#e6fffb",
+                    color: "#14b8a6",
+                    borderColor: "#14b8a6",
+                    margin: 0,
+                    padding: "2px 8px",
+                    borderRadius: 6,
+                  }}
+                >
+                  {plan.type}
+                </Tag>
+              )}
+              <Tag
+                style={{
+                  background: "#fff7e6",
+                  color: "#ad6800",
+                  borderColor: "#ffd666",
+                  margin: 0,
+                  padding: "2px 8px",
+                  borderRadius: 6,
+                }}
+              >
+                {PRICING.minHours}h min
+              </Tag>
 
-    <Tag style={{ background: "#fff7e6", color: "#ad6800", borderColor: "#ffd666", margin: 0, padding: "2px 8px", borderRadius: 6 }}>
-      {PRICING.minHours}h min
-    </Tag>
+              {plan.addOnHours.map((h) => (
+                <Tag key={h} style={{ padding: "2px 8px", borderRadius: 6 }}>
+                  +{h}h
+                </Tag>
+              ))}
 
-    {Array.isArray(plan.addOnHours) && plan.addOnHours.map((h) => (
-      <Tag
-        key={`addon-${h}`}
-        style={{ background: "#f6ffed", color: "#237804", borderColor: "#b7eb8f", margin: 0, padding: "2px 8px", borderRadius: 6 }}
-      >
-        +{h}h (${h * PRICING.addOnPerHour})
-      </Tag>
-    ))}
               <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
                 <Tooltip title="Edit">
                   <Button
@@ -795,7 +855,10 @@ const Services: React.FC = () => {
                     onClick={() => {
                       setMaster(section);
                       setTimeout(() => {
-                        anchors[section].current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                        anchors[section].current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "nearest",
+                        });
                       }, 0);
                     }}
                   />
@@ -819,55 +882,74 @@ const Services: React.FC = () => {
         );
       })}
 
+    {/* Summary Section */}
     <div style={{ borderTop: "1px solid #f0f2f5", paddingTop: 8 }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Text strong style={{ display: "block", marginBottom: 6 }}>
-          Subtotal
-        </Text>
+        <Text type="secondary">Subtotal</Text>
         <Text strong>{usdFormatter(grandTotal)}</Text>
       </div>
 
       <div style={{ marginTop: 8 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-          <Text strong style={{ display: "block", marginBottom: 6 }}>
-            Customer Requested
-          </Text>
-          {/* <Text type="secondary">Auto-discount</Text>
-        </div> */}
+        <div style={{ marginBottom: 6 }}>
+          <Text type="secondary">Customer Requested Amount</Text>
+        </div>
         <InputNumber
           style={{ width: "100%", textAlign: "right" }}
           min={0}
+          max={grandTotal}
           value={customerRequest}
           onChange={(v) => setCustomerRequest((v as number) ?? 0)}
           formatter={usdFormatter as any}
           parser={usdParser as any}
           placeholder="$ 0"
-          className="money-right"
         />
-        </div>
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-        <Text strong>Discount</Text>
+        <Text type="secondary">Discount</Text>
         <Text strong>{usdFormatter(discount)}</Text>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Text strong>Discount %</Text>
+        <Text type="secondary">Discount %</Text>
         <Text strong>{`${discountPct}%`}</Text>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Text strong>Discounted Total</Text>
+        <Text type="secondary">Discounted Total</Text>
         <Text strong>{usdFormatter(Math.max(grandTotal - discount, 0))}</Text>
       </div>
+       <div
+    style={{
+      position: "sticky",
+      bottom: 0,
+      background: "#fff",
+      padding: "8px 12px 12px 12px",
+      borderTop: "1px solid #eef2f7",
+      zIndex: 3,
+    }}
+  >
+    <Button
+      type="primary"
+      icon={<CheckCircleOutlined />}
+      size="large"
+      onClick={handleSubmit}
+      loading={loading}
+      disabled={grandTotal === 0}
+      block
+      style={{
+        background: "#16a394",
+        borderColor: "#16a394",
+        borderRadius: 8,
+        fontWeight: 600,
+      }}
+    >
+      Submit Booking
+    </Button>
+  </div>
     </div>
   </div>
 
-  {/* Sticky submit button inside card */}
-  <div style={{ position: "sticky", bottom: 0, background: "#fff", padding: "8px 12px 12px 12px", borderTop: "1px solid #eef2f7", zIndex: 3 }}>
-    <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleSubmit} block style={styles.primaryBtn}>
-      Submit
-    </Button>
-  </div>
+  {/* Sticky Submit Button */}
+ 
 </Card>
 
         </Col>
