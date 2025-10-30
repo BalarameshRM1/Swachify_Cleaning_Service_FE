@@ -29,10 +29,12 @@ const Dashboard: React.FC = () => {
         : await getallBookings();
 
       if(response) {
-        const bookingsWithServiceName = response.map((b: any) => ({
-          ...b,
-          serviceName: b.service_name || "Unknown Service" 
-        }));
+       const bookingsWithServiceName = response.map((b: any) => ({
+  ...b,
+  serviceName: b.service_name || "Unknown Service",
+  normalizedStatus: typeof b.status === "string" ? b.status : b.status?.status || "Unknown"
+}));
+
 
         const pendingTsk = bookingsWithServiceName.filter((b: any) => 
           b?.status?.status === "Pending" || b?.status === "Pending"
@@ -267,12 +269,14 @@ const Dashboard: React.FC = () => {
                         <Tag
                           className="status-tag"
                           color={
-                            booking.status?.status === "Pending"
-                              ? "orange"
-                              : booking.status?.status === "In-Progress"
-                              ? "blue"
-                              : "green"
-                          }
+  booking.normalizedStatus === "Pending"
+    ? "orange"
+    : booking.normalizedStatus === "In-Progress" ||
+      booking.normalizedStatus === "In Progress"
+    ? "blue"
+    : "green"
+}
+
                           style={{ 
                             fontWeight: "600", 
                             minWidth: 110, 
@@ -285,7 +289,8 @@ const Dashboard: React.FC = () => {
                             border: 'none',
                           }}
                         >
-                          {booking.status?.status}
+                         {booking.normalizedStatus}
+
                         </Tag>
                       </div>
                     </div>
