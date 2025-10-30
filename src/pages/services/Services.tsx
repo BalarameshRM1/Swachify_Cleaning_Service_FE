@@ -237,6 +237,7 @@ const [customerInfo, setCustomerInfo] = useState({
 });
 const [totalAmount, setTotalAmount] = useState(0);
 
+  // Form states for customer info
   const [fullName, setFullName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [email] = useState<string>("");
@@ -373,6 +374,7 @@ const [totalAmount, setTotalAmount] = useState(0);
 };
 
 
+  /* Customer Details with validation */
   const CustomerDetails = (
     <>
       <div style={styles.stepsWrap}>
@@ -390,7 +392,7 @@ const [totalAmount, setTotalAmount] = useState(0);
       </div>
       <Card bordered style={styles.compactCard}>
         <Space direction="vertical" size={2} style={{ width: "100%" }}>
-                    <Title level={4} style={{ margin: 0 }}>Booking Details</Title>
+          <Title level={4} style={{ margin: 0 }}>Booking Details</Title>
         </Space>
         <Form
           layout="vertical"
@@ -443,8 +445,8 @@ const [totalAmount, setTotalAmount] = useState(0);
                 required
                 rules={[
                   { required: true, message: "Please enter your phone number" },
-                  { pattern: /^[0-9]+$/, message: "Only digits are allowed" }, 
-                  { len: 10, message: "Phone number must be 10 digits" } 
+                  { pattern: /^[0-9]+$/, message: "Only digits are allowed" }, // allows any length digits only
+                  { len: 10, message: "Phone number must be 10 digits" } // exactly 10 digits
                 ]}
               >
                 <Input
@@ -452,7 +454,7 @@ const [totalAmount, setTotalAmount] = useState(0);
                   prefix={<PhoneOutlined />}
                   placeholder="9876543210"
                   value={phone}
-                  onChange={e => setPhone(e.target.value.replace(/\D/g, ""))} 
+                  onChange={e => setPhone(e.target.value.replace(/\D/g, ""))} // strips non-digits
                   maxLength={10}
                 />
               </Form.Item>
@@ -482,10 +484,7 @@ const [totalAmount, setTotalAmount] = useState(0);
                         }
                         if (/^\s/.test(value)) {
                           return Promise.reject(new Error("Address cannot start with a space"));
-                        }
-                        if (value.trim().length === 0) {
-                          return Promise.reject(new Error("Address cannot be just spaces"));
-                        }
+                        } 
                         return Promise.resolve();
                       }
                     }
@@ -572,6 +571,7 @@ const [totalAmount, setTotalAmount] = useState(0);
     );
   };
 
+  /* Card UI updates for grid alignment & no vacant spaces */
   const SectionCard: React.FC<{ section: SectionKey }> = ({ section }) => {
     const meta = SECTION_META[section];
     const state = serviceForm[section];
@@ -637,6 +637,7 @@ const [totalAmount, setTotalAmount] = useState(0);
     );
   };
 
+  /* Service Selection step with improved grid alignment for summary */
   const ServicesSelection = (
     <>
       <div style={styles.stepsWrap}>
