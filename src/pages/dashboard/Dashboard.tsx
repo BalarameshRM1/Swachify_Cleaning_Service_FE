@@ -201,7 +201,7 @@ const Dashboard: React.FC = () => {
             className="activity-card"
             style={{ 
               borderRadius: "20px", 
-              height: "480px",
+              height: "280px",
               border: 'none',
               boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)",
               transition: "all 0.3s ease",
@@ -310,7 +310,7 @@ const Dashboard: React.FC = () => {
             className="activity-card"
             style={{ 
               borderRadius: "20px", 
-              height: "480px",
+              height: "280px",
               border: 'none',
               boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)",
               transition: "all 0.3s ease",

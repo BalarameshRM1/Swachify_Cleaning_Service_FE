@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { message } from "antd";
 
 import {
   Card,
@@ -10,7 +11,6 @@ import {
   Space,
   Button,
   Tag,
-  App,
   List,
   Tooltip,
   InputNumber,
@@ -105,12 +105,14 @@ const calcSectionTotal = (section: SectionKey, plan: ServicePlan) => {
   const addOnSum = (plan.addOnHours?.reduce((a, b) => a + b, 0) ?? 0) * PRICING.addOnPerHour;
   return base + typeDelta + addOnSum;
 };
+
 const usdFormatter = (value?: string | number) => {
   if (value === undefined || value === null) return "";
   const n = typeof value === "number" ? value : Number(String(value).replace(/[^\d.-]/g, ""));
   if (Number.isNaN(n)) return "";
   return `$ ${n}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
+
 const usdParser = (value?: string) => (!value ? 0 : Number(String(value).replace(/[^0-9.-]+/g, "")) || 0);
 
 const styles = {
@@ -170,34 +172,31 @@ const styles = {
   summaryHeader: { padding: "12px 12px 0 12px" } as React.CSSProperties,
 
   itemsScroll: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "16px",
     flex: 1,
     minHeight: 0,
     overflowY: "auto",
     padding: "8px 12px",
-    paddingBottom: 140,
+    paddingBottom: 100,
   } as React.CSSProperties,
 
   summaryFooter: {
     position: "sticky",
     bottom: 0,
     background: "#fff",
-    padding: "8px 12px 12px 12px",
-    borderTop: "1px solid #eef2f7",
-    zIndex: 3,
+    padding: "12px",
+    borderTop: "2px solid #14b8a6",
+    boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.08)",
+    zIndex: 10,
   } as React.CSSProperties,
 
   sectionCard: { borderRadius: 12 } as React.CSSProperties,
-  sectionBody: { padding: 120 } as React.CSSProperties,
+  sectionBody: { padding: 16 } as React.CSSProperties,
 
   primaryBtn: { background: ACCENT_GRADIENT, border: "none" } as React.CSSProperties,
   accentTag: { background: "#e6fffb", color: ACCENT, borderColor: ACCENT } as React.CSSProperties,
 };
 
 const Services: React.FC = () => {
-  const { message } = App.useApp();
   const [form] = Form.useForm();
 
   const anchors = {
@@ -228,21 +227,7 @@ const Services: React.FC = () => {
   const [discountPct, setDiscountPct] = useState<number>(0);
   const [customerRequest, setCustomerRequest] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-const [preferredDate, setPreferredDate] = useState<any>(null);
-const [customerInfo, setCustomerInfo] = useState({
-  name: "",
-  phone: "",
-  email: "",
-  address: "",
-});
-const [totalAmount, setTotalAmount] = useState(0);
-
-  // Form states for customer info
-  const [fullName, setFullName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [email] = useState<string>("");
-  const [address, setAddress] = useState<string>("");
-  const [date, setDate] = useState<dayjs.Dayjs | null>(null);
+  const [customerData, setCustomerData] = useState<any>(null);
 
   const setSection = <K extends keyof ServicePlan,>(
     section: SectionKey,
@@ -278,10 +263,9 @@ const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
     const requested = Math.max(0, customerRequest || 0);
-    const raw = Math.max(0, grandTotal - requested);
-    const capped = Math.min(raw, grandTotal);
-    setDiscount(capped);
-    const pct = grandTotal > 0 ? Math.round((capped / grandTotal) * 100) : 0;
+    const discountAmount = Math.max(0, Math.min(requested, grandTotal));
+    setDiscount(discountAmount);
+    const pct = grandTotal > 0 ? Math.round((discountAmount / grandTotal) * 100) : 0;
     setDiscountPct(pct);
   }, [customerRequest, grandTotal]);
 
@@ -289,92 +273,151 @@ const [totalAmount, setTotalAmount] = useState(0);
     () => Math.max(grandTotal - discount, 0),
     [grandTotal, discount]
   );
-  // const handlechange=(e:any)=>{
-    
-  // }
 
-  // Form Submit
   const handleSubmit = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    // Mapping IDs for backend
-    const DEPT_MAP: Record<string, number> = {
-      bedroom: 1,
-      bathroom: 2,
-      kitchen: 3,
-      living: 4,
-    };
+     
+      let customerInfo = customerData;
+      
+      if (!customerInfo) {
+       
+        try {
+          customerInfo = await form.validateFields();
+        } catch (err) {
+          message.error("Please go back and complete customer details.");
+          setLoading(false);
+          return;
+        }
+      }
 
-    const SERVICE_MAP: Record<string, number> = {
-      single: 1,
-      double: 2,
-      triple: 3,
-      "4bed": 4,
-      with_dining: 5,
-      without_dining: 6,
-    };
+      const { fullName, phone, email, address, date } = customerInfo;
 
-    const SERVICE_TYPE_MAP: Record<string, number> = {
-      Normal: 1,
-      Deep: 2,
-    };
+    
+      if (!fullName || !phone || !email || !address || !date) {
+        message.error("Missing customer details. Please go back to Step 1.");
+        setCurrentStep(0);
+        setLoading(false);
+        return;
+      }
 
-    // Build services array dynamically from selected options
-    const services = Object.keys(serviceForm).map((key) => {
-      const s = serviceForm[key as keyof typeof serviceForm];
-      return {
-        deptId: DEPT_MAP[key] ?? 0,
-        serviceId: s.subService ? SERVICE_MAP[s.subService] ?? 0 : 0,
-        serviceTypeId: s.type ? SERVICE_TYPE_MAP[s.type] ?? 0 : 0,
+     
+      const hasService = Object.values(serviceForm).some(
+        (plan) => plan.subService || plan.type || plan.addOnHours.length > 0
+      );
+
+      if (!hasService) {
+        message.warning("Please select at least one service before submitting.");
+        setLoading(false);
+        return;
+      }
+
+   
+      const DEPT_MAP: Record<string, number> = {
+        bedroom: 1,
+        bathroom: 2,
+        kitchen: 3,
+        living: 4,
       };
-    });
 
-    const payload = {
-      id: 0,
-      bookingId: `BOOK-${Date.now()}`,
-      slotId: 0,
-      createdBy: 0,
-      createdDate: new Date().toISOString(),
-      modifiedBy: 0,
-      modifiedDate: new Date().toISOString(),
-      isActive: true,
-      preferredDate: preferredDate ? preferredDate.format("YYYY-MM-DD") : null,
-      full_name: customerInfo.name,
-      phone: customerInfo.phone,
-      email: customerInfo.email,
-      address: customerInfo.address,
-      status_id: 1,
-      total: 0,
-      subtotal: totalAmount,
-      customer_requested_amount: 0,
-      discount_amount: totalAmount,
-      discount_percentage: 100,
-      discount_total: 0,
-      services,
-    };
+      const SERVICE_MAP: Record<string, number> = {
+        single: 1,
+        double: 2,
+        triple: 3,
+        "4bed": 4,
+        with_dining: 5,
+        without_dining: 6,
+      };
 
-    console.log("Final Booking Payload:", payload);
+      const SERVICE_TYPE_MAP: Record<string, number> = {
+        Normal: 1,
+        Deep: 2,
+      };
 
-    const response = await createBooking(payload);
+    
+      const services = (Object.keys(serviceForm) as SectionKey[])
+        .filter((key) => {
+          const s = serviceForm[key];
+          return s.subService || s.type;
+        })
+        .map((key) => {
+          const s = serviceForm[key];
+          return {
+            deptId: DEPT_MAP[key] ?? 0,
+            serviceId: s.subService ? SERVICE_MAP[s.subService] ?? 0 : 0,
+            serviceTypeId: s.type ? SERVICE_TYPE_MAP[s.type] ?? 0 : 0,
+          };
+        });
 
-    if (response?.status === 200 || response?.status === 201) {
-      message.success("Booking created successfully!");
-      // Optional: clear your forms if needed
-      // resetForm();
-    } else {
-      message.error("Failed to create booking. Please try again.");
+      
+      const payload = {
+        id: 0,
+        bookingId: `BOOK-${Date.now()}`,
+        slotId: 1,
+        createdBy: 12,
+        createdDate: new Date().toISOString(),
+        modifiedBy: 12,
+        modifiedDate: new Date().toISOString(),
+        isActive: true,
+        preferredDate: date.format ? date.format("YYYY-MM-DD") : dayjs(date).format("YYYY-MM-DD"),
+        full_name: fullName,
+        phone: phone,
+        email: email,
+        address: address,
+        status_id: 1,
+        total: discountedTotal,
+        subtotal: grandTotal,
+        customer_requested_amount: customerRequest,
+        discount_amount: discount,
+        discount_percentage: discountPct,
+        discount_total: discountedTotal,
+        services,
+      };
+
+      console.log("✅ Final Booking Payload:", payload);
+
+      const response = await createBooking(payload);
+
+      if (response?.status === 200 || response?.status === 201) {
+        message.success("Booking created successfully!");
+        
+      
+        form.resetFields();
+        setCustomerData(null);
+        setServiceForm({
+          bedroom: { subService: null, type: null, addOnHours: [] },
+          bathroom: { subService: null, type: null, addOnHours: [] },
+          kitchen: { subService: null, type: null, addOnHours: [] },
+          living: { subService: null, type: null, addOnHours: [] },
+        });
+        setAddonsOpen({
+          bedroom: false,
+          bathroom: false,
+          kitchen: false,
+          living: false,
+        });
+        setDiscount(0);
+        setDiscountPct(0);
+        setCustomerRequest(0);
+        setCurrentStep(0);
+        setMaster("bedroom");
+      } else {
+        message.error("Failed to create booking. Please try again.");
+      }
+    } catch (err: any) {
+      console.error("Booking error:", err);
+      if (err.errorFields) {
+        message.error("Please complete all required fields.");
+      } else {
+        message.error("An error occurred while creating the booking.");
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (error: any) {
-    console.error("Submit error:", error);
-    message.error("Something went wrong while creating booking.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-
-  /* Customer Details with validation */
+  /* Customer Details */
   const CustomerDetails = (
     <>
       <div style={styles.stepsWrap}>
@@ -387,120 +430,83 @@ const [totalAmount, setTotalAmount] = useState(0);
           ]}
           size="small"
           style={styles.stepsBar}
-
         />
       </div>
       <Card bordered style={styles.compactCard}>
         <Space direction="vertical" size={2} style={{ width: "100%" }}>
           <Title level={4} style={{ margin: 0 }}>Booking Details</Title>
         </Space>
-        <Form
-          layout="vertical"
-          form={form}
-          style={{ marginTop: 8 }}
-        >
+        <Form layout="vertical" form={form} style={{ marginTop: 8 }}>
           <Row gutter={[8, 0]}>
             <Col xs={24} md={12}>
               <Form.Item
                 label="Full name"
                 name="fullName"
-                required
                 rules={[
                   { required: true, message: "Please enter your name" },
                   { pattern: /^[A-Za-z]{2,}\s[A-Za-z]{2,}$/, message: 'Enter valid full name (First and Last name)' },
                 ]}
               >
-                <Input
-                  size="middle"
-                  prefix={<UserOutlined />}
-                  placeholder="Enter full name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
+                <Input prefix={<UserOutlined />} placeholder="Enter full name" />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
-             <Form.Item
+              <Form.Item
                 label="Preferred date"
                 name="date"
-                required
                 rules={[{ required: true, message: "Please select a date" }]}
               >
                 <DatePicker
-                  size="middle"
                   style={{ width: "100%" }}
-                  value={date}                 // dayjs | null
-                  onChange={(d) => setDate(d)} // keep as dayjs
                   suffixIcon={<CalendarOutlined />}
                   disabledDate={(d) => d && d < dayjs().startOf("day")}
-                  format="DD-MM-YYYY"          // display as dd-mm-yyyy
+                  format="DD-MM-YYYY"
                 />
               </Form.Item>
-
             </Col>
             <Col xs={24} md={12}>
-             <Form.Item
+              <Form.Item
                 label="Phone"
                 name="phone"
-                required
                 rules={[
                   { required: true, message: "Please enter your phone number" },
-                  { pattern: /^[0-9]+$/, message: "Only digits are allowed" }, // allows any length digits only
-                  { len: 10, message: "Phone number must be 10 digits" } // exactly 10 digits
+                  { pattern: /^[0-9]+$/, message: "Only digits are allowed" },
+                  { len: 10, message: "Phone number must be 10 digits" },
                 ]}
               >
-                <Input
-                  size="middle"
-                  prefix={<PhoneOutlined />}
-                  placeholder="9876543210"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value.replace(/\D/g, ""))} // strips non-digits
-                  maxLength={10}
-                />
+                <Input prefix={<PhoneOutlined />} placeholder="9876543210" maxLength={10} />
               </Form.Item>
-
             </Col>
             <Col xs={24} md={12}>
-             <Form.Item name="email" label="Email" rules={[
-            { required: true, message: 'Please enter email' },
-            { type: 'email', message: 'Please enter a valid email' },
-            { pattern: /^[a-zA-Z0-9._%+-]+@gmail\.com$/, message: 'Email must be a valid Gmail address' }
-          ]} normalize={(value) => value?.trim()} >
-            <Input placeholder="Enter email address" />
-          </Form.Item>
-
-
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter email" },
+                  { type: "email", message: "Please enter a valid email" },
+                ]}
+              >
+                <Input placeholder="Enter email address" />
+              </Form.Item>
             </Col>
             <Col xs={24}>
-             <Form.Item
-                  label={`Address (${address.length}/200)`}
-                  name="address"
-                  rules={[
-                    { required: true, message: "Please enter your address" },
-                    {
-                      validator: (_, value) => {
-                        if (!value) {
-                          return Promise.reject(new Error("Please enter your address"));
-                        }
-                        if (/^\s/.test(value)) {
-                          return Promise.reject(new Error("Address cannot start with a space"));
-                        } 
-                        return Promise.resolve();
+              <Form.Item
+                label="Address"
+                name="address"
+                rules={[
+                  { required: true, message: "Please enter your address" },
+                  {
+                    validator: (_, value) => {
+                      if (value && /^\s/.test(value)) {
+                        return Promise.reject(new Error("Address cannot start with a space"));
                       }
-                    }
-                  ]}
-                >
-                  <Input.TextArea
-                    rows={3}
-                    maxLength={200}
-                    placeholder="Flat, street, landmark, city, postal code"
-                    value={address}
-                    onChange={e => setAddress(e.target.value.replace(/^\s+/, ""))}
-                    style={{ resize: "vertical" }}
-                  />
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
+                <Input.TextArea rows={3} placeholder="Flat, street, landmark, city, postal code" maxLength={200} />
               </Form.Item>
-
-
             </Col>
           </Row>
           <Row justify="end">
@@ -509,7 +515,15 @@ const [totalAmount, setTotalAmount] = useState(0);
                 size="large"
                 type="primary"
                 icon={<ArrowRightOutlined />}
-                onClick={() => form.validateFields().then(() => setCurrentStep(1))}
+                onClick={async () => {
+                  try {
+                    const values = await form.validateFields();
+                    setCustomerData(values);
+                    setCurrentStep(1);
+                  } catch (err) {
+                    message.error("Please complete all required fields.");
+                  }
+                }}
                 block
                 style={styles.primaryBtn}
               >
@@ -522,7 +536,7 @@ const [totalAmount, setTotalAmount] = useState(0);
     </>
   );
 
-  /* Category Row UI remains unchanged */
+  /* Category Row */
   const CategoryRow: React.FC<{ section: SectionKey }> = ({ section }) => {
     const state = serviceForm[section];
     return (
@@ -571,7 +585,7 @@ const [totalAmount, setTotalAmount] = useState(0);
     );
   };
 
-  /* Card UI updates for grid alignment & no vacant spaces */
+  /* Section Card */
   const SectionCard: React.FC<{ section: SectionKey }> = ({ section }) => {
     const meta = SECTION_META[section];
     const state = serviceForm[section];
@@ -637,7 +651,7 @@ const [totalAmount, setTotalAmount] = useState(0);
     );
   };
 
-  /* Service Selection step with improved grid alignment for summary */
+  /* Service Selection */
   const ServicesSelection = (
     <>
       <div style={styles.stepsWrap}>
@@ -706,17 +720,16 @@ const [totalAmount, setTotalAmount] = useState(0);
               </Button>
             }
           >
-            <div style={styles.summaryHeader} />
             <div style={styles.itemsScroll}>
               <List
                 itemLayout="vertical"
                 dataSource={(Object.keys(serviceForm) as SectionKey[]).map((k) => ({ section: k, plan: serviceForm[k] }))}
                 rowKey={(item) => `${item.section}`}
+                locale={{ emptyText: "No services selected yet. Select services from the left panel." }}
                 renderItem={({ section, plan }) => {
                   const title = SECTION_META[section].title;
                   const total = calcSectionTotal(section, plan);
-                  const subLabel =
-                    SUBSERVICES[section].find((o) => o.value === plan.subService)?.label;
+                  const subLabel = SUBSERVICES[section].find((o) => o.value === plan.subService)?.label;
 
                   const has = plan.subService || plan.type || (plan.addOnHours?.length ?? 0) > 0;
                   if (!has) return null;
@@ -783,7 +796,7 @@ const [totalAmount, setTotalAmount] = useState(0);
                   );
                 }}
               />
-              <Divider style={{ margin: "8px 0" }} />
+              <Divider style={{ margin: "12px 0" }} />
               <Space direction="vertical" style={{ width: "100%" }} size={8}>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <Text type="secondary">Subtotal</Text>
@@ -791,12 +804,12 @@ const [totalAmount, setTotalAmount] = useState(0);
                 </div>
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <Text type="secondary">Customer Requested</Text>
-                    <Text type="secondary">Auto-discount</Text>
+                    <Text type="secondary">Customer Requested Amount</Text>
                   </div>
                   <InputNumber
                     style={{ width: "100%" }}
                     min={0}
+                    max={grandTotal}
                     value={customerRequest}
                     onChange={(v) => setCustomerRequest((v as number) ?? 0)}
                     formatter={usdFormatter as any}
@@ -805,24 +818,36 @@ const [totalAmount, setTotalAmount] = useState(0);
                   />
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Text type="secondary">Discount</Text>
+                  <Text type="secondary">Discount Amount</Text>
                   <Text strong>{usdFormatter(discount)}</Text>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
                   <Text type="secondary">Discount %</Text>
-                  <Text strong>{`${discountPct}%`}</Text>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Text type="secondary">Discounted Total</Text>
-                  <Text strong>{usdFormatter(discountedTotal)}</Text>
+                  <Text strong>{discountPct}%</Text>
                 </div>
                 <div style={styles.summaryFooter}>
-                  <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleSubmit} block style={styles.primaryBtn}>
-                    Submit
-                  </Button>
+              <Space direction="vertical" size={8} style={{ width: "100%" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Text strong style={{ fontSize: 16 }}>Total Amount:</Text>
+                  <Text strong style={{ fontSize: 18, color: ACCENT }}>{usdFormatter(discountedTotal)}</Text>
                 </div>
+                <Button 
+                  type="primary" 
+                  size="large"
+                  icon={<CheckCircleOutlined />} 
+                  onClick={handleSubmit}
+                  loading={loading}
+                  disabled={grandTotal === 0}
+                  block 
+                  style={styles.primaryBtn}
+                >
+                  Submit Booking
+                </Button>
               </Space>
             </div>
+              </Space>
+            </div>
+            
           </Card>
         </Col>
       </Row>

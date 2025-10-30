@@ -30,26 +30,11 @@ export const createBooking = async (bookingData: any) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        ...bookingData,
         id: 0,
-        bookingId: bookingData.bookingId || "",
-        slotId: bookingData.slotId || 0,
-        createdBy: bookingData.createdBy || 0,
         createdDate: new Date().toISOString(),
-        modifiedBy: bookingData.modifiedBy || 0,
         modifiedDate: new Date().toISOString(),
         isActive: true,
-        preferredDate: bookingData.preferredDate,
-        full_name: bookingData.full_name,
-        phone: bookingData.phone,
-        email: bookingData.email,
-        address: bookingData.address,
-        status_id: bookingData.status_id || 1,
-        total: bookingData.total || 0,
-        subtotal: bookingData.subtotal || 0,
-        customer_requested_amount: bookingData.customer_requested_amount || 0,
-        discount_amount: bookingData.discount_amount || 0,
-        discount_percentage: bookingData.discount_percentage || 0,
-        discount_total: bookingData.discount_total || 0,
         services: bookingData.services?.map((s: any) => ({
           deptId: s.deptId,
           serviceId: s.serviceId,
@@ -58,21 +43,32 @@ export const createBooking = async (bookingData: any) => {
       }),
     });
 
-    if (!response.ok) {
+   
+    if (response.status < 200 || response.status >= 300) {
       const errorText = await response.text();
-      console.error("❌ Booking creation failed:", errorText);
+      console.error("Booking creation failed:", errorText);
       throw new Error(`Booking creation failed with status ${response.status}`);
     }
 
+  
     const text = await response.text();
-    const data = text ? JSON.parse(text) : {};
+    let data = {};
+    if (text && text.trim() !== "") {
+      try {
+        data = JSON.parse(text);
+      } catch (parseErr) {
+        console.warn("⚠️ Could not parse response JSON:", parseErr);
+      }
+    }
+
     console.log("✅ Booking created successfully:", data);
-    return data;
+    return { status: response.status, data };
   } catch (error) {
-    console.error("🚨 Error createBooking:", error);
+    console.error("Error in createBooking:", error);
     throw error;
   }
 };
+
 
 
 export const getAllDepartments = async() =>{
