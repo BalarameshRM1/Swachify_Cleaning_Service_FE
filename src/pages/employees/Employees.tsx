@@ -333,7 +333,7 @@ if (loading) {
           }}
           onClick={() => form.submit()}
         >
-          Add Employee
+          Add User
         </Button>,
       ]}
     >
@@ -372,7 +372,7 @@ if (loading) {
                 { required: true, message: "Please enter email" },
                 { type: "email", message: "Please enter a valid email" },
                 {
-                  pattern: /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
+                  pattern: /^[a-zA-Z][a-zA-Z0-9._%+-]*@gmail\.com$/,
                   message: "Email must be a valid Gmail address",
                 },
               ]}
