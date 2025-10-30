@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { message } from "antd";
+import {Divider} from "antd";
 
 import {
   Card,
@@ -232,11 +233,11 @@ const styles = {
     zIndex: 10,
   } as React.CSSProperties,
 
-  sectionCard: { borderRadius: 12 } as React.CSSProperties,
-  sectionBody: { padding: 16 } as React.CSSProperties,
+ // sectionCard: { borderRadius: 12 } as React.CSSProperties,
+ // sectionBody: { padding: 16 } as React.CSSProperties,
 
-  primaryBtn: { background: ACCENT_GRADIENT, border: "none" } as React.CSSProperties,
-  accentTag: { background: "#e6fffb", color: ACCENT, borderColor: ACCENT } as React.CSSProperties,
+ // primaryBtn: { background: ACCENT_GRADIENT, border: "none" } as React.CSSProperties,
+ // accentTag: { background: "#e6fffb", color: ACCENT, borderColor: ACCENT } as React.CSSProperties,
 };
 
 const Services: React.FC = () => {
