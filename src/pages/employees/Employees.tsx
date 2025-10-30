@@ -179,17 +179,23 @@ const Employees: React.FC = () => {
 };
 
 
-  const getAllLocationsApi = async() => {
-    try {
-      const res = await getAllLocations()
-      if(res){
-        const locationNames = res.map((loc:any) => ({label: loc.location_name, value: loc.id}));
-        setLocationsData(locationNames);
-      }
-    } catch (error) {
-      console.error("Error fetching locations:", error);
+  const getAllLocationsApi = async () => {
+  try {
+    const res = await getAllLocations();
+    console.log("Fetched locations:", res); // ✅ should show objects with locationId, locationName
+
+    if (res && Array.isArray(res)) {
+      const locationNames = res.map((loc: any) => ({
+        label: loc.locationName,  // ✅ correct key
+        value: loc.locationId,    // ✅ correct key
+      }));
+      setLocationsData(locationNames);
+      console.log("Mapped location options:", locationNames);
     }
+  } catch (error) {
+    console.error("Error fetching locations:", error);
   }
+};
 
   useEffect(()=>{
     const fetchData = async () => {

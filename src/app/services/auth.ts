@@ -466,16 +466,18 @@ export const deleteBookingById = async(bookingId: number) => {
     }
 }
 
-export const getAllLocations = async() =>{
-    try {
-        const response = await fetch(`${baseUrl}/Master/getalllocations`);
-        if (!response.ok) throw new Error("Failed to fetch locations");
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching locations:", error);
-    }
-}
+export const getAllLocations = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/Master/getallmasterData`);
+    if (!response.ok) throw new Error("Failed to fetch locations");
+    const data = await response.json();
+    return data.locations || []; 
+  } catch (error) {
+    console.error("Error fetching locations:", error);
+    return [];
+  }
+};
+
 
 export const otpSend = async (mobileNumber: any) => {
   try {
