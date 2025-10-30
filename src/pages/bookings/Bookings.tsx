@@ -29,6 +29,7 @@ import {
   deleteBookingById,
 } from "../../app/services/auth";
 import moment from "moment";
+import LoaderGif from "../../assets/SWACHIFY_gif.gif"; 
 
 const { Title, Text } = Typography;
 
@@ -47,7 +48,7 @@ interface Employee {
   location_id: number;
   depts: any[];
   is_available?: boolean;
-  availability_status?: 'available' | 'unavailable' | 'checking';
+  availability_status?: "available" | "unavailable" | "checking";
 }
 
 const Slots = [
@@ -59,6 +60,7 @@ const Slots = [
 
 const Bookings: React.FC = () => {
   const [bookings, setBookings] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(true); 
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
@@ -71,6 +73,7 @@ const Bookings: React.FC = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
+        setLoadingBookings(true); 
         const bookingsData = await getallBookings();
         if (bookingsData) {
           bookingsData.sort((a: any, b: any) => b.id - a.id);
@@ -78,43 +81,64 @@ const Bookings: React.FC = () => {
         }
       } catch (error) {
         console.error("Failed to fetch bookings:", error);
+      } finally {
+        setLoadingBookings(false); 
       }
     };
     fetchBookings();
   }, []);
 
-  // Function to check employee availability
+  
+  if (loadingBookings) {
+    return (
+      <div
+        style={{
+          height: "80vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "#ffffff",
+        }}
+      >
+        <img
+          src={LoaderGif}
+          alt="Loading..."
+          style={{ width: 180, height: 180, marginBottom: 16 }}
+        />
+        <Text style={{ fontSize: 16, color: "#0D9488" }}>Loading bookings...</Text>
+      </div>
+    );
+  }
+
+  
   const checkEmployeeAvailability = async (
     employeeId: number,
     bookingDate: string,
     slotId: number
   ): Promise<boolean> => {
     try {
-      // Replace with your actual availability check endpoint
       const response = await fetch(
         `https://swachifyapi-fpcub9f8dcgjbzcq.centralindia-01.azurewebsites.net/api/check-availability?employeeId=${employeeId}&date=${bookingDate}&slotId=${slotId}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
-
       if (!response.ok) {
         console.warn(`Availability check failed for employee ${employeeId}`);
-        return true; // Default to available if check fails
+        return true;
       }
-
       const data = await response.json();
       return data.available || data.isAvailable || true;
     } catch (error) {
-      console.error('Error checking availability:', error);
-      return true; // Default to available on error
+      console.error("Error checking availability:", error);
+      return true;
     }
   };
 
-  // Check availability for all employees
   const checkAllEmployeesAvailability = async (
     bookingId: number,
     employeesList: Employee[]
@@ -123,9 +147,7 @@ const Bookings: React.FC = () => {
     if (!booking || employeesList.length === 0) {
       return employeesList;
     }
-
     setCheckingAvailability(true);
-
     try {
       const updatedEmployees: Employee[] = await Promise.all(
         employeesList.map(async (employee): Promise<Employee> => {
@@ -135,26 +157,26 @@ const Bookings: React.FC = () => {
               booking.preferred_date,
               booking.slot_id
             );
-
             return {
               ...employee,
               is_available: isAvailable,
-              availability_status: isAvailable ? ('available' as const) : ('unavailable' as const),
+              availability_status: isAvailable
+                ? ("available" as const)
+                : ("unavailable" as const),
             };
           } catch (error) {
             console.error(`Error checking availability for employee ${employee.id}:`, error);
             return {
               ...employee,
               is_available: true,
-              availability_status: 'available' as const,
+              availability_status: "available" as const,
             };
           }
         })
       );
-
       return updatedEmployees;
     } catch (error) {
-      console.error('Error in checkAllEmployeesAvailability:', error);
+      console.error("Error in checkAllEmployeesAvailability:", error);
       return employeesList;
     } finally {
       setCheckingAvailability(false);
@@ -166,37 +188,25 @@ const Bookings: React.FC = () => {
     setAssignModalVisible(true);
     setSelectedEmployeeId(null);
     setLoadingEmployees(true);
-    
+
     try {
       const data = await getAllUsers();
-      
       if (!data || data.length === 0) {
-        console.log('No users returned from API');
         setEmployees([]);
-        message.warning('No users found in the system');
+        message.warning("No users found in the system");
         setLoadingEmployees(false);
         return;
       }
-
-      console.log('All users fetched:', data);
-      
-      // Filter employees based on the API response structure
-      const employeesList = data.filter((user: any) => 
-        user.role_id === 3 &&          // Employee role
-        user.is_active === true &&     // Active employees
-        user.is_assigned === false     // Not currently assigned
+      const employeesList = data.filter(
+        (user: any) =>
+          user.role_id === 3 && user.is_active === true && user.is_assigned === false
       );
-
-      console.log('Filtered available employees:', employeesList);
-
       if (employeesList.length === 0) {
         setEmployees([]);
-        message.warning('No available employees. All employees are currently assigned.');
+        message.warning("No available employees. All employees are currently assigned.");
         setLoadingEmployees(false);
         return;
       }
-
-      // Map employees according to API structure
       const employeesWithStatus: Employee[] = employeesList.map((emp: any) => ({
         id: emp.id,
         first_name: emp.first_name,
@@ -211,22 +221,20 @@ const Bookings: React.FC = () => {
         dept_id: emp.dept_id,
         location_id: emp.location_id,
         depts: emp.depts || [],
-        availability_status: 'checking' as const,
+        availability_status: "checking" as const,
         is_available: false,
       }));
-      
-      console.log('Employees with status:', employeesWithStatus);
       setEmployees(employeesWithStatus);
       setLoadingEmployees(false);
       message.success(`Found ${employeesList.length} available employee(s)`);
-      
-      // Check availability
-      const updatedEmployees = await checkAllEmployeesAvailability(bookingId, employeesWithStatus);
+      const updatedEmployees = await checkAllEmployeesAvailability(
+        bookingId,
+        employeesWithStatus
+      );
       setEmployees(updatedEmployees);
-      
     } catch (error) {
-      console.error('Error in openAssignModal:', error);
-      message.error('Failed to load employees');
+      console.error("Error in openAssignModal:", error);
+      message.error("Failed to load employees");
       setEmployees([]);
       setLoadingEmployees(false);
     }
@@ -239,57 +247,41 @@ const Bookings: React.FC = () => {
   };
 
   const handleAssignEmployee = async () => {
-  if (!selectedEmployeeId || !selectedBookingId) {
-    message.error("Please select an employee.");
-    return;
-  }
-
-  const selectedEmployee = employees.find((emp) => emp.id === selectedEmployeeId);
-
-  if (selectedEmployee && selectedEmployee.is_assigned) {
-    message.error("This employee is already assigned to another booking.");
-    return;
-  }
-
-  try {
-    // optimistic UI: mark chosen employee as assigned / unavailable locally
-    setEmployees((prev) =>
-      prev.map((e) =>
-        e.id === selectedEmployeeId ? { ...e, is_assigned: true, is_available: false } : e
-      )
-    );
-
-    const result = await assignEmployeeToBooking(selectedBookingId, selectedEmployeeId);
-
-    // If server returned an issue updating status, show a non-blocking warning.
-    if (result && result.statusUpdated === false) {
-      message.warning(
-        "Employee assigned, but booking status could not be updated. Please check the booking."
+    if (!selectedEmployeeId || !selectedBookingId) {
+      message.error("Please select an employee.");
+      return;
+    }
+    const selectedEmployee = employees.find((emp) => emp.id === selectedEmployeeId);
+    if (selectedEmployee && selectedEmployee.is_assigned) {
+      message.error("This employee is already assigned to another booking.");
+      return;
+    }
+    try {
+      setEmployees((prev) =>
+        prev.map((e) =>
+          e.id === selectedEmployeeId ? { ...e, is_assigned: true, is_available: false } : e
+        )
       );
-    } else {
-      message.success("Employee assigned and booking updated.");
+      const result = await assignEmployeeToBooking(selectedBookingId, selectedEmployeeId);
+      if (result && result.statusUpdated === false) {
+        message.warning("Employee assigned, but booking status could not be updated.");
+      } else {
+        message.success("Employee assigned and booking updated.");
+      }
+      const bookingsData = await getallBookings();
+      if (bookingsData) {
+        bookingsData.sort((a: any, b: any) => b.id - a.id);
+        setBookings(bookingsData || []);
+      }
+      closeAssignModal();
+    } catch (error: any) {
+      console.error("Assign failed:", error);
+      setEmployees((prev) =>
+        prev.map((e) => (e.id === selectedEmployeeId ? { ...e, is_assigned: false } : e))
+      );
+      message.error(error?.message || "Failed to assign employee.");
     }
-
-    // refresh bookings from server to ensure UI is consistent
-    const bookingsData = await getallBookings();
-    if (bookingsData) {
-      bookingsData.sort((a: any, b: any) => b.id - a.id);
-      setBookings(bookingsData || []);
-    }
-
-    closeAssignModal();
-  } catch (error: any) {
-    console.error("Assign failed:", error);
-
-    // revert optimistic change
-    setEmployees((prev) =>
-      prev.map((e) => (e.id === selectedEmployeeId ? { ...e, is_assigned: false } : e))
-    );
-
-    message.error(error?.message || "Failed to assign employee.");
-  }
-};
-
+  };
 
   const openDeleteModal = (bookingId: number) => {
     setSelectedBookingId(bookingId);

@@ -208,6 +208,7 @@ const Dashboard: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               background: 'white',
+              paddingBottom: '60px',
             }}
             bodyStyle={{
               padding: 0,

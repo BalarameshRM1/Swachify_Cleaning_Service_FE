@@ -7,7 +7,6 @@ import {
   Col,
   Typography,
   Select,
-  Divider,
   Space,
   Button,
   Tag,
@@ -18,6 +17,7 @@ import {
   DatePicker,
   Input,
   Form,
+  ConfigProvider, // <-- Added ConfigProvider
 } from "antd";
 import {
   HomeOutlined,
@@ -56,7 +56,10 @@ const MASTER_OPTIONS = [
 ];
 
 const PRICING = {
-  base: { bedroom: 300, bathroom: 400, kitchen: 500, living: 350 } as Record<SectionKey, number>,
+  base: { bedroom: 300, bathroom: 400, kitchen: 500, living: 350 } as Record<
+    SectionKey,
+    number
+  >,
   typeDelta: { Normal: 0, Deep: 150 } as Record<CleanType, number>,
   addOnPerHour: 120,
   minHours: 3,
@@ -92,14 +95,21 @@ type ServicePlan = {
 };
 type FormState = Record<SectionKey, ServicePlan>;
 
-const SECTION_META: Record<SectionKey, { icon: React.ReactNode; title: string }> = {
+const SECTION_META: Record<
+  SectionKey,
+  { icon: React.ReactNode; title: string }
+> = {
   bedroom: { icon: <HomeOutlined />, title: "Bedroom" },
   bathroom: { icon: <ApartmentOutlined />, title: "Bathroom" },
   kitchen: { icon: <AppstoreOutlined />, title: "Kitchen" },
   living: { icon: <BankOutlined />, title: "Living" },
 };
 
+const isActivePlan = (plan: ServicePlan) =>
+  Boolean(plan?.subService || plan?.type || (plan?.addOnHours?.length ?? 0) > 0);
+
 const calcSectionTotal = (section: SectionKey, plan: ServicePlan) => {
+  if (!isActivePlan(plan)) return 0;
   const base = PRICING.base[section] ?? 0;
   const typeDelta = plan.type ? PRICING.typeDelta[plan.type] : 0;
   const addOnSum = (plan.addOnHours?.reduce((a, b) => a + b, 0) ?? 0) * PRICING.addOnPerHour;
@@ -108,7 +118,10 @@ const calcSectionTotal = (section: SectionKey, plan: ServicePlan) => {
 
 const usdFormatter = (value?: string | number) => {
   if (value === undefined || value === null) return "";
-  const n = typeof value === "number" ? value : Number(String(value).replace(/[^\d.-]/g, ""));
+  const n =
+    typeof value === "number"
+      ? value
+      : Number(String(value).replace(/[^\d.-]/g, ""));
   if (Number.isNaN(n)) return "";
   return `$ ${n}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
@@ -117,30 +130,37 @@ const usdParser = (value?: string) => (!value ? 0 : Number(String(value).replace
 
 const styles = {
   pageWrap: {
-    height: "calc(100vh - 32px)",
+    height: "calc(100vh - 16px)",
     display: "flex",
     flexDirection: "column",
     minHeight: 0,
   } as React.CSSProperties,
 
-  contentRow: { flex: 1, display: "flex", minHeight: 0 } as React.CSSProperties,
-
   stepsWrap: {
     position: "sticky",
-    textColor: "#fff",
     top: 0,
     zIndex: 5,
-    background: "#14b8a6",
-    paddingTop: 6,
-    paddingBottom: 6,
-    marginTop: 0,
-    marginBottom: 6,
-    borderBottom: "1px solid #f0f2f5",
-    borderRadius: "60px",
+    background: "#fff",
+    padding: "6px 0 10px 0",
+    marginBottom: 8,
+    borderRadius: 60,
   } as React.CSSProperties,
-  stepsBar: { margin: 0, borderRadius: "150px", color: "#fff" } as React.CSSProperties,
 
-  compactCard: { borderRadius: 12, padding: 10 } as React.CSSProperties,
+  stepsBar: {
+    margin: 0,
+  } as React.CSSProperties,
+
+  moneyRight: {
+    textAlign: "right",
+  } as React.CSSProperties,
+
+
+
+  contentRow: {
+    flex: 1,
+    display: "flex",
+    minHeight: 0,
+  } as React.CSSProperties,
 
   leftPane: {
     height: "100%",
@@ -150,6 +170,26 @@ const styles = {
     overflowY: "auto",
     paddingRight: 8,
     minHeight: 0,
+  } as React.CSSProperties,
+
+  sectionCard: {
+    borderRadius: 12,
+  } as React.CSSProperties,
+
+  sectionBody: {
+    padding: 16,
+  } as React.CSSProperties,
+
+  primaryBtn: {
+    background: ACCENT_GRADIENT,
+    border: "none",
+    marginBottom: 120,
+  } as React.CSSProperties,
+
+  accentTag: {
+    background: "#e6fffb",
+    color: ACCENT,
+    borderColor: ACCENT,
   } as React.CSSProperties,
 
   rightCard: {
@@ -169,7 +209,10 @@ const styles = {
     minHeight: 0,
   } as React.CSSProperties,
 
-  summaryHeader: { padding: "12px 12px 0 12px" } as React.CSSProperties,
+  summaryHeader: {
+    padding: "12px 12px 8px 12px",
+    borderBottom: "1px solid #eef2f7",
+  } as React.CSSProperties,
 
   itemsScroll: {
     flex: 1,
@@ -207,7 +250,7 @@ const Services: React.FC = () => {
   };
 
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
-  const [master, setMaster] = useState<SectionKey>("bedroom");
+  const [master, setMaster] = useState<SectionKey>("living"); // default to Living per SS
 
   const [serviceForm, setServiceForm] = useState<FormState>({
     bedroom: { subService: null, type: null, addOnHours: [] },
@@ -220,7 +263,7 @@ const Services: React.FC = () => {
     bedroom: false,
     bathroom: false,
     kitchen: false,
-    living: false,
+    living: true,
   });
 
   const [discount, setDiscount] = useState<number>(0);
@@ -257,7 +300,11 @@ const Services: React.FC = () => {
   const sectionsToShow: SectionKey[] = [master];
 
   const grandTotal = useMemo(
-    () => (Object.keys(serviceForm) as SectionKey[]).reduce((sum, s) => sum + calcSectionTotal(s, serviceForm[s]), 0),
+    () =>
+      (Object.keys(serviceForm) as SectionKey[]).reduce(
+        (sum, s) => sum + calcSectionTotal(s, serviceForm[s]),
+        0
+      ),
     [serviceForm]
   );
 
@@ -432,9 +479,11 @@ const Services: React.FC = () => {
           style={styles.stepsBar}
         />
       </div>
-      <Card bordered style={styles.compactCard}>
+      <Card bordered style={{ borderRadius: 12 }}>
         <Space direction="vertical" size={2} style={{ width: "100%" }}>
-          <Title level={4} style={{ margin: 0 }}>Booking Details</Title>
+          <Title level={4} style={{ margin: 0 }}>
+            Booking Details
+          </Title>
         </Space>
         <Form layout="vertical" form={form} style={{ marginTop: 8 }}>
           <Row gutter={[8, 0]}>
@@ -444,7 +493,10 @@ const Services: React.FC = () => {
                 name="fullName"
                 rules={[
                   { required: true, message: "Please enter your name" },
-                  { pattern: /^[A-Za-z]{2,}\s[A-Za-z]{2,}$/, message: 'Enter valid full name (First and Last name)' },
+                  {
+                    pattern: /^[A-Za-z]{2,}\s[A-Za-z]{2,}$/,
+                    message: "Enter valid full name (First and Last name)",
+                  },
                 ]}
               >
                 <Input prefix={<UserOutlined />} placeholder="Enter full name" />
@@ -538,25 +590,32 @@ const Services: React.FC = () => {
 
   /* Category Row */
   const CategoryRow: React.FC<{ section: SectionKey }> = ({ section }) => {
-    const state = serviceForm[section];
-    return (
-      <div>
-        <Text type="secondary" style={{ display: "block", marginBottom: 6 }}>
-          Category
-        </Text>
-        <Space.Compact block>
+  const state = serviceForm[section];
+  return (
+    <div>
+      <Row gutter={[8, 8]} align="middle">
+        <Col xs={24} md={12}>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>
+            Sub Category
+          </Text>
           <Select
             value={state.subService ?? undefined}
             placeholder="Select sub‑service"
-            style={{ width: "50%" }}
+            style={{ width: "100%" }}
             options={SUBSERVICES[section]}
             onChange={(v) => setSection(section, "subService", v as string)}
             allowClear
           />
+        </Col>
+
+        <Col xs={24} md={12}>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>
+            Sub Category Type
+          </Text>
           <Select
             value={state.type ?? undefined}
             placeholder="Select cleaning type"
-            style={{ width: "50%" }}
+            style={{ width: "100%" }}
             onChange={(v) => setSection(section, "type", (v as CleanType) ?? null)}
             allowClear
             options={[
@@ -564,7 +623,9 @@ const Services: React.FC = () => {
                 label: (
                   <Space size={6}>
                     <span>Normal</span>
-                    <Tag color={ACCENT} style={styles.accentTag}>+${PRICING.typeDelta.Normal}</Tag>
+                    <Tag color={ACCENT} style={styles.accentTag}>
+                      +${PRICING.typeDelta.Normal}
+                    </Tag>
                   </Space>
                 ),
                 value: "Normal",
@@ -573,17 +634,21 @@ const Services: React.FC = () => {
                 label: (
                   <Space size={6}>
                     <span>Deep Cleaning</span>
-                    <Tag color={ACCENT} style={styles.accentTag}>+${PRICING.typeDelta.Deep}</Tag>
+                    <Tag color={ACCENT} style={styles.accentTag}>
+                      +${PRICING.typeDelta.Deep}
+                    </Tag>
                   </Space>
                 ),
                 value: "Deep",
               },
             ]}
           />
-        </Space.Compact>
-      </div>
-    );
-  };
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
 
   /* Section Card */
   const SectionCard: React.FC<{ section: SectionKey }> = ({ section }) => {
@@ -599,27 +664,48 @@ const Services: React.FC = () => {
         title={
           <Space size="small">
             {meta.icon}
-            <Text strong style={{ fontSize: 16 }}>{meta.title}</Text>
+            <Text strong style={{ fontSize: 16 }}>
+              {meta.title}
+            </Text>
           </Space>
         }
         extra={
-          <Button size="small" type="text" onClick={() => resetSection(section)} icon={<ReloadOutlined />}>
+          <Button
+            size="small"
+            type="text"
+            onClick={() => resetSection(section)}
+            icon={<ReloadOutlined />}
+          >
             Clear
           </Button>
         }
       >
         <Space direction="vertical" size="small" style={{ width: "100%" }}>
           <CategoryRow section={section} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <Text type="secondary">Minimum cleaning hours</Text>
             <Tag color="gold">{PRICING.minHours} hours</Tag>
           </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <Text type="secondary">Add‑on hours</Text>
             <Button
               type="link"
               size="small"
-              onClick={() => setAddonsOpen((o) => ({ ...o, [section]: !o[section] }))}
+              onClick={() =>
+                setAddonsOpen((o) => ({ ...o, [section]: !o[section] }))
+              }
               style={{ padding: 0, height: "auto", color: ACCENT }}
             >
               {addonsOpen[section] ? "Hide" : "Select hours"}
@@ -642,7 +728,13 @@ const Services: React.FC = () => {
               })}
             </Space>
           )}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <Text type="secondary">Section Total</Text>
             <Text strong>{usdFormatter(calcSectionTotal(section, state))}</Text>
           </div>
@@ -655,24 +747,30 @@ const Services: React.FC = () => {
   const ServicesSelection = (
     <>
       <div style={styles.stepsWrap}>
-        <Steps
-          current={1}
-          items={[
-            { title: "Customer Details" },
-            { title: "Service Selection" },
-          ]}
-          size="small"
-          style={styles.stepsBar}
-        />
+        <ConfigProvider
+          theme={{
+            token: {
+              colorPrimary: '#14b8a6',
+            },
+          }}
+        >
+          <Steps
+            current={1}
+            items={[{ title: "Customer Details" }, { title: "Service Selection" }]}
+            size="small"
+            style={styles.stepsBar}
+          />
+        </ConfigProvider>
       </div>
+
       <Row justify="space-between" align="middle" style={{ marginBottom: 8 }}>
         <Col>
           <Space size="large" align="center">
-            <Title level={2} style={{ margin: 0 }}>
-              Service Selection
+            <Title level={3} style={{ margin: 0 }}>
+              Select Service Category
             </Title>
             <Space>
-              <Text type="secondary">Master Category</Text>
+              {/* <Text type="secondary">Master Category</Text> */}
               <Select
                 style={{ minWidth: 220 }}
                 value={master}
@@ -689,6 +787,7 @@ const Services: React.FC = () => {
           </Button>
         </Col>
       </Row>
+
       <Row gutter={[16, 16]} style={styles.contentRow}>
         <Col xs={24} lg={16} style={styles.leftPane}>
           {sectionsToShow.includes("bedroom") && <SectionCard section="bedroom" />}
@@ -696,6 +795,7 @@ const Services: React.FC = () => {
           {sectionsToShow.includes("kitchen") && <SectionCard section="kitchen" />}
           {sectionsToShow.includes("living") && <SectionCard section="living" />}
         </Col>
+
         <Col xs={24} lg={8} style={{ height: "100%", minHeight: 0 }}>
           <Card
             bordered
@@ -858,11 +958,26 @@ const Services: React.FC = () => {
     <div style={{ padding: 12 }}>
       <div style={styles.pageWrap}>
         {currentStep === 0 ? (
-          <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
             {CustomerDetails}
           </div>
         ) : (
-          <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             {ServicesSelection}
           </div>
         )}
