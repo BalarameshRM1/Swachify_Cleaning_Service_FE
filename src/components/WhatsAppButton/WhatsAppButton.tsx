@@ -36,6 +36,7 @@ const WhatsAppButton: React.FC = () => {
     boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
     zIndex: 1000,
     cursor: 'pointer',
+    marginBottom: '60px',
     transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
   };
 

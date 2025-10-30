@@ -1,0 +1,97 @@
+
+
+@media (max-width: 768px) {
+  header div { flex-direction: column !important; text-align: center; }
+  .hero-section, .services-section, .about-section, .testimonials-section, .contact-section { padding: 48px 16px !important; }
+  footer { text-align: center !important; }
+}
+
+@media (max-width: 425px) {
+  h1 { font-size: 28px !important; }
+  h2 { font-size: 24px !important; }
+  button, .ant-btn { width: 100% !important; }
+  .stats-grid, .service-grid, .footer-grid { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 375px) {
+  h1 { font-size: 26px !important; }
+  p { font-size: 14px !important; }
+}
+
+@media (max-width: 320px) {
+  h1 { font-size: 24px !important; }
+  h2 { font-size: 20px !important; }
+  .ant-btn { font-size: 14px !important; height: 44px !important; }
+}
+
+@media (max-width: 786px) {
+  header {
+    padding: 10px 16px !important;
+    height: auto !important;
+  }
+
+  /* Container */
+  header > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    text-align: center !important;
+  }
+
+  /* Hide tagline */
+  header div div[style*="Professional Cleaning Services"] {
+    display: none !important;
+  }
+
+  /* Swachify title */
+  header > div > div:nth-child(1) > div:nth-child(2) > div:first-child {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+  }
+
+  /* Book Now + Menu icon inline */
+  header > div > div:last-child {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    width: 70% !important;
+  }
+
+  /* Book Now button */
+  header .ant-btn-primary {
+    height: 40px !important;
+    font-size: 14px !important;
+    padding: 8px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Menu button (icon) */
+  header .ant-btn-icon-only {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Logo smaller */
+  header img {
+    width: 50px !important;
+    height: 50px !important;
+  }
+}
+
+.book-now-btn:hover {
+  background: linear-gradient(135deg, #0f766e 0%, #0891b2 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(20, 184, 166, 0.4) !important;
+}
+
+.join-customers-btn:hover {
+  background: #f3f4f6 !important;
+  color: #0f766e !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(20, 184, 166, 0.4) !important;
+}
