@@ -315,20 +315,20 @@ const Tickets: React.FC = () => {
                     <Col>
                       <Text
                         style={{
-                          backgroundColor: ticket?.status?.status === "Completed" ? "#d1fae5" : "#fef3c7",
+                          backgroundColor: ticket?.status=== "Completed" ? "#d1fae5" : "#fef3c7",
                           padding: "2px 8px",
                           borderRadius: "4px",
-                          color: ticket?.status?.status === "Completed" ? "#065f46" : "#d97706",
+                          color: ticket?.status=== "Completed" ? "#065f46" : "#d97706",
                           fontWeight: 500
                         }}
                       >
-                        {ticket?.status?.status?.charAt(0)?.toUpperCase() + ticket?.status?.status?.slice(1)}
+                        {ticket?.status.charAt(0)?.toUpperCase() + ticket?.status.slice(1)}
                       </Text>{" "}
                       <Text style={{ marginLeft: 8, color: "#374151" }}>
                         Ticket #{ticket?.id?.toString()?.slice(-6)}
                       </Text>
                     </Col>
-                    {ticket?.status?.status === "Completed" && (
+                    {ticket?.status=== "Completed" && (
                       <Text style={{ color: "#065f46", fontWeight: 500 }}>✓ Completed</Text>
                     )}
                   </Row>
