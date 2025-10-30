@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { assignEmployeeToBooking } from "../../app/services/auth";
 import {
   Card,
   Typography,
@@ -23,13 +22,14 @@ import {
   CloseCircleOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
+import moment from "moment";
 import {
+  assignEmployeeToBooking,
   getallBookings,
   getAllUsers,
   deleteBookingById,
 } from "../../app/services/auth";
-import moment from "moment";
-import LoaderGif from "../../assets/SWACHIFY_gif.gif"; 
+import LoaderGif from "../../assets/SWACHIFY_gif.gif";
 
 const { Title, Text } = Typography;
 
@@ -57,10 +57,28 @@ const Slots = [
   { id: 3, slot_time: "1PM - 3PM" },
   { id: 4, slot_time: "3PM - 5 PM" },
 ];
+const getStatusStyle = (raw?: string) => {
+  const status = raw || "Unknown";
+  switch (status) {
+    case "Pending":
+      return { bg: "#fef3c7", fg: "#b45309", text: status };
+    case "Open":
+      return { bg: "#e0f2fe", fg: "#0284c7", text: status };
+    case "In Progress": 
+    case "In-Progress": 
+      return { bg: "#ccfbf1", fg: "#0f766e", text: "In-Progress" }; 
+    case "Completed":
+      return { bg: "#dcfce7", fg: "#15803d", text: status };
+    case "Cancelled":
+      return { bg: "#fee2e2", fg: "#991b1b", text: status };
+    default:
+      return { bg: "#f3f4f6", fg: "#4b5563", text: "Unknown" };
+  }
+};
 
 const Bookings: React.FC = () => {
   const [bookings, setBookings] = useState<any[]>([]);
-  const [loadingBookings, setLoadingBookings] = useState(true); 
+  const [loadingBookings, setLoadingBookings] = useState(true);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
@@ -70,25 +88,59 @@ const Bookings: React.FC = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+ 
+  const normalize = (b: any) => {
+    const statusText = b.status || "Unknown";
+
+    let deptName = "Unknown Department";
+    if (Array.isArray(b.services) && b.services.length > 0 && b.services[0].department_name) {
+      deptName = b.services[0].department_name;
+    }
+
+    let serviceNames = "N/A";
+    if (Array.isArray(b.services) && b.services.length > 0) {
+      const names = b.services
+        .map((s: any) => s.service_name)
+        .filter(Boolean) 
+        .join(", ");
+      if (names) {
+        serviceNames = names;
+      }
+    }
+
+    const slotText =
+      b.slot_time ||
+      (typeof b.slot_id === "number" ? Slots.find((s) => s.id === b.slot_id)?.slot_time : "") ||
+      "N/A";
+
+    return {
+      ...b,
+      status: statusText,     
+      deptName: deptName,     
+      serviceNames: serviceNames, // e.g., "Triple, Single"
+      bookingIdText: b.booking_id || b.id,
+      slotText: slotText,
+    };
+  };
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        setLoadingBookings(true); 
-        const bookingsData = await getallBookings();
-        if (bookingsData) {
-          bookingsData.sort((a: any, b: any) => b.id - a.id);
-          setBookings(bookingsData || []);
+        setLoadingBookings(true);
+        const raw = await getallBookings(); // This fetches the (now correctly) enriched data
+        if (raw) {
+          const normalized = raw.map(normalize).sort((a: any, b: any) => b.id - a.id);
+          setBookings(normalized);
         }
       } catch (error) {
         console.error("Failed to fetch bookings:", error);
       } finally {
-        setLoadingBookings(false); 
+        setLoadingBookings(false);
       }
     };
     fetchBookings();
   }, []);
 
-  
   if (loadingBookings) {
     return (
       <div
@@ -101,17 +153,12 @@ const Bookings: React.FC = () => {
           background: "#ffffff",
         }}
       >
-        <img
-          src={LoaderGif}
-          alt="Loading..."
-          style={{ width: 180, height: 180, marginBottom: 16 }}
-        />
+        <img src={LoaderGif} alt="Loading..." style={{ width: 180, height: 180, marginBottom: 16 }} />
         <Text style={{ fontSize: 16, color: "#0D9488" }}>Loading bookings...</Text>
       </div>
     );
   }
 
-  
   const checkEmployeeAvailability = async (
     employeeId: number,
     bookingDate: string,
@@ -120,21 +167,12 @@ const Bookings: React.FC = () => {
     try {
       const response = await fetch(
         `https://swachifyapi-fpcub9f8dcgjbzcq.centralindia-01.azurewebsites.net/api/check-availability?employeeId=${employeeId}&date=${bookingDate}&slotId=${slotId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        { method: "GET", headers: { "Content-Type": "application/json" } }
       );
-      if (!response.ok) {
-        console.warn(`Availability check failed for employee ${employeeId}`);
-        return true;
-      }
+      if (!response.ok) return true;
       const data = await response.json();
       return data.available || data.isAvailable || true;
-    } catch (error) {
-      console.error("Error checking availability:", error);
+    } catch {
       return true;
     }
   };
@@ -144,9 +182,8 @@ const Bookings: React.FC = () => {
     employeesList: Employee[]
   ) => {
     const booking = bookings.find((b) => b.id === bookingId);
-    if (!booking || employeesList.length === 0) {
-      return employeesList;
-    }
+    if (!booking || employeesList.length === 0) return employeesList;
+
     setCheckingAvailability(true);
     try {
       const updatedEmployees: Employee[] = await Promise.all(
@@ -154,30 +191,24 @@ const Bookings: React.FC = () => {
           try {
             const isAvailable = await checkEmployeeAvailability(
               employee.id,
-              booking.preferred_date,
+              booking.preferred_date || booking.created_date,
               booking.slot_id
             );
             return {
               ...employee,
               is_available: isAvailable,
-              availability_status: isAvailable
-                ? ("available" as const)
-                : ("unavailable" as const),
+              availability_status: isAvailable ? "available" : "unavailable",
             };
-          } catch (error) {
-            console.error(`Error checking availability for employee ${employee.id}:`, error);
+          } catch {
             return {
               ...employee,
               is_available: true,
-              availability_status: "available" as const,
+              availability_status: "available",
             };
           }
         })
       );
       return updatedEmployees;
-    } catch (error) {
-      console.error("Error in checkAllEmployeesAvailability:", error);
-      return employeesList;
     } finally {
       setCheckingAvailability(false);
     }
@@ -198,8 +229,7 @@ const Bookings: React.FC = () => {
         return;
       }
       const employeesList = data.filter(
-        (user: any) =>
-          user.role_id === 3 && user.is_active === true && user.is_assigned === false
+        (user: any) => user.role_id === 3 && user.is_active === true && user.is_assigned === false
       );
       if (employeesList.length === 0) {
         setEmployees([]);
@@ -221,16 +251,14 @@ const Bookings: React.FC = () => {
         dept_id: emp.dept_id,
         location_id: emp.location_id,
         depts: emp.depts || [],
-        availability_status: "checking" as const,
+        availability_status: "checking",
         is_available: false,
       }));
       setEmployees(employeesWithStatus);
       setLoadingEmployees(false);
       message.success(`Found ${employeesList.length} available employee(s)`);
-      const updatedEmployees = await checkAllEmployeesAvailability(
-        bookingId,
-        employeesWithStatus
-      );
+
+      const updatedEmployees = await checkAllEmployeesAvailability(bookingId, employeesWithStatus);
       setEmployees(updatedEmployees);
     } catch (error) {
       console.error("Error in openAssignModal:", error);
@@ -268,10 +296,10 @@ const Bookings: React.FC = () => {
       } else {
         message.success("Employee assigned and booking updated.");
       }
-      const bookingsData = await getallBookings();
-      if (bookingsData) {
-        bookingsData.sort((a: any, b: any) => b.id - a.id);
-        setBookings(bookingsData || []);
+      const refreshed = await getallBookings();
+      if (refreshed) {
+        const normalized = refreshed.map(normalize).sort((a: any, b: any) => b.id - a.id);
+        setBookings(normalized);
       }
       closeAssignModal();
     } catch (error: any) {
@@ -299,9 +327,7 @@ const Bookings: React.FC = () => {
     try {
       await deleteBookingById(selectedBookingId);
       message.success(`Booking #${selectedBookingId} deleted successfully.`);
-      setBookings((prevBookings: any[]) =>
-        prevBookings.filter((booking: any) => booking.id !== selectedBookingId)
-      );
+      setBookings((prev) => prev.filter((b: any) => b.id !== selectedBookingId));
       closeDeleteModal();
     } catch (error: any) {
       console.error("Failed to delete booking:", error);
@@ -336,161 +362,128 @@ const Bookings: React.FC = () => {
       >
         <Row gutter={[20, 20]}>
           {bookings.length > 0 ? (
-            bookings.map((item: any) => (
-              <Col xs={24} key={item.id}>
-                <Card
-                  hoverable
-                  variant="outlined"
-                  style={{
-                    borderRadius: 16,
-                    transition: "all 0.3s",
-                    borderColor: "#e5e7eb",
-                    borderWidth: 1,
-                    cursor: "default",
-                  }}
-                  bodyStyle={{ padding: "20px 24px  " }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                    const target = e.currentTarget as HTMLDivElement;
-                    target.style.borderColor = "#0D9488";
-                    target.style.borderWidth = "2px";
-                    target.style.boxShadow = "0 4px 15px rgba(13, 148, 136, 0.3)";
-                  }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                    const target = e.currentTarget as HTMLDivElement;
-                    target.style.borderColor = "#e5e7eb";
-                    target.style.borderWidth = "1px";
-                    target.style.boxShadow = "none";
-                  }}
-                >
-                  <Space
-                    direction="horizontal"
+            bookings.map((item: any) => {
+              // 'item.status' is now the normalized string (e.g., "Open")
+              const st = getStatusStyle(item.status);
+              const dateText =
+                (item.preferred_date && moment(item.preferred_date).format("MMM D,  YYYY")) ||
+                (item.created_date && moment(item.created_date).format("MMM D, YYYY")) ||
+                "N/A";
+              const slotText = item.slotText || getSlotTime(item.slot_id);
+
+              return (
+                <Col xs={24} key={item.id}>
+                  <Card
+                    hoverable
+                    variant="outlined"
                     style={{
-                      width: "100%",
-                      justifyContent: "space-between",
-                      alignItems: "center",
+                      borderRadius: 16,
+                      transition: "all 0.3s",
+                      borderColor: "#e5e7eb",
+                      borderWidth: 1,
+                      cursor: "default",
+                    }}
+                    bodyStyle={{ padding: "20px 24px" }}
+                    onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                      const target = e.currentTarget as HTMLDivElement;
+                      target.style.borderColor = "#0D9488";
+                      target.style.borderWidth = "2px";
+                      target.style.boxShadow = "0 4px 15px rgba(13, 148, 136, 0.3)";
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                      const target = e.currentTarget as HTMLDivElement;
+                      target.style.borderColor = "#e5e7eb";
+                      target.style.borderWidth = "1px";
+                      target.style.boxShadow = "none";
                     }}
                   >
-                    <Space direction="vertical" size={4}>
-                      <Title
-                        level={5}
-                        style={{
-                          fontSize: 16,
-                          color: "#115e59",
-                          fontWeight: 600,
-                          margin: 0,
-                        }}
-                      >
-                        {item.department?.department_name || "Unknown Department"}
-                      </Title>
+                    <Space
+                      direction="horizontal"
+                      style={{
+                        width: "100%",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Space direction="vertical" size={4}>
+                        <Title
+                          level={5}
+                          style={{ fontSize: 16, color: "#115e59", fontWeight: 600, margin: 0 }}
+                        >
+                          {/* Use the normalized deptName */}
+                          {item.deptName}
+                        </Title>
 
-                      <Text
-                        type="secondary"
-                        style={{ fontSize: 13, fontWeight: 500, paddingBottom: 4 }}
-                      >
-                        Plan:{" "}
-                        {item.is_premium
-                          ? "Premium"
-                          : item.is_ultimate
-                          ? "Ultimate"
-                          : item.is_regular
-                          ? "Regular"
-                          : "N/A"}
-                      </Text>
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: 13, fontWeight: 500, paddingBottom: 4 }}
+                        >
+                          {/* Use the normalized serviceNames */}
+                          Plan: {item.serviceNames}
+                        </Text>
 
-                      <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>
-                        <Text style={{ fontSize: 14 }}>
-                          <UserOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
-                          {item.full_name || "N/A"}
-                        </Text>
-                        <Text style={{ fontSize: 14 }}>
-                          <PhoneOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
-                          {item.phone || "N/A"}
-                        </Text>
-                        <Text style={{ fontSize: 14 }}>
-                          <EnvironmentOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
-                          {item.address || "N/A"}
-                        </Text>
-                        <Text style={{ fontSize: 14 }}>
-                          <CalendarOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
-                          {item.preferred_date
-                            ? moment(item.preferred_date).format("MMM D, YYYY")
-                            : "N/A"}{" "}
-                          - {getSlotTime(item.slot_id)}
-                        </Text>
+                        <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>
+                          <Text style={{ fontSize: 14 }}>
+                            <UserOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
+                            {item.full_name || "N/A"}
+                          </Text>
+                          <Text style={{ fontSize: 14 }}>
+                            <PhoneOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
+                            {item.phone || "N/A"}
+                          </Text>
+                          <Text style={{ fontSize: 14 }}>
+                            <EnvironmentOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
+                            {item.address || "N/A"}
+                          </Text>
+                          <Text style={{ fontSize: 14 }}>
+                            <CalendarOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
+                            {dateText} - {slotText}
+                          </Text>
+                        </Space>
+                      </Space>
+
+                      <Space direction="vertical" align="end" size={"middle"}>
+                        <span
+                          style={{
+                            backgroundColor: st.bg,
+                            color: st.fg,
+                            fontWeight: "bold",
+                            padding: "4px 12px",
+                            borderRadius: "16px",
+                            textAlign: "center",
+                            minWidth: 100,
+                            fontSize: 12,
+                          }}
+                        >
+                          {/* Use the text from getStatusStyle */}
+                          {st.text}
+                        </span>
+
+                        <Button
+                          type="primary"
+                          onClick={() => openAssignModal(item.id)}
+                          disabled={item.status !== "Open"} // Disable if not "Open"
+                          style={{ backgroundColor: "#0D9488", borderColor: "#0D9488" }}
+                        >
+                          Assign Employee
+                        </Button>
+
+                        <Button type="primary" danger onClick={() => openDeleteModal(item.id)}>
+                          Delete Booking
+                        </Button>
                       </Space>
                     </Space>
-
-                    <Space direction="vertical" align="end" size={"middle"}>
-                      <span
-                        style={{
-                          backgroundColor:
-                            item.status?.status === "Pending"
-                              ? "#fef3c7"
-                              : item.status?.status === "Open"
-                              ? "#e0f2fe"
-                              : item.status?.status === "Completed"
-                              ? "#dcfce7"
-                              : item.status?.status === "In-Progress"
-                              ? "#ccfbf1"
-                              : "#f3f4f6",
-                          color:
-                            item.status?.status === "Pending"
-                              ? "#b45309"
-                              : item.status?.status === "Open"
-                              ? "#0284c7"
-                              : item.status?.status === "Completed"
-                              ? "#15803d"
-                              : item.status?.status === "In-Progress"
-                              ? "#0f766e"
-                              : "#4b5563",
-                          fontWeight: "bold",
-                          padding: "4px 12px",
-                          borderRadius: "16px",
-                          textAlign: "center",
-                          minWidth: 100,
-                          fontSize: 12,
-                        }}
-                      >
-                        {item.status?.status || "Unknown"}
-                      </span>
-                      <Button
-                        type="primary"
-                        className="sw-action-btn sw-assign"
-                        onClick={() => openAssignModal(item.id)}
-                        disabled={!item.status || item.status.status !== "Open"}
-                        style={{
-                          backgroundColor: "#0D9488",
-                          borderColor: "#0D9488",
-                        }}
-                      >
-                        Assign Employee
-                      </Button>
-                      <Button
-                        type="primary"
-                        danger
-                        className="sw-action-btn"
-                        onClick={() => openDeleteModal(item.id)}
-                      >
-                        Delete Booking
-                      </Button>
-                    </Space>
-                  </Space>
-                </Card>
-              </Col>
-            ))
+                  </Card>
+                </Col>
+              );
+            })
           ) : (
             <Col xs={24} style={{ textAlign: "center", marginTop: 40 }}>
               <Card
                 variant="outlined"
-                style={{
-                  borderRadius: 16,
-                  padding: "40px 0",
-                  borderColor: "#e5e7eb",
-                }}
+                style={{ borderRadius: 16, padding: "40px 0", borderColor: "#e5e7eb" }}
               >
-                <CalendarOutlined
-                  style={{ fontSize: 48, color: "#cbd5e1", marginBottom: 16 }}
-                />
+                <CalendarOutlined style={{ fontSize: 48, color: "#cbd5e1", marginBottom: 16 }} />
                 <br />
                 <Text strong type="secondary" style={{ fontSize: 16, color: "#9ca3af" }}>
                   No bookings found.
@@ -505,11 +498,16 @@ const Bookings: React.FC = () => {
       <Modal
         title={
           <div>
-            <Title level={4} style={{ margin: 0 }}>Assign Employee</Title>
+            <Title level={4} style={{ margin: 0 }}>
+              Assign Employee
+            </Title>
             {selectedBooking && (
               <Text type="secondary" style={{ fontSize: 13 }}>
-                {moment(selectedBooking.preferred_date).format("MMM D, YYYY")} -{" "}
-                {getSlotTime(selectedBooking.slot_id)}
+                {(selectedBooking.preferred_date &&
+                  moment(selectedBooking.preferred_date).format("MMM D, YYYY")) ||
+                  (selectedBooking.created_date &&
+                    moment(selectedBooking.created_date).format("MMM D, YYYY"))}{" "}
+                - {selectedBooking.slotText || Slots.find((s) => s.id === selectedBooking.slot_id)?.slot_time || "N/A"}
               </Text>
             )}
           </div>
@@ -550,14 +548,7 @@ const Bookings: React.FC = () => {
           </div>
         )}
 
-        <div
-          style={{
-            maxHeight: 400,
-            overflowY: "auto",
-            marginTop: 16,
-            paddingRight: 8,
-          }}
-        >
+        <div style={{ maxHeight: 400, overflowY: "auto", marginTop: 16, paddingRight: 8 }}>
           {loadingEmployees ? (
             <div style={{ textAlign: "center", padding: "40px 0" }}>
               <Spin size="large" />
@@ -571,15 +562,13 @@ const Bookings: React.FC = () => {
                 No available employees to assign.
               </Text>
               <br />
-              <Text type="secondary" style={{ fontSize: 13, display: 'block', marginTop: 8 }}>
+              <Text type="secondary" style={{ fontSize: 13, display: "block", marginTop: 8 }}>
                 All employees are currently assigned to other bookings.
               </Text>
             </div>
           ) : (
             employees.map((employee: Employee) => {
-              const fullName = `${employee.first_name || ""} ${
-                employee.last_name || ""
-              }`.trim();
+              const fullName = `${employee.first_name || ""} ${employee.last_name || ""}`.trim();
               const firstLetter = employee.first_name?.[0]?.toUpperCase() || "U";
               const isAvailable = employee.is_available;
               const isChecking = employee.availability_status === "checking";
@@ -610,23 +599,16 @@ const Bookings: React.FC = () => {
                   onClick={() => isAvailable && setSelectedEmployeeId(employee.id)}
                   bodyStyle={{ padding: 16 }}
                 >
-                  <Space
-                    style={{ width: "100%", justifyContent: "space-between" }}
-                    align="center"
-                  >
+                  <Space style={{ width: "100%", justifyContent: "space-between" }} align="center">
                     <Space size="middle" align="center">
                       <Badge
                         count={
                           isChecking ? (
                             <LoadingOutlined style={{ color: "#14b8a6" }} />
                           ) : isAvailable ? (
-                            <CheckCircleOutlined
-                              style={{ color: "#22c55e", fontSize: 18 }}
-                            />
+                            <CheckCircleOutlined style={{ color: "#22c55e", fontSize: 18 }} />
                           ) : (
-                            <CloseCircleOutlined
-                              style={{ color: "#ef4444", fontSize: 18 }}
-                            />
+                            <CloseCircleOutlined style={{ color: "#ef4444", fontSize: 18 }} />
                           )
                         }
                         offset={[-5, 5]}
@@ -658,9 +640,7 @@ const Bookings: React.FC = () => {
 
                     <Tooltip
                       title={
-                        isAvailable
-                          ? "Available for assignment"
-                          : "Not available for this time slot"
+                        isAvailable ? "Available for assignment" : "Not available for this time slot"
                       }
                     >
                       <span
@@ -673,11 +653,7 @@ const Bookings: React.FC = () => {
                           color: isAvailable ? "#15803d" : "#991b1b",
                         }}
                       >
-                        {isChecking
-                          ? "Checking..."
-                          : isAvailable
-                          ? "Available"
-                          : "Unavailable"}
+                        {isChecking ? "Checking..." : isAvailable ? "Available" : "Unavailable"}
                       </span>
                     </Tooltip>
                   </Space>
@@ -713,9 +689,7 @@ const Bookings: React.FC = () => {
         ]}
         centered
       >
-        <Text style={{ fontSize: 15 }}>
-          Are you sure you want to delete this booking?
-        </Text>
+        <Text style={{ fontSize: 15 }}>Are you sure you want to delete this booking?</Text>
         {selectedBooking && (
           <div
             style={{
@@ -726,30 +700,28 @@ const Bookings: React.FC = () => {
               border: "1px solid #ffccc7",
             }}
           >
-            <Text strong>
-              {selectedBooking.department?.department_name || "N/A"}
+            <Text strong>{selectedBooking.deptName}</Text>
+            <br />
+            <Text type="secondary" style={{ fontSize: 13 }}>
+              Status: {selectedBooking.status || "Unknown"}
             </Text>
             <br />
             <Text type="secondary" style={{ fontSize: 13 }}>
-              Plan: {selectedBooking.services || "N/A"}
-            </Text>
-            <br />
-            <Text type="secondary" style={{ fontSize: 13 }}>
-              Customer: {selectedBooking.full_name || "N/A"}
+              Plan: {selectedBooking.serviceNames || "N/A"}
             </Text>
             <br />
             <Text type="secondary" style={{ fontSize: 13 }}>
               Date:{" "}
-              {moment(selectedBooking.preferred_date).format("MMM D, YYYY") ||
+              {(selectedBooking.preferred_date &&
+                moment(selectedBooking.preferred_date).format("MMM D, YYYY")) ||
+                (selectedBooking.created_date &&
+                  moment(selectedBooking.created_date).format("MMM D, YYYY")) ||
                 "N/A"}{" "}
-              - {getSlotTime(selectedBooking.slot_id)}
+              - {selectedBooking.slotText || Slots.find((s) => s.id === selectedBooking.slot_id)?.slot_time || "N/A"}
             </Text>
           </div>
         )}
-        <Text
-          type="danger"
-          style={{ display: "block", marginTop: 16, fontWeight: "600" }}
-        >
+        <Text type="danger" style={{ display: "block", marginTop: 16, fontWeight: 600 }}>
           This action cannot be undone.
         </Text>
       </Modal>
