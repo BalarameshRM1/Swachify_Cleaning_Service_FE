@@ -22,6 +22,59 @@ export const getAllUsersById = async(userId:any) =>{
     }
 }
 
+export const createBooking = async (bookingData: any) => {
+  try {
+    const response = await fetch(`${baseUrl}/Booking`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: 0,
+        bookingId: bookingData.bookingId || "",
+        slotId: bookingData.slotId || 0,
+        createdBy: bookingData.createdBy || 0,
+        createdDate: new Date().toISOString(),
+        modifiedBy: bookingData.modifiedBy || 0,
+        modifiedDate: new Date().toISOString(),
+        isActive: true,
+        preferredDate: bookingData.preferredDate,
+        full_name: bookingData.full_name,
+        phone: bookingData.phone,
+        email: bookingData.email,
+        address: bookingData.address,
+        status_id: bookingData.status_id || 1,
+        total: bookingData.total || 0,
+        subtotal: bookingData.subtotal || 0,
+        customer_requested_amount: bookingData.customer_requested_amount || 0,
+        discount_amount: bookingData.discount_amount || 0,
+        discount_percentage: bookingData.discount_percentage || 0,
+        discount_total: bookingData.discount_total || 0,
+        services: bookingData.services?.map((s: any) => ({
+          deptId: s.deptId,
+          serviceId: s.serviceId,
+          serviceTypeId: s.serviceTypeId,
+        })) || [],
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Booking creation failed:", errorText);
+      throw new Error(`Booking creation failed with status ${response.status}`);
+    }
+
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
+    console.log("✅ Booking created successfully:", data);
+    return data;
+  } catch (error) {
+    console.error("🚨 Error createBooking:", error);
+    throw error;
+  }
+};
+
+
 export const getAllDepartments = async() =>{
     try {
         const response = await fetch(`${baseUrl}/Master/getalldepartments`);

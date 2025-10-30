@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+
 import {
   Card,
   Row,
@@ -35,6 +36,7 @@ import {
   PhoneOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { createBooking } from "../../app/services/auth";
 
 const { Title, Text } = Typography;
 
@@ -225,10 +227,19 @@ const Services: React.FC = () => {
   const [discount, setDiscount] = useState<number>(0);
   const [discountPct, setDiscountPct] = useState<number>(0);
   const [customerRequest, setCustomerRequest] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
+const [preferredDate, setPreferredDate] = useState<any>(null);
+const [customerInfo, setCustomerInfo] = useState({
+  name: "",
+  phone: "",
+  email: "",
+  address: "",
+});
+const [totalAmount, setTotalAmount] = useState(0);
 
   const [fullName, setFullName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [email] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [date, setDate] = useState<dayjs.Dayjs | null>(null);
 
@@ -277,35 +288,90 @@ const Services: React.FC = () => {
     () => Math.max(grandTotal - discount, 0),
     [grandTotal, discount]
   );
+  // const handlechange=(e:any)=>{
+    
+  // }
 
   // Form Submit
   const handleSubmit = async () => {
-    try {
-      await form.validateFields();
-      const payload = {
-        step: currentStep,
-        customer: {
-          fullName,
-          phone,
-          email,
-          address,
-          date: date ? date.format("YYYY-MM-DD") : null,
-        },
-        master_category: master,
-        minimum_cleaning_hours: PRICING.minHours,
-        selections: serviceForm,
-        subtotal: grandTotal,
-        discount,
-        discount_percent: discountPct,
-        discounted_total: discountedTotal,
-        customer_requested: customerRequest,
+  try {
+    setLoading(true);
+
+    // Mapping IDs for backend
+    const DEPT_MAP: Record<string, number> = {
+      bedroom: 1,
+      bathroom: 2,
+      kitchen: 3,
+      living: 4,
+    };
+
+    const SERVICE_MAP: Record<string, number> = {
+      single: 1,
+      double: 2,
+      triple: 3,
+      "4bed": 4,
+      with_dining: 5,
+      without_dining: 6,
+    };
+
+    const SERVICE_TYPE_MAP: Record<string, number> = {
+      Normal: 1,
+      Deep: 2,
+    };
+
+    // Build services array dynamically from selected options
+    const services = Object.keys(serviceForm).map((key) => {
+      const s = serviceForm[key as keyof typeof serviceForm];
+      return {
+        deptId: DEPT_MAP[key] ?? 0,
+        serviceId: s.subService ? SERVICE_MAP[s.subService] ?? 0 : 0,
+        serviceTypeId: s.type ? SERVICE_TYPE_MAP[s.type] ?? 0 : 0,
       };
-      console.log("Submit payload", payload);
-      message.success("Submitted successfully");
-    } catch {
-      message.error("Please complete the required fields.");
+    });
+
+    const payload = {
+      id: 0,
+      bookingId: `BOOK-${Date.now()}`,
+      slotId: 0,
+      createdBy: 0,
+      createdDate: new Date().toISOString(),
+      modifiedBy: 0,
+      modifiedDate: new Date().toISOString(),
+      isActive: true,
+      preferredDate: preferredDate ? preferredDate.format("YYYY-MM-DD") : null,
+      full_name: customerInfo.name,
+      phone: customerInfo.phone,
+      email: customerInfo.email,
+      address: customerInfo.address,
+      status_id: 1,
+      total: 0,
+      subtotal: totalAmount,
+      customer_requested_amount: 0,
+      discount_amount: totalAmount,
+      discount_percentage: 100,
+      discount_total: 0,
+      services,
+    };
+
+    console.log("Final Booking Payload:", payload);
+
+    const response = await createBooking(payload);
+
+    if (response?.status === 200 || response?.status === 201) {
+      message.success("Booking created successfully!");
+      // Optional: clear your forms if needed
+      // resetForm();
+    } else {
+      message.error("Failed to create booking. Please try again.");
     }
-  };
+  } catch (error: any) {
+    console.error("Submit error:", error);
+    message.error("Something went wrong while creating booking.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const CustomerDetails = (
     <>
