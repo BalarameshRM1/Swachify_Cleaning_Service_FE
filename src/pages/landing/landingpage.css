@@ -95,3 +95,17 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(20, 184, 166, 0.4) !important;
 }
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #14b8a6 !important; 
+  border-color: #14b8a6 !important; 
+}
+
+
+.ant-checkbox-checked .ant-checkbox-inner::after {
+  border-color: white !important; 
+}
+
+
+.ant-checkbox-wrapper:hover .ant-checkbox-inner {
+  border-color: #14b8a6 !important;
+}

@@ -241,20 +241,35 @@ export const getallBookings = async() => {
 
         console.log('Raw bookings from API:', bookings);
 
+        const [allDepartments, allServices] = await Promise.all([
+            getAllDepartments(),
+            getAllServices()
+        ]);
+
         // Enrich bookings with additional details if needed
         const enrichedBookings = await Promise.all(
             bookings.map(async (booking: any) => {
                 try {
-                    // If department info is missing, fetch it
                     if (!booking.department && booking.dept_id) {
-                        const departments = await getAllDepartments();
-                        const dept = departments?.find((d: any) => d.id === booking.dept_id);
+                        const dept = allDepartments?.find((d: any) => d.id === booking.dept_id);
                         if (dept) {
                             booking.department = dept;
                         }
                     }
 
-                    // If assigned employee info is missing, fetch it
+                    if (Array.isArray(booking.services)) {
+                        booking.services = booking.services.map((s: any) => {
+                            const dept = allDepartments?.find((d: any) => d.id === s.dept_id); 
+                            const service = allServices?.find((serv: any) => serv.id === s.service_id);
+                            
+                            return {
+                                ...s,
+                                department_name: s.department_name || dept?.department_name || null,
+                                service_name: s.service_name || service?.service_name || null,
+                            };
+                        });
+                    }
+
                     if (!booking.assigned_employee && booking.employee_id) {
                         try {
                             const employee = await getAllUsersById(booking.employee_id);
