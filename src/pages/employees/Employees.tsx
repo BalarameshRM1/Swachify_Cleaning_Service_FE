@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { SelectProps } from 'antd';
 import { Card, Col, Row, Select, Typography, Avatar, Tag, Button, Modal, Form, Input, message, Space, Divider } from 'antd';
 import { PhoneFilled, EnvironmentFilled, PlusOutlined } from '@ant-design/icons'; 
-import { createEmployee, getAllUsers, getAllLocations } from "../../app/services/auth";
+import { createEmployee, getAllUsers, getAllLocations,getAllDepartments } from "../../app/services/auth";
 import { Popconfirm } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { deleteEmployeeById } from '../../app/services/auth';
@@ -41,7 +41,7 @@ const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
 // const allServices = [
 //   'Home Cleaning', 'Kitchen', 'Bathroom', 'Office Cleaning', 'Sofa & Carpet', 'Pest Control', 'Deep Cleaning', 'Painting', 'AC Service', 'Appliance Repair'
 // ];
-const allServices = ['Kitchen','Bathrooms','Bedrooms','Living Areas'];
+
 const Role = ['Employee','Admin','Super Admin'];
 
 const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => void }> = ({ employee, onDelete }) => (
@@ -157,8 +157,9 @@ const Employees: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true); 
+  const[departmentsdata,setdepartmentsdata]=useState<any>([]);
 
-  const getAllUsersApi = async () => {
+ const getAllUsersApi = async () => {
   try {
     const res = await getAllUsers();
     console.log("Raw users from API:", res);
@@ -166,10 +167,10 @@ const Employees: React.FC = () => {
     const usersWithFullName = res.map((user: any) => ({
       ...user,
       name: `${user.first_name} ${user.last_name}`,
-      location: user.location_name || "Unknown",
-      status: user.is_assigned ? "Assigned" : "Available",  
+      status: user.is_assigned ? "Assigned" : "Available",
       phone: user.mobile || "N/A",
-      depts: user.depts || []                               
+      depts: user.depts || [],
+      location_id: user.location_id, 
     }));
 
     setEmployees(usersWithFullName);
@@ -179,33 +180,86 @@ const Employees: React.FC = () => {
 };
 
 
-  const getAllLocationsApi = async() => {
-    try {
-      const res = await getAllLocations()
-      if(res){
-        const locationNames = res.map((loc:any) => ({label: loc.location_name, value: loc.id}));
-        setLocationsData(locationNames);
-      }
-    } catch (error) {
-      console.error("Error fetching locations:", error);
+
+ const getAllLocationsApi = async () => {
+  try {
+    const res = await getAllLocations();
+    console.log("Fetched locations:", res);
+
+    if (res && Array.isArray(res)) {
+      const locationNames = res.map((loc: any) => ({
+        label: loc.locationName,  
+        value: loc.locationId, 
+      }));
+      setLocationsData(locationNames);
+    } else {
+      console.warn("Invalid location data format:", res);
     }
+  } catch (error) {
+    console.error("Error fetching locations:", error);
   }
+};
+const getAllDepartmentsApi = async () => {
+  try {
+    const res = await getAllDepartments();
+    console.log("Fetched departments:", res);
+
+    if (res && Array.isArray(res)) {
+      // ✅ Use a Map to filter unique departmentId
+      const uniqueDepartmentsMap = new Map();
+
+      res.forEach((item) => {
+        if (!uniqueDepartmentsMap.has(item.departmentId)) {
+          uniqueDepartmentsMap.set(item.departmentId, {
+            label: item.departmentName,
+            value: item.departmentId,
+          });
+        }
+      });
+
+      const uniqueDepartments = Array.from(uniqueDepartmentsMap.values());
+      setdepartmentsdata(uniqueDepartments);
+      console.log("Mapped departments:", uniqueDepartments);
+    }
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+  }
+};
+
+
+
 
   useEffect(()=>{
     const fetchData = async () => {
-      await Promise.all([getAllUsersApi(), getAllLocationsApi()]);
+      await Promise.all([getAllUsersApi(), getAllLocationsApi(),getAllDepartmentsApi (),]);
       setLoading(false);
     };
     fetchData();
   },[]);
+  useEffect(() => {
+  if (employees.length && locationsData.length) {
+    const updated = employees.map((emp: any) => ({
+      ...emp,
+      location:
+        locationsData.find(
+          (loc: any) => Number(loc.value) === Number(emp.location_id)
+        )?.label || "Unknown",
+    }));
+    setFilteredEmployees(updated);
+  }
+}, [employees, locationsData]);
+
 
   useEffect(() => {
-    let employeesToFilter = employees;
-    if (locationFilter !== 'All Locations') {
-      employeesToFilter = employees.filter((emp:any) => emp.location === locationFilter);
-    }
-    setFilteredEmployees(employeesToFilter);
-  }, [locationFilter, employees]);
+  let employeesToFilter = filteredEmployees;
+  if (locationFilter !== "All Locations") {
+    employeesToFilter = filteredEmployees.filter(
+      (emp: any) => emp.location === locationFilter
+    );
+  }
+  setFilteredEmployees(employeesToFilter);
+}, [locationFilter]);
+
 
   const showModal = () => setIsModalVisible(true);
   const handleCancel = () => {
@@ -213,35 +267,68 @@ const Employees: React.FC = () => {
     form.resetFields();
   };
 
-  const handleAddEmployee = async(values: any) => {
-    const newEmployee: any = {
-      id: Date.now(),
-      ...values,
-      status: 'Available',
+  const handleAddEmployee = async (values: any) => {
+  try {
+    setLoading(true);
+
+    // Split full name into first and last
+    const [firstName, ...rest] = values.name.trim().split(" ");
+    const lastName = rest.join(" ") || firstName; // fallback if single name
+
+    // ✅ Clean payload (only what backend expects)
+    const payload = {
+      first_name: firstName,
+      last_name: lastName,
+      email: values.email,
+      mobile: values.phone,
+      location_id: values.location,   // from location dropdown
+      dept_id: [values.services],     // department dropdown selection
+      role_id:
+        values.Role === "Admin"
+          ? 2
+          : values.Role === "Super Admin"
+          ? 3
+          : 1,
     };
 
-    newEmployee.role_id = newEmployee.Role === 'Admin' ? 2 : newEmployee.Role === 'Super Admin' ? 3 : 1;
-    newEmployee.dept_id = [newEmployee.services]
-    newEmployee.first_name = newEmployee.name
-    newEmployee.last_name = newEmployee.name
-    newEmployee.mobile = newEmployee.phone
-    newEmployee.location_id = newEmployee.location
+    console.log("Payload to API:", payload);
 
-    delete newEmployee.Role;
-    delete newEmployee.services;
+    // Call backend
+    const res = await createEmployee(payload);
+    console.log("Employee created successfully:", res);
+    message.success("Employee added successfully!");
 
-    try {
-       const res = await createEmployee(newEmployee);
-       console.log('Employee created successfully:', res);
-    } catch (error) {
-        console.error("Error creating employee:", error);      
-    }
-    
+    // Update local UI
+    setEmployees((prev: any) => [
+  {
+    ...payload,
+    id: Date.now(),
+    name: values.name,
+    status: "Available",
+    location:
+      locationsData.find(
+        (loc: any) => Number(loc.value) === Number(values.location)
+      )?.label || "Unknown",
+    depts: [
+      departmentsdata.find(
+        (d: any) => Number(d.value) === Number(values.services)
+      )?.label || "",
+    ],
+    phone: values.phone,
+  },
+  ...prev,
+]);
 
-    setEmployees((prev:any) => [newEmployee, ...prev]);
-    message.success('Employee added successfully!');
+
     handleCancel();
-  };
+  } catch (error) {
+    console.error("Error creating employee:", error);
+    message.error("Failed to create employee");
+  } finally {
+    setLoading(false);
+  }
+};
+
   
   const locationOptions: SelectProps['options'] = [
     {
@@ -352,11 +439,12 @@ if (loading) {
               rules={[
                 { required: true, message: "Please enter full name" },
                 {
-                  pattern: /^[A-Za-z]{2,}\s[A-Za-z]{2,}$/,
+                  pattern:/^[A-Za-z]{2,}(?:\s[A-Za-z]{1,})+$/,
                   message:
-                    "Enter valid full name (First and Last name, letters only, one space)",
+                    "Enter valid full name ",
                 },
               ]}
+               getValueFromEvent={(e) => e.target.value.trimStart()}
             >
               <Input placeholder="Enter full name" />
             </Form.Item>
@@ -413,26 +501,30 @@ if (loading) {
               label="Location"
               rules={[{ required: true, message: "Please select a location" }]}
             >
-              <Select options={locationsData} placeholder="Select location" />
+             <Select
+  options={locationsData}
+  placeholder="Select location"
+  showSearch
+  optionFilterProp="label"
+/>
+
             </Form.Item>
           </Col>
 
           {/* Services */}
           <Col xs={24} sm={12}>
-            <Form.Item
-              name="services"
-              label="Services"
-              rules={[{ required: true, message: "Please select a service" }]}
-            >
-              <Select
-                allowClear
-                options={allServices.map((sl: string, index: number) => ({
-                  label: sl,
-                  value: index + 1,
-                }))}
-                placeholder="Select services"
-              />
-            </Form.Item>
+           <Form.Item
+  name="services"
+  label="Departments"
+  rules={[{ required: true, message: "Please select a department" }]}
+>
+  <Select
+    allowClear
+    options={departmentsdata}
+    placeholder="Select department"
+  />
+</Form.Item>
+
           </Col>
 
           {/* Role */}
