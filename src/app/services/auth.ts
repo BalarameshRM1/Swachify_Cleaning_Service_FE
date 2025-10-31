@@ -330,7 +330,7 @@ export const getBookingsByStatus = async(status: string) => {
 
 export const getallBookingsByUserId = async(id:any) =>{
     try {
-        const response = await fetch(`${baseUrl}/Booking/getallbookingsbyuserID?id=${id}`);
+        const response = await fetch(`${baseUrl}/Booking/getallbookingsbyuserID?user_id=0&emp_id=${id}`);
         if (!response.ok) throw new Error("Failed to fetch bookings");
         const data = await response.json();
         return data;
@@ -364,13 +364,10 @@ export const assignEmployeeToBooking = async (bookingId: number, userId: number)
       }),
     });
 
-    // If server returned 204 No Content — treat as success but no JSON body
     if (assignRes.status === 204) {
-      // proceed to update booking status (or return success)
-      return { assigned: true, assignData: null, statusUpdated: null };
+      return { assigned: true, assignData: null };
     }
 
-    // If not ok, try to parse error info and throw
     if (!assignRes.ok) {
       const maybeErr = await safeParseResponse(assignRes);
       const errMessage =
@@ -379,34 +376,12 @@ export const assignEmployeeToBooking = async (bookingId: number, userId: number)
       throw new Error(errMessage);
     }
 
-    // Try to parse body safely
     const assignData = await safeParseResponse(assignRes);
 
-    // Now update booking status to "In-Progress" (or whichever endpoint you have)
-    const statusRes = await fetch(
-      `${baseUrl}/Booking/UpdateTicketByEmployeeInprogress/${bookingId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    // ✅ At this point, booking is assigned to employee
+    // Default ticket status remains "Pending" (backend should handle that)
 
-    // If statusRes is 204, it's fine — treat as status updated
-    if (!statusRes.ok && statusRes.status !== 204) {
-      const maybeErr = await safeParseResponse(statusRes);
-      const errMessage =
-        (maybeErr && (maybeErr.message || JSON.stringify(maybeErr))) ||
-        `Status update failed with status ${statusRes.status}`;
-      // Log and continue (choose whether to throw or not). We'll warn but not throw.
-      console.warn("Warning: Booking status update failed:", errMessage);
-      return { assigned: true, assignData, statusUpdated: false, statusError: errMessage };
-    }
-
-    const statusData = statusRes.status === 204 ? null : await safeParseResponse(statusRes);
-
-    return { assigned: true, assignData, statusUpdated: true, statusData };
+    return { assigned: true, assignData, status: "Pending" };
   } catch (err) {
     console.error("assignEmployeeToBooking error:", err);
     throw err;
