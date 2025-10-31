@@ -216,3 +216,36 @@ export const mainServicesData = [
   { id: 'cleaning-bedrooms', title: 'Bedrooms', img: bedroomCleaningImg },
   { id: 'cleaning-living-areas', title: 'Living Areas', img: livingAreaCleaningImg },
 ];
+
+export const MASTER_OPTIONS = [
+  { label: "Bedroom", value: "bedroom" },
+  { label: "Bathroom", value: "bathroom" },
+  { label: "Kitchen", value: "kitchen" },
+  { label: "Living", value: "living" },
+];
+
+export type SectionKey = 'bedroom' | 'bathroom' | 'kitchen' | 'living';
+
+export const SUBSERVICES: Record<SectionKey, { label: string; value: string }[]> = {
+  bedroom: [
+    { label: "Single", value: "single" },
+    { label: "Double", value: "double" },
+    { label: "Triple", value: "triple" },
+    { label: "4 Bed Room", value: "4bed" },
+  ],
+  bathroom: [
+    { label: "Single", value: "single" },
+    { label: "Double", value: "double" },
+    { label: "Triple", value: "triple" },
+    { label: "4 Bed Room", value: "4bed" },
+  ],
+  kitchen: [
+    { label: "Single", value: "single" },
+    { label: "Double", value: "double" },
+  ],
+  living: [
+    { label: "With Dining", value: "with_dining" },
+    { label: "Without Dining", value: "without_dining" },
+  ],
+};
+
