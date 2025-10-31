@@ -351,15 +351,15 @@ const Dashboard: React.FC = () => {
             <div>
               <Tag
                 color={
-                  booking.status?.status === "Pending"
+                  booking.normalizedStatus === "Pending"
                     ? "orange"
-                    : booking.status?.status === "In-Progress"
+                    : booking.normalizedStatus === "In-Progress"
                     ? "blue"
                     : "green"
                 }
                 style={{ fontWeight: "bold", minWidth: 100, textAlign: "center" }}
               >
-                {booking.status?.status}
+                {booking.normalizedStatus}
               </Tag>
             </div>
           </div>
