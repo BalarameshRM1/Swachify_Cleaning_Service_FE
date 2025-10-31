@@ -273,6 +273,7 @@ const Bookings: React.FC = () => {
     setSelectedBookingId(null);
     setSelectedEmployeeId(null);
   };
+  
 
   const handleAssignEmployee = async () => {
     if (!selectedEmployeeId || !selectedBookingId) {
@@ -291,7 +292,7 @@ const Bookings: React.FC = () => {
         )
       );
       const result = await assignEmployeeToBooking(selectedBookingId, selectedEmployeeId);
-      if (result && result.statusUpdated === false) {
+      if (result && "statusUpdated" in result && result.statusUpdated === false) {
         message.warning("Employee assigned, but booking status could not be updated.");
       } else {
         message.success("Employee assigned and booking updated.");

@@ -117,8 +117,8 @@ const usdFormatter = (value?: string | number) => {
   return `$ ${n}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-const usdParser = (value?: string) =>
-  !value ? 0 : Number(String(value).replace(/[^0-9.-]+/g, "")) || 0;
+// const usdParser = (value?: string) =>
+//   !value ? 0 : Number(String(value).replace(/[^0-9.-]+/g, "")) || 0;
 
 const Services: React.FC = () => {
   const [form] = Form.useForm();
