@@ -5,6 +5,7 @@ import { getallBookings, getallBookingsByUserId, otpSend, otpSendAPi, updateTick
 import moment from "moment";
 import { getUserDetails } from "../../utils/helpers/storage";
 import { getAllUsers } from "../../app/services/auth";
+import LoaderGif from "../../assets/SWACHIFY_gif.gif";
 
 const { Text, Title } = Typography;
 
@@ -58,6 +59,7 @@ const Tickets: React.FC = () => {
   const [otpValue, setOtpValue] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [employees, setEmployees] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   
 
 
@@ -86,11 +88,6 @@ const Tickets: React.FC = () => {
       const latestReps = response?.filter((booking:any) => booking?.status?.status !== "Open" || booking.status_id === 1);
 
       console.log("Filtered Bookings:", latestReps);
-      console.log("Sample Booking Object:", response?.[0]);
-
-      console.log("🚀 Ticket Status Structure Example:", latestReps[0]);
-
-      
 
       setFilteredTickets(latestReps);
       setAllTickets(latestReps);
@@ -118,14 +115,28 @@ const Tickets: React.FC = () => {
   }
 
   useEffect(() => {
-    document.title = "Service Tickets - Swachify Admin Panel";
-    let data = getUserDetails('user');
-    if(data?.role_id === 3){
-      getallBookingsByUserApi(data.id);
-    }else{
-      getallBookingsApi();
+  document.title = "Service Tickets - Swachify Admin Panel";
+  const data = getUserDetails("user");
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      if (data?.role_id === 3) {
+        await getallBookingsByUserApi(data.id);
+      } else {
+        await getallBookingsApi();
+      }
+      await getAllUsers().then((res) => setEmployees(res || []));
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      setTimeout(() => setLoading(false), 800); // small delay for smoother transition
     }
-  }, []);
+  };
+
+  loadData();
+}, []);
+
 
   useEffect(() => {
     if (filter === "all") {
@@ -261,6 +272,22 @@ const Tickets: React.FC = () => {
       console.error(error);
     }
   };
+  if (loading) {
+  return (
+    <div
+      style={{
+        height: "100vh",
+        backgroundColor: "#f9fafb",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <img src={LoaderGif} alt="Loading..." width={220} />
+    </div>
+  );
+}
+
 
   return (
    <div
@@ -290,7 +317,8 @@ const Tickets: React.FC = () => {
       <Col>{tabButton("Completed", "Completed")}</Col>
     </Row>
   </div>
-   
+
+      
       <div
     style={{
       flex: 1,
@@ -332,7 +360,6 @@ const Tickets: React.FC = () => {
                         Ticket #{ticket?.id?.toString()?.slice(-6)}
                       </Text>
                     </Col>
-                    
                     {ticket?.status=== "Completed" && (
                       <Text style={{ color: "#065f46", fontWeight: 500 }}>✓ Completed</Text>
                     )}
@@ -369,7 +396,7 @@ const Tickets: React.FC = () => {
 
                   {getUserDetails('user')?.role_id === 3 && (
                     <Row justify="end" style={{ marginTop: 12, gap: 8 }}>
-                      {ticket?.status === "Pending" && (
+                      {ticket?.status?.status === "Pending" && (
   <Button
     type="primary"
     style={{
@@ -402,7 +429,7 @@ const Tickets: React.FC = () => {
 )}
 
 
-                      {ticket?.status === "In-Progress" && (
+                      {ticket?.status?.status === "In-Progress" && (
                         <Button
                           type="primary"
                           style={{
