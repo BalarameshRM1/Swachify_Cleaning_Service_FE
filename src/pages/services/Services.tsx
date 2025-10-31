@@ -734,15 +734,15 @@ const Services: React.FC = () => {
                 <div className="sv-req-wrap">
                   <div className="sv-flex-between sv-mb-6">
                     <Text strong>Customer Requested</Text>
-                  <InputNumber
-                    className="sv-money-input"
-                    min={0}
-                    value={customerRequest}
-                    onChange={(v) => setCustomerRequest((v as number) ?? 0)}
-                    formatter={usdFormatter as any}
-                    parser={usdParser as any}
-                    placeholder="$ 0"
-                  />
+                <InputNumber
+                  className="sv-money-input"
+                  min={0}
+                  value={customerRequest}
+                  onChange={(v) => setCustomerRequest((v as number) ?? 0)}
+                  placeholder="$ 0"
+                  controls={false}          
+                  inputMode="numeric"      
+                />
                 </div>
                   </div>
 
