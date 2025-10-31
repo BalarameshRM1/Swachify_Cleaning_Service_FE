@@ -420,7 +420,7 @@ const Bookings: React.FC = () => {
                           style={{ fontSize: 13, fontWeight: 500, paddingBottom: 4 }}
                         >
                           {/* Use the normalized serviceNames */}
-                          Plan: {item.serviceNames}
+                          Plan: {item.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(",")}
                         </Text>
 
                         <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>
