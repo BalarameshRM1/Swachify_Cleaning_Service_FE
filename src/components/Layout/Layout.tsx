@@ -27,6 +27,8 @@ const MenuItems = [
   { menuIcon: ScheduleOutlined, label: 'Tickets', path: '/app/tickets' },
   { menuIcon: UsergroupAddOutlined, label: 'Employees', path: '/app/employees' },
   { menuIcon: FileTextOutlined, label: 'MIS-Reports', path: '/app/reports' },
+  { menuIcon: SettingOutlined, label: 'Master', path: '/app/master' },
+
   { menuIcon: SettingOutlined, label: 'Settings', path: '/app/settings' },
   { menuIcon: LogoutOutlined, label: 'Logout' },
 ];
