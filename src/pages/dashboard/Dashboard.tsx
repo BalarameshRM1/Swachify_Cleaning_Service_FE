@@ -79,7 +79,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-wrap" style={{ padding: '2px', background: '#f0f2f5', minHeight: '100vh' }}>
-      <Title level={2} style={{ marginTop: 0, marginBottom: 32, fontWeight: 700 }}>Welcome Back! 👋</Title>
+      <Title level={2} style={{ marginTop: 0, marginBottom: 32, fontWeight: 700 }}>Welcome Back!</Title>
 
       
       <Row gutter={[24, 24]}>
