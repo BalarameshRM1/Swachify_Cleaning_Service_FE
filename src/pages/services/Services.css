@@ -126,9 +126,16 @@
 }
 .sv-reset-btn {
   border-radius: 8px;
-  background: #16a394;
-  border-color: #16a394;
-  color: #fff;
+  background: #14b8a6;
+  border-color: #14b8a6;
+  color: #14b8a6 !important;
+  border-color: #14b8a6 !important;
+}
+.sv-reset-btn:hover {
+  background: white;
+  color: #14b8a6 !important;
+  border-color: #14b8a6;
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.5);
 }
 
 .sv-title-16 { font-size: 16px; }
