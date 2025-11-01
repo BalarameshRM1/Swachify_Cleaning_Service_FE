@@ -74,7 +74,7 @@ export const createBooking = async (bookingData: any) => {
 export const getAllDepartments = async() =>{
     try {
         const response = await fetch(`${baseUrl}/Master/getallmasterData`);
-        if (!response.ok) throw new Error("Failed to get Departments");
+        if (!response.ok) throw new Error("Failed to getAllDepartments");
         const data = await response.json();
         return data.departments || [];
     } catch (error) {
@@ -83,16 +83,79 @@ export const getAllDepartments = async() =>{
     }
 }
 
-export const getAllServices = async() =>{
-    try {
-        const response = await fetch(`${baseUrl}/Master/getallservices`);
-        if (!response.ok) throw new Error("Failed to getAllServices");
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error getAllServices:", error);
+export const getAllMasterData = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/Master/getallmasterData`);
+    if (!response.ok) throw new Error("Failed to fetch master data");
+
+    const result = await response.json();
+    console.log("Master API result:", result);
+
+    
+    return Array.isArray(result?.departments) ? result.departments : [];
+  } catch (error) {
+    console.error("Error fetching Master Data:", error);
+    return [];
+  }
+};
+export const createMasterData = async (masterData: any) => {
+  try {
+    const response = await fetch(`${baseUrl}/Master/createmasterData`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(masterData),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`Failed to create master data: ${err}`);
     }
-}
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error createMasterData:", error);
+    throw error;
+  }
+};
+export const updateMasterData = async (id: number, updatedData: any) => {
+  try {
+     const response = await fetch(`${baseUrl}/Master/createmasterData`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(" Update failed:", errText);
+      console.error("GettigDetails",id)
+      throw new Error(`Failed to update master data (${response.status})`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error updateMasterData:", error);
+    throw error;
+  }
+};
+
+
+// export const getAllServices = async() =>{
+//     try {
+//         const response = await fetch(`${baseUrl}/Master/getallservices`);
+//         if (!response.ok) throw new Error("Failed to getAllServices");
+//         const data = await response.json();
+//         return data;
+//     } catch (error) {
+//         console.error("Error getAllServices:", error);
+//     }
+// }
 
 export const getAlllocations = async() =>{
     try {
@@ -242,9 +305,9 @@ export const getallBookings = async() => {
 
         console.log('Raw bookings from API:', bookings);
 
-        const [allDepartments, allServices] = await Promise.all([
+        const [allDepartments] = await Promise.all([
             getAllDepartments(),
-            getAllServices()
+           // getAllServices()
         ]);
 
         // Enrich bookings with additional details if needed
@@ -261,12 +324,12 @@ export const getallBookings = async() => {
                     if (Array.isArray(booking.services)) {
                         booking.services = booking.services.map((s: any) => {
                             const dept = allDepartments?.find((d: any) => d.id === s.dept_id); 
-                            const service = allServices?.find((serv: any) => serv.id === s.service_id);
+                            //const service = allServices?.find((serv: any) => serv.id === s.service_id);
                             
                             return {
                                 ...s,
                                 department_name: s.department_name || dept?.department_name || null,
-                                service_name: s.service_name || service?.service_name || null,
+                                //service_name: s.service_name || service?.service_name || null,
                             };
                         });
                     }
