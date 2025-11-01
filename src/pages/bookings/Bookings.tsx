@@ -290,51 +290,41 @@ const Bookings: React.FC = () => {
   
 
   const handleAssignEmployee = async () => {
-  if (!selectedEmployeeId || !selectedBookingId) {
-    message.error("Please select an employee.");
-    return;
-  }
-
-  const selectedEmployee = employees.find((emp) => emp.id === selectedEmployeeId);
-  if (selectedEmployee && selectedEmployee.is_assigned) {
-    message.error("This employee is already assigned to another booking.");
-    return;
-  }
-
-  try {
-    setAssigningEmployee(true); // 🟢 Show GIF loader
-
-    setEmployees((prev) =>
-      prev.map((e) =>
-        e.id === selectedEmployeeId ? { ...e, is_assigned: true, is_available: false } : e
-      )
-    );
-
-    const result = await assignEmployeeToBooking(selectedBookingId, selectedEmployeeId);
-
-    if (result && "statusUpdated" in result && result.statusUpdated === false) {
-      message.warning("Employee assigned, but booking status could not be updated.");
-    } else {
-      message.success("Employee assigned and booking updated.");
+    if (!selectedEmployeeId || !selectedBookingId) {
+      message.error("Please select an employee.");
+      return;
     }
-
-    const refreshed = await getallBookings();
-    if (refreshed) {
-      const normalized = refreshed.map(normalize).sort((a: any, b: any) => b.id - a.id);
-      setBookings(normalized);
+    const selectedEmployee = employees.find((emp) => emp.id === selectedEmployeeId);
+    if (selectedEmployee && selectedEmployee.is_assigned) {
+      message.error("This employee is already assigned to another booking.");
+      return;
     }
-
-    closeAssignModal();
-  } catch (error: any) {
-    console.error("Assign failed:", error);
-    setEmployees((prev) =>
-      prev.map((e) => (e.id === selectedEmployeeId ? { ...e, is_assigned: false } : e))
-    );
-    message.error(error?.message || "Failed to assign employee.");
-  } finally {
-    setAssigningEmployee(false); // 🔴 Hide loader
-  }
-};
+    try {
+      setEmployees((prev) =>
+        prev.map((e) =>
+          e.id === selectedEmployeeId ? { ...e, is_assigned: true, is_available: false } : e
+        )
+      );
+      const result = await assignEmployeeToBooking(selectedBookingId, selectedEmployeeId);
+      if (result && "statusUpdated" in result && result.statusUpdated === false) {
+        message.warning("Employee assigned, but booking status could not be updated.");
+      } else {
+        message.success("Employee assigned and booking updated.");
+      }
+      const refreshed = await getallBookings();
+      if (refreshed) {
+        const normalized = refreshed.map(normalize).sort((a: any, b: any) => b.id - a.id).filter((b: any) => b.status == "Open");
+        setBookings(normalized);
+      }
+      closeAssignModal();
+    } catch (error: any) {
+      console.error("Assign failed:", error);
+      setEmployees((prev) =>
+        prev.map((e) => (e.id === selectedEmployeeId ? { ...e, is_assigned: false } : e))
+      );
+      message.error(error?.message || "Failed to assign employee.");
+    }
+  };
 
   const openDeleteModal = (bookingId: number) => {
     setSelectedBookingId(bookingId);
@@ -352,7 +342,7 @@ const Bookings: React.FC = () => {
     try {
       await deleteBookingById(selectedBookingId);
       message.success(`Booking #${selectedBookingId} deleted successfully.`);
-      setBookings((prev) => prev.filter((b: any) => b.id !== selectedBookingId));
+      setBookings((prev) => prev.filter((b: any) => b.id !== selectedBookingId).filter((b: any) => b.status == "Open"));
       closeDeleteModal();
     } catch (error: any) {
       console.error("Failed to delete booking:", error);
@@ -372,7 +362,7 @@ const Bookings: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 24 }}>
-        Bookings Management
+        BOOKINGS MANAGEMENT
       </Title>
 
       <div
@@ -701,7 +691,7 @@ const Bookings: React.FC = () => {
                           color: isAvailable ? "#15803d" : "#991b1b",
                         }}
                       >
-                        {isChecking ? "Checking..." : isAvailable ? "Available" : "Unavailable"}
+                        {isChecking ? "Checking..." : isAvailable ? "Available" : "Assigned"}
                       </span>
                     </Tooltip>
                   </Space>

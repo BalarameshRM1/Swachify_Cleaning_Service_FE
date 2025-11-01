@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState,useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 import {
   Card,
   Row,
@@ -39,10 +40,12 @@ import dayjs from "dayjs";
 import { createBooking ,getAllMasterData } from "../../app/services/auth.ts";
 import { getUserDetails } from "../../utils/helpers/storage.ts";
 import "./Services.css";
+import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
 //import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
 
 
 const { Title, Text } = Typography;
+
 
 type CleanType = "Normal" | "Deep";
 type SectionKey = "bedroom" | "bathroom" | "kitchen" | "living";
@@ -118,11 +121,10 @@ const usdFormatter = (value?: string | number) => {
   return `$ ${n}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-// const usdParser = (value?: string) =>
-//   !value ? 0 : Number(String(value).replace(/[^0-9.-]+/g, "")) || 0;
-
 const Services: React.FC = () => {
   const [form] = Form.useForm();
+  const [isContinueDisabled, setIsContinueDisabled] = useState(true);
+
 
   const anchors = {
     bedroom: useRef<HTMLDivElement>(null),
@@ -132,14 +134,9 @@ const Services: React.FC = () => {
   };
 
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
-  const [master, setMaster] = useState<SectionKey>("living"); // default to Living per SS
- //const [setMasterData] = useState<any[]>([]);
+  const [master, setMaster] = useState<SectionKey>("bedroom"); // default to Living per SS
 const [loading, setLoading] = useState<boolean>(false);
-const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>>({});
-
-
-
-  
+const [setSubServiceOptions] = useState<Record<string, any[]>>({});  
 
   const [serviceForm, setServiceForm] = useState<FormState>({
     bedroom: { subService: null, type: null, addOnHours: [] },
@@ -158,6 +155,8 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
   const [customerRequest, setCustomerRequest] = useState<number>(0);
   
   const [customerData, setCustomerData] = useState<any>(null);
+const navigate = useNavigate();
+
 
   const setSection = <K extends keyof ServicePlan,>(
     section: SectionKey,
@@ -259,7 +258,15 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
     if (!hasService || subtotal <= 0) return 0;
     return Math.min(subtotal, Math.max(0, willingToPay));
   }, [hasService, subtotal, willingToPay]);
-
+  const changeStep = async (idx: StepKey) => {
+      if(!customerData){
+             message.warning("Please fill customer details first.");
+             setCurrentStep(currentStep as StepKey)
+            }
+            else{
+              setCurrentStep(idx as StepKey)  
+            }
+  }
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -376,10 +383,13 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
         });
         setCustomerRequest(0);
         setCurrentStep(0);
-        setMaster("bathroom");
-      } else {
-        message.error("Failed to create booking. Please try again.");
-      }
+        setMaster("bathroom");  
+        setTimeout(() => {
+    navigate("../bookings");
+  }, 800);
+} else {
+  message.error("Failed to create booking. Please try again.");
+}
     } catch (err: any) {
       // eslint-disable-next-line no-console
       console.error("Booking error:", err);
@@ -395,6 +405,7 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
 
   const CustomerDetails = (
     <>
+    <div className="sv-steps-wrap">
       <Steps
   current={currentStep}
   onChange={(idx) => setCurrentStep(idx as StepKey)}
@@ -427,15 +438,34 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
     },
   ]}
   size="small"
-/>
+  className="sv-steps-bar"
+/></div>
 
-      <Card bordered style={{ borderRadius: 12 }}>
-        <Space direction="vertical" size={2} style={{ width: "100%" }}>
+      <Card bordered className="sv-card" style={{ borderRadius: 12 }}>
+        <Space direction="vertical" size={2} className="sv-w-full" style={{ width: "100%" }}>
           <Title level={4} style={{ margin: 0 }}>
             Booking Details
           </Title>
         </Space>
-        <Form layout="vertical" form={form} className="sv-form">
+          <Form
+    layout="vertical"
+    form={form}
+    className="sv-form"
+    onValuesChange={() => {
+      const values = form.getFieldsValue();
+      const allFilled =
+        values.fullName &&
+        /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/.test(values.fullName) &&
+        values.date &&
+        /^[6-9][0-9]{9}$/.test(values.phone || "") &&
+        values.email &&
+        /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(values.email) &&
+        values.address &&
+        /\b\d+[A-Za-z]?\b/.test(values.address) && // door number check
+        /\b\d{6}\b/.test(values.address);          // pincode check
+      setIsContinueDisabled(!allFilled);
+    }}
+  >
           <Row gutter={[8, 0]}>
             <Col xs={24} md={12}>
               <Form.Item
@@ -449,7 +479,15 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
                   },
                 ]}
               >
-                <Input prefix={<UserOutlined />} placeholder="Enter full name" />
+                <Input
+            prefix={<UserOutlined />}
+            placeholder="Enter full name"
+            onChange={(e) => {
+              // Allow only alphabets and spaces
+              const clean = e.target.value.replace(/[^A-Za-z\s]/g, "");
+              form.setFieldsValue({ fullName: clean });
+            }}
+          />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -463,6 +501,7 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
                   suffixIcon={<CalendarOutlined />}
                   disabledDate={(d) => d && d < dayjs().startOf("day")}
                   format="DD-MM-YYYY"
+                  inputReadOnly
                 />
               </Form.Item>
             </Col>
@@ -472,11 +511,24 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
                 name="phone"
                 rules={[
                   { required: true, message: "Please enter your phone number" },
-                  { pattern: /^[0-9]+$/, message: "Only digits are allowed" },
-                  { len: 10, message: "Phone number must be 10 digits" },
+            {
+              pattern: /^[6-9][0-9]{9}$/,
+              message: "Enter a valid 10-digit phone number starting with 6–9",
+            },
                 ]}
               >
-                <Input prefix={<PhoneOutlined />} placeholder="9876543210" maxLength={10} />
+                 <Input
+            prefix={<PhoneOutlined />}
+            placeholder="9876543210"
+            maxLength={10}
+            inputMode="numeric"
+            onChange={(e) => {
+              // ✅ Block invalid typing immediately
+              const onlyNums = e.target.value.replace(/[^0-9]/g, "");
+              if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
+              form.setFieldsValue({ phone: onlyNums });
+            }}
+          />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -485,10 +537,22 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
                 label="Email"
                 rules={[
                   { required: true, message: "Please enter email" },
-                  { type: "email", message: "Please enter a valid email" },
+            {
+              pattern: /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+              message: "Email cannot start with number or special character",
+            },
                 ]}
               >
-                <Input prefix={<MailOutlined />} placeholder="Enter email address" />
+                 <Input
+            prefix={<MailOutlined />}
+            placeholder="Enter email address"
+            onChange={(e) => {
+              // ✅ Block invalid first character immediately
+              const val = e.target.value;
+              if (val.length === 1 && /[^A-Za-z]/.test(val)) return;
+              form.setFieldsValue({ email: val });
+            }}
+          />
               </Form.Item>
             </Col>
             <Col xs={24}>
@@ -496,19 +560,43 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
                 label="Address"
                 name="address"
                 rules={[
-                  { required: true, message: "Please enter your address" },
-                  {
-                    validator: (_, value) => {
-                      if (value && /^\s/.test(value)) {
-                        return Promise.reject(new Error("Address cannot start with a space"));
-                      }
-                      return Promise.resolve();
-                    },
-                  },
+                   { required: true, message: "Please enter your address" },
+            {
+              validator: (_, value) => {
+                if (!value || value.trim() === "")
+                  return Promise.reject(new Error("Please enter your address"));
+
+                // Must include door/flat number (like 12, 5B, #10)
+                const hasDoorNumber = /\b\d+[A-Za-z]?\b/.test(value);
+
+                // Must include 6-digit pin code
+                const hasPincode = /\b\d{6}\b/.test(value);
+
+                if (!hasDoorNumber)
+                  return Promise.reject(
+                    new Error("Address must include a door or flat number")
+                  );
+                if (!hasPincode)
+                  return Promise.reject(
+                    new Error("Address must include a valid 6-digit pincode")
+                  );
+
+                return Promise.resolve();
+              },
+            },
                 ]}
               >
-                <Input.TextArea rows={3} placeholder="Flat, street, landmark, city, postal code" maxLength={200} />
-              </Form.Item>
+                <Input.TextArea
+            rows={3}
+            placeholder="Flat, street, landmark, city, postal code"
+            maxLength={200}
+            onChange={(e) => {
+              // Prevent emoji or non-text characters
+              const clean = e.target.value.replace(/[^\w\s,/#-]/g, "");
+              form.setFieldsValue({ address: clean });
+            }}
+          />
+            </Form.Item>
             </Col>
           </Row>
           <Row justify="end">
@@ -528,6 +616,7 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
                 }}
                 block
                 className="sv-btn-primary"
+                disabled={isContinueDisabled}
               >
                 Continue
               </Button>
@@ -544,31 +633,45 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
     <div>
       <Row gutter={[8, 8]} align="middle">
         <Col xs={24} md={12}>
-          <Text strong style={{ display: "block", marginBottom: 6 }}>
-            Sub Category
-          </Text>
-          <Select
-  placeholder="Select service"
-  loading={loading}
-  options={subServiceOptions[section?.toLowerCase()] || []}
-/>
+        <Text strong className="sv-block sv-mb-6">
+          Select Service Sub Category
+        </Text>
+        <Select
+          value={state.subService ?? undefined}
+          placeholder="Select sub category"
+          className="sv-w-full"
+          options={SUBSERVICES[section]}
+          allowClear
+          onChange={(v) => {
+            // set sub category
+            setSection(section, "subService", v as string);
 
-        </Col>
+
+            // also clear type if subcategory changes
+            setSection(section, "type", null);
+          }}
+        />
+      </Col>
 
           <Col xs={24} md={12}>
-            <Text strong className="sv-block sv-mb-6">Sub Category Type</Text>
+            <Text strong className="sv-block sv-mb-6">
+          Sub Category Type
+        </Text>
             <Select
               value={state.type ?? undefined}
               placeholder="Select cleaning type"
               className="sv-w-full"
-              onChange={(v) => setSection(section, "type", (v as CleanType) ?? null)}
+              disabled={!state.subService} // ✅ will disable when no subService
+          onChange={(v) => setSection(section, "type", v as CleanType)}
               allowClear
               options={[
                 {
                   label: (
                     <Space size={6}>
                       <span>Normal</span>
-                      <Tag className="sv-accent-tag">+{`$${PRICING.typeDelta.Normal}`}</Tag>
+                       <Tag className="sv-accent-tag">
+                    +{`$${PRICING.typeDelta.Normal}`}
+                  </Tag>
                     </Space>
                   ),
                   value: "Normal",
@@ -674,34 +777,52 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
         </ConfigProvider>
       </div>
 
-      <Row justify="space-between" align="middle" className="sv-toolbar allign_category">
-        <Col>
-          <Space size="large" align="center">
-            <Title level={4} className="sv-m-0">Select Service Category</Title>
-            <Space>
-              <Select
-  style={{ minWidth: 220 }}
-  value={master}
-  loading={loading}
-  options={
-    Object.keys(subServiceOptions).map((key) => ({
-      label: key.charAt(0).toUpperCase() + key.slice(1),
-      value: key,
-    })) || []
-  }
-  onChange={(v) => setMaster(v as SectionKey)}
+  <Row
+  align="middle"
+  justify="space-between"
+  className="sv-toolbar allign_category"
+  style={{ width: "100%" }}
+>
+  {/* Left side - Back button */}
+  <Col flex="100px">
+    <Button
+      icon={<ArrowLeftOutlined />}
+      style={{marginLeft:-110}}
+      onClick={() => setCurrentStep(0)}
+    >
+      Back
+    </Button>
+  </Col>
+
+  {/* Center - Title + Dropdown together */}
+  <Col flex="auto" style={{ textAlign: "center",marginRight:260 }}>
+    <Space align="center" size="middle">
+      <Title level={4} className="sv-m-0" style={{ marginBottom: 0 }}>
+        Select Service Category
+      </Title>
+
+  <Select
+  className="sv-master-select"
+  value={master || undefined}
+  options={MASTER_OPTIONS}
+  placeholder="Select Service"
   suffixIcon={<AppstoreAddOutlined />}
+  style={{ width: 180 }}
+  onChange={(v) => {
+    if (!customerData) {
+      message.warning("Please fill customer details first.");
+      return;
+    }
+    setMaster(v as SectionKey);
+  }}
 />
 
-            </Space>
-          </Space>
-        </Col>
-        <Col>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => setCurrentStep(0)}>
-            Back
-          </Button>
-        </Col>
-      </Row>
+    </Space>
+  </Col>
+
+  {/* Right side - empty (to balance center alignment) */}
+  <Col flex="100px" />
+</Row>
 
       <Row gutter={[16, 16]} className="sv-content-row">
         <Col xs={24} lg={16} className="sv-left-pane">
@@ -727,6 +848,8 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
                   (["bedroom","bathroom","kitchen","living"] as SectionKey[]).forEach((k) => resetSection(k));
                   setAddonsOpen({ bedroom:false, bathroom:false, kitchen:false, living:false });
                   setCustomerRequest(0);
+                  setMaster("bedroom" as SectionKey);
+
                   message.success("Selections cleared");
                 }}
                 className="sv-reset-btn"
@@ -810,20 +933,38 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
                 <div className="sv-req-wrap">
                   <div className="sv-flex-between sv-mb-6">
                     <Text strong>Customer Requested</Text>
-                <InputNumber
-                      className="sv-money-input"
-                      min={0}
-                      value={customerRequest}
-                      onChange={(v) => setCustomerRequest(v ?? 0)}
-                      formatter={(value) => `$ ${value ?? 0}`}
-                      parser={(value) => Number(value?.replace(/\$\s?|(,*)/g, "") || 0)}
-                      controls={false}
-                      inputMode="numeric"
-                    />
+               <InputNumber
+      className="sv-money-input"
+      min={0}
+      value={customerRequest}
+      onChange={(v) => setCustomerRequest(v ?? 0)}
+      // ✅ Show "$" symbol but allow only numbers
+      formatter={(value) => `$ ${value ?? 0}`}
+      parser={(value) => {
+        // remove all non-digit characters
+        const numericValue = value?.replace(/[^\d]/g, "") || "0";
+        return Number(numericValue);
+      }}
+      controls={false}
+      inputMode="numeric"
+      onKeyPress={(e) => {
+        // block non-numeric key presses
+        if (!/[0-9]/.test(e.key)) {
+          e.preventDefault();
+        }
+      }}
+      onPaste={(e) => {
+        // block pasting of non-numeric text
+        const paste = e.clipboardData.getData("text");
+        if (!/^\d+$/.test(paste)) {
+          e.preventDefault();
+        }
+      }}
+      placeholder="$ 0"
+    />                
+    </div>
+</div>
 
-
-                </div>
-                  </div>
 
                 <div className="sv-flex-between sv-mt-8">
                   <Text strong>Discount</Text>
