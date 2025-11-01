@@ -8,11 +8,6 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { deleteEmployeeById } from '../../app/services/auth';
 import LoaderGif from "../../assets/SWACHIFY_gif.gif"; 
 
-
-
-// import { services } from '../../utils/constants/data';
-
-
 const { Title, Text, Paragraph } = Typography;
 
 interface Employee {
@@ -26,27 +21,11 @@ interface Employee {
   depts: string[];
 }
 
-// const initialEmployeesData: Employee[] = [
-//     { id: 1, name: 'Arun Kumar', email: 'arun.k@swachify.com', services: ['Home Cleaning', 'Kitchen', 'Bathroom'], status: 'Available', phone: '+91 98765 11111', location: 'Hyderabad' },
-//     { id: 2, name: 'Priya Sharma', email: 'priya.s@swachify.com', services: ['Office Cleaning', 'Sofa & Carpet'], status: 'Available', phone: '+91 98765 22222', location: 'Bangalore' },
-//     { id: 3, name: 'Ravi Singh', email: 'ravi.s@swachify.com', services: ['Pest Control', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 33333', location: 'Hyderabad' },
-//     { id: 4, name: 'Sunita Devi', email: 'sunita.d@swachify.com', services: ['Kitchen', 'Bathroom'], status: 'Available', phone: '+91 98765 44444', location: 'Delhi' },
-//     { id: 5, name: 'Anil Mehta', email: 'anil.m@swachify.com', services: ['Painting', 'Home Cleaning'], status: 'Assigned', phone: '+91 98765 55555', location: 'Mumbai' },
-//     { id: 6, name: 'Geeta Gupta', email: 'geeta.g@swachify.com', services: ['AC Service', 'Appliance Repair'], status: 'Available', phone: '+91 98765 66666', location: 'Bangalore' },
-//     { id: 7, name: 'Sanjay Verma', email: 'sanjay.v@swachify.com', services: ['Office Cleaning', 'Deep Cleaning'], status: 'Available', phone: '+91 98765 77777', location: 'Delhi' },
-//     { id: 8, name: 'Meena Kumari', email: 'meena.k@swachify.com', services: ['Sofa & Carpet', 'Home Cleaning'], status: 'Assigned', phone: '+91 98765 88888', location: 'Mumbai' },
-// ];
-
 const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
-// const allServices = [
-//   'Home Cleaning', 'Kitchen', 'Bathroom', 'Office Cleaning', 'Sofa & Carpet', 'Pest Control', 'Deep Cleaning', 'Painting', 'AC Service', 'Appliance Repair'
-// ];
 
 const Role = ['Employee','Admin','Super Admin'];
 
 const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => void }> = ({ employee, onDelete }) => (
-  
-
   <Card
     hoverable
     style={{
@@ -205,7 +184,6 @@ const getAllDepartmentsApi = async () => {
     console.log("Fetched departments:", res);
 
     if (res && Array.isArray(res)) {
-      // ✅ Use a Map to filter unique departmentId
       const uniqueDepartmentsMap = new Map();
 
       res.forEach((item) => {
@@ -271,34 +249,33 @@ const getAllDepartmentsApi = async () => {
   try {
     setLoading(true);
 
-    // Split full name into first and last
     const [firstName, ...rest] = values.name.trim().split(" ");
-    const lastName = rest.join(" ") || firstName; // fallback if single name
+    const lastName = rest.join(" ") || firstName; 
 
-    // ✅ Clean payload (only what backend expects)
     const payload = {
       first_name: firstName,
       last_name: lastName,
       email: values.email,
       mobile: values.phone,
-      location_id: values.location,   // from location dropdown
-      dept_id: [values.services],     // department dropdown selection
+      location_id: values.location,   
+      dept_id: [values.services],     
+      
+
       role_id:
-        values.Role === "Admin"
+        values.Role === "Employee"
+          ? 3 
+          : values.Role === "Admin"
           ? 2
-          : values.Role === "Super Admin"
-          ? 3
           : 1,
     };
 
-    console.log("Payload to API:", payload);
+    console.log("Corrected Payload to API:", payload);
 
-    // Call backend
     const res = await createEmployee(payload);
     console.log("Employee created successfully:", res);
     message.success("Employee added successfully!");
 
-    // Update local UI
+  
     setEmployees((prev: any) => [
   {
     ...payload,
@@ -502,11 +479,11 @@ if (loading) {
               rules={[{ required: true, message: "Please select a location" }]}
             >
              <Select
-  options={locationsData}
-  placeholder="Select location"
-  showSearch
-  optionFilterProp="label"
-/>
+                options={locationsData}
+                placeholder="Select location"
+                showSearch={false}
+                optionFilterProp="label"
+              />
 
             </Form.Item>
           </Col>
@@ -514,16 +491,17 @@ if (loading) {
           {/* Services */}
           <Col xs={24} sm={12}>
            <Form.Item
-  name="services"
-  label="Departments"
-  rules={[{ required: true, message: "Please select a department" }]}
->
-  <Select
-    allowClear
-    options={departmentsdata}
-    placeholder="Select department"
-  />
-</Form.Item>
+              name="services"
+              label="Departments"
+              rules={[{ required: true, message: "Please select a department" }]}
+            >
+              <Select
+                allowClear
+                options={departmentsdata}
+                placeholder="Select department"
+                showSearch={false} // <-- Re-applying this fix
+              />
+            </Form.Item>
 
           </Col>
 
@@ -541,6 +519,7 @@ if (loading) {
                   value: s,
                 }))}
                 placeholder="Select Role"
+                showSearch={false}
               />
             </Form.Item>
           </Col>

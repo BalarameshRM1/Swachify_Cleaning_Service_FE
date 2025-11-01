@@ -12,6 +12,7 @@ import {
   Spin,
   Badge,
   Tooltip,
+  Tag, 
 } from "antd";
 import {
   UserOutlined,
@@ -90,7 +91,7 @@ const Bookings: React.FC = () => {
 
  
   const normalize = (b: any) => {
-    const statusText = b.status || "Unknown";
+    const statusText = typeof b.status === "string" ? b.status : b.status?.status || "Unknown";
 
     let deptName = "Unknown Department";
     if (Array.isArray(b.services) && b.services.length > 0 && b.services[0].department_name) {
@@ -113,24 +114,38 @@ const Bookings: React.FC = () => {
       (typeof b.slot_id === "number" ? Slots.find((s) => s.id === b.slot_id)?.slot_time : "") ||
       "N/A";
 
+    let planType = null;
+    if (Array.isArray(b.services) && b.services.length > 0 && b.services[0]?.service_type) {
+      const serviceType = b.services[0].service_type; 
+      
+      if (serviceType === "Deep Cleaning") {
+        planType = "Deep Cleaning";
+      } else if (serviceType === "Normal Cleaning") {
+        planType = "Normal Cleaning";
+      }
+    }
+
     return {
       ...b,
       status: statusText,     
       deptName: deptName,     
-      serviceNames: serviceNames, // e.g., "Triple, Single"
+      serviceNames: serviceNames, 
       bookingIdText: b.booking_id || b.id,
       slotText: slotText,
+      planType: planType, 
     };
   };
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        setLoadingBookings(true);
-        const raw = await getallBookings(); // This fetches the (now correctly) enriched data
+        setLoadingBookings(true);        
+        const raw = await getallBookings(); 
         if (raw) {
           const normalized = raw.map(normalize).sort((a: any, b: any) => b.id - a.id);
-          setBookings(normalized);
+          
+          const openBookings = normalized.filter((b: any) => b.status === "Open");
+          setBookings(openBookings);
         }
       } catch (error) {
         console.error("Failed to fetch bookings:", error);
@@ -139,7 +154,7 @@ const Bookings: React.FC = () => {
       }
     };
     fetchBookings();
-  }, []);
+  }, []); 
 
   if (loadingBookings) {
     return (
@@ -158,7 +173,7 @@ const Bookings: React.FC = () => {
       </div>
     );
   }
-
+  
   const checkEmployeeAvailability = async (
     employeeId: number,
     bookingDate: string,
@@ -297,10 +312,12 @@ const Bookings: React.FC = () => {
       } else {
         message.success("Employee assigned and booking updated.");
       }
+      
       const refreshed = await getallBookings();
       if (refreshed) {
         const normalized = refreshed.map(normalize).sort((a: any, b: any) => b.id - a.id);
-        setBookings(normalized);
+        const openBookings = normalized.filter((b: any) => b.status === "Open");
+        setBookings(openBookings);
       }
       closeAssignModal();
     } catch (error: any) {
@@ -347,14 +364,17 @@ const Bookings: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 24 }}>
-        Bookings Management
+      <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 8 }}>
+        BOOKINGS MANAGEMENT
       </Title>
+      {/* <Text type="secondary" style={{ fontSize: 16, display: 'block', marginBottom: 24 }}>
+        This page shows all new bookings that need an employee assigned.
+      </Text> */}
 
       <div
         className="scrollable-content"
         style={{
-          maxHeight: "calc(100vh - 180px)",
+          maxHeight: "calc(100vh - 220px)",
           overflowY: "auto",
           paddingRight: 12,
           paddingLeft: 4,
@@ -364,7 +384,6 @@ const Bookings: React.FC = () => {
         <Row gutter={[20, 20]}>
           {bookings.length > 0 ? (
             bookings.map((item: any) => {
-              // 'item.status' is now the normalized string (e.g., "Open")
               const st = getStatusStyle(item.status);
               const dateText =
                 (item.preferred_date && moment(item.preferred_date).format("MMM D,  YYYY")) ||
@@ -411,7 +430,6 @@ const Bookings: React.FC = () => {
                           level={5}
                           style={{ fontSize: 16, color: "#115e59", fontWeight: 600, margin: 0 }}
                         >
-                          {/* Use the normalized deptName */}
                           {item.deptName}
                         </Title>
 
@@ -419,9 +437,22 @@ const Bookings: React.FC = () => {
                           type="secondary"
                           style={{ fontSize: 13, fontWeight: 500, paddingBottom: 4 }}
                         >
-                          {/* Use the normalized serviceNames */}
-                          Plan: {item.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(",")}
+                          Service: {item.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(",")}
                         </Text>
+                        
+                    
+                        {item.planType && (
+                          <Tag
+                            color={
+                              item.planType === "Premium" ? "gold" :
+                              item.planType === "Ultimate" ? "purple" : "cyan"
+                            }
+                            style={{ fontWeight: 500 }}
+                          >
+                            {item.planType} Plan
+                          </Tag>
+                        )}
+
 
                         <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>
                           <Text style={{ fontSize: 14 }}>
@@ -456,14 +487,32 @@ const Bookings: React.FC = () => {
                             fontSize: 12,
                           }}
                         >
-                          {/* Use the text from getStatusStyle */}
                           {st.text}
                         </span>
+
+                        {/* {item.planType && (
+                          <Tag
+                            color={
+                              item.planType === "Premium" ? "gold" :
+                              item.planType === "Ultimate" ? "purple" : "cyan"
+                            }
+                            style={{
+                              fontWeight: "bold",
+                              padding: "4px 12px",
+                              borderRadius: "16px",
+                              textAlign: "center",
+                              minWidth: 100,
+                              fontSize: 12,
+                            }}
+                          >
+                            {item.planType} Plan
+                          </Tag>
+                        )} */}
 
                         <Button
                           type="primary"
                           onClick={() => openAssignModal(item.id)}
-                          disabled={item.status !== "Open"} // Disable if not "Open"
+                          disabled={false} 
                           style={{ backgroundColor: "#0D9488", borderColor: "#0D9488" }}
                         >
                           Assign Employee
@@ -487,7 +536,11 @@ const Bookings: React.FC = () => {
                 <CalendarOutlined style={{ fontSize: 48, color: "#cbd5e1", marginBottom: 16 }} />
                 <br />
                 <Text strong type="secondary" style={{ fontSize: 16, color: "#9ca3af" }}>
-                  No bookings found.
+                  No "Open" bookings found.
+                </Text>
+                <br />
+                <Text type="secondary" style={{ color: "#9ca3af" }}>
+                  All new bookings have been assigned.
                 </Text>
               </Card>
             </Col>
@@ -702,6 +755,11 @@ const Bookings: React.FC = () => {
             }}
           >
             <Text strong>{selectedBooking.deptName}</Text>
+            {selectedBooking.planType && (
+              <Tag color="magenta" style={{ marginLeft: 8 }}>
+                {selectedBooking.planType} Plan
+              </Tag>
+            )}
             <br />
             <Text type="secondary" style={{ fontSize: 13 }}>
               Status: {selectedBooking.status || "Unknown"}
