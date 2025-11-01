@@ -51,6 +51,13 @@ const HeaderBar: React.FC = () => {
     { label: "MIS-Reports", path: "/app/reports" },
   ];
 
+    const empPages = [
+    { label: "Dashboard", path: "/app/dashboard" },
+    { label: "Tickets", path: "/app/tickets" },
+    { label: "Settings", path: "/app/settings" },
+  ];
+
+
   const handleSearch = (value: string) => {
     const noSpaces = value.replace(/\s/g, "");
     setSearchValue(noSpaces);
@@ -60,7 +67,9 @@ const HeaderBar: React.FC = () => {
       return;
     }
 
-    const filtered = pages.filter((page) =>
+    const filtered = userData.role_id === 3 ? empPages.filter((page) =>
+      page.label.toLowerCase().includes(noSpaces.toLowerCase())
+    ) : pages.filter((page) =>
       page.label.toLowerCase().includes(noSpaces.toLowerCase())
     );
 
@@ -68,7 +77,9 @@ const HeaderBar: React.FC = () => {
   };
 
   const handleSelect = (value: string) => {
-    const selected = pages.find(
+    const selected = userData.role_id === 3 ? empPages.find(
+      (page) => page.label.toLowerCase() === value.toLowerCase()
+    ): pages.find(
       (page) => page.label.toLowerCase() === value.toLowerCase()
     );
     if (selected) {
