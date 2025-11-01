@@ -136,7 +136,7 @@ const Services: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
   const [master, setMaster] = useState<SectionKey>("bedroom"); // default to Living per SS
 const [loading, setLoading] = useState<boolean>(false);
-const [setSubServiceOptions] = useState<Record<string, any[]>>({});  
+const [setSubServiceOptions] = useState<any>({});  
 
   const [serviceForm, setServiceForm] = useState<FormState>({
     bedroom: { subService: null, type: null, addOnHours: [] },
