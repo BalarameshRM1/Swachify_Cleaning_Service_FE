@@ -21,6 +21,46 @@ export const getAllUsersById = async(userId:any) =>{
         console.error("Error getAllUsersById:", error);
     }
 }
+export const ForgotPassword = async (id: number, passwordData: { password: string; confirmPassword: string }) => {
+  try {
+    const response = await fetch(`${baseUrl}/Login/forgotpassword`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id,
+        password: passwordData.password,
+        confirmPassword: passwordData.confirmPassword,
+      }),
+    });
+
+    // Check response
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Password reset failed:", errorText);
+      throw new Error(`Password reset failed with status ${response.status}`);
+    }
+
+    // Try to parse JSON safely
+    const text = await response.text();
+    let data = {};
+    if (text && text.trim() !== "") {
+      try {
+        data = JSON.parse(text);
+      } catch (parseErr) {
+        console.warn("⚠️ Could not parse response JSON:", parseErr);
+      }
+    }
+
+    console.log("✅ Password updated successfully:", data);
+    return { status: response.status, data };
+  } catch (error) {
+    console.error("Error in ForgotPassword:", error);
+    throw error;
+  }
+};
+
 
 export const createBooking = async (bookingData: any) => {
   try {
@@ -96,6 +136,28 @@ export const getAllMasterData = async () => {
   } catch (error) {
     console.error("Error fetching Master Data:", error);
     return [];
+  }
+};
+export const Sendresetlink = async (Email: any) => {
+  try {
+    const response = await fetch(`${baseUrl}/Login/forgotpasswordlink`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(Email),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`Failed : ${err}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
   }
 };
 export const createMasterData = async (masterData: any) => {

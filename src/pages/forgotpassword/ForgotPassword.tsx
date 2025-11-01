@@ -1,49 +1,29 @@
 import React from "react";
 import { Form, Input, Button, Typography, message } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { ForgotPassword as forgotPasswordApi } from "../../app/services/auth"; 
 
 const { Title, Text } = Typography;
 
-interface User {
-  id: string;
-  email: string;
-  password: string;
-  name: string;
-  lastLogin?: string;
-}
-
-const getUsers = (): User[] => {
-  const usersStr = localStorage.getItem("users");
-  if (!usersStr) return [];
-  try {
-    return JSON.parse(usersStr) as User[];
-  } catch {
-    return [];
-  }
-};
-
-const sendPasswordResetEmail = async (email: string, user: User) => {
-  const resetLink = `https://your-app.com/reset-password/${user.id}`;
-  console.log(`Password reset link for ${email}: ${resetLink}`);
-  return new Promise((resolve) => setTimeout(resolve, 1500));
-};
-
 const ForgotPassword: React.FC = () => {
   const [form] = Form.useForm();
+  const { id } = useParams<{ id: string }>();
 
-  const onFinish = async (values: { email: string }) => {
-    const email = values.email.trim().toLowerCase();
-    const users = getUsers();
-    const user = users.find((u) => u.email === email);
+  const onFinish = async (values: { password: string; confirmPassword: string }) => {
+    try {
+      message.loading({ content: "Updating password...", key: "loading" });
 
-    if (!user) {
-      message.error("No account found with this email.");
-      return;
+      
+      const response = await forgotPasswordApi(Number(id), values);
+
+      if (response && response.status === 200) {
+        message.success({ content: "Password updated successfully!", key: "loading" });
+      } else {
+        message.error("Failed to update password.");
+      }
+    } catch (error) {
+      message.error("An error occurred while resetting the password.");
     }
-
-    message.info("Sending reset email...");
-    await sendPasswordResetEmail(email, user);
-    message.success(`✓ Password reset link sent to ${email}. Check console for demo link.`);
   };
 
   return (
@@ -59,25 +39,51 @@ const ForgotPassword: React.FC = () => {
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
-      <Title level={3} style={{color: "#009688", marginBottom: 24, fontWeight: "bold"}}>
-        Forgot Password
+      <Title
+        level={3}
+        style={{ color: "#009688", marginBottom: 24, fontWeight: "bold" }}
+      >
+        Reset Password
       </Title>
 
       <Text style={{ display: "block", marginBottom: 16 }}>
-        Enter your email to receive a password reset link.
+        Enter your new password below.
       </Text>
 
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item
-          label="Email Address"
-          name="email"
+          label="New Password"
+          name="password"
           rules={[
-            { required: true, message: "Please enter your email." },
-            { type: "email", message: "Please enter a valid email." },
+            { required: true, message: "Please enter your new password." },
+            { min: 6, message: "Password must be at least 6 characters long." },
           ]}
         >
-          <Input
-            placeholder="your@email.com"
+          <Input.Password
+            placeholder="Enter new password"
+            size="large"
+            style={{ borderRadius: 8, height: 40 }}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Confirm Password"
+          name="confirmPassword"
+          dependencies={["password"]}
+          rules={[
+            { required: true, message: "Please confirm your password." },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue("password") === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error("Passwords do not match."));
+              },
+            }),
+          ]}
+        >
+          <Input.Password
+            placeholder="Confirm new password"
             size="large"
             style={{ borderRadius: 8, height: 40 }}
           />
@@ -97,15 +103,17 @@ const ForgotPassword: React.FC = () => {
               fontSize: 16,
             }}
           >
-            Send Reset Link
+            Update Password
           </Button>
         </Form.Item>
 
         <Form.Item style={{ marginTop: 16, textAlign: "center" }}>
-          <Link to="/Landing" style={{ color: "#009688", display: "block", marginTop: 16 }}>
-  ← Back to Login
-</Link>
-
+          <Link
+            to="/Landing"
+            style={{ color: "#009688", display: "block", marginTop: 16 }}
+          >
+            ← Back to Login
+          </Link>
         </Form.Item>
       </Form>
     </div>
