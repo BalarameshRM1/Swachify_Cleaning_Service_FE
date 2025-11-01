@@ -500,7 +500,6 @@ const Dashboard: React.FC = () => {
       borderRadius: "20px 20px 0 0",
     }}
   >
-    {/* Scrollable Area */}
     <div
       style={{
         height: "100%",
@@ -509,7 +508,7 @@ const Dashboard: React.FC = () => {
         background: "#fafafa",
       }}
     >
-      {dashboardTasks?.pending?.length > 0 ? (
+      ({dashboardTasks?.pending?.length > 0 ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {dashboardTasks.pending.map((booking: any) => (
             <div
@@ -565,13 +564,16 @@ const Dashboard: React.FC = () => {
 
                   </div>
                 </div>
-              ))
+              ))}
+              </div>
             ) : (
               <Empty
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                 description="No active tickets"
               />
-            )}
+            )
+            })
+            </div>
           </Card>
         </Col>
       </Row>
