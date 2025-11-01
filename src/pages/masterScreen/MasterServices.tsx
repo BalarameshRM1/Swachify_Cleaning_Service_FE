@@ -9,7 +9,12 @@ import {
   InputNumber,
   message,
   Space,
+  
 } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+
+//import { getAllMasterData } from "../../app/services/auth";
+import { getAllMasterData, createMasterData,updateMasterData } from "../../app/services/auth";
 
 const { Option } = Select;
 
@@ -17,23 +22,18 @@ const MasterScreen = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<any>(null);
   const [form] = Form.useForm();
 
   const fetchMasterData = async () => {
     setLoading(true);
-    try {
-      const res = await fetch(
-        "https://swachifyapi-fpcub9f8dcgjbzcq.centralindia-01.azurewebsites.net/api/Master/getallmasterData"
-      );
-      const result = await res.json();
-      setData(result || []);
-    } catch (error) {
-      console.error("Failed to fetch master data", error);
-      message.error("Failed to load data");
-    } finally {
-      setLoading(false);
-    }
+    const masterData = await getAllMasterData(); 
+    setData(masterData);
+    setLoading(false);
   };
+
+
+
 
   useEffect(() => {
     fetchMasterData();
@@ -43,59 +43,113 @@ const MasterScreen = () => {
     form.resetFields();
     setModalOpen(true);
   };
+   const handleEdit = (record: any) => {
+    setEditingRecord(record);
+    form.setFieldsValue({
+      departmentId:record.departmentId,
+      department_name: record.departmentName,
+      serviceId:record.serviceId,
+      sub_category: record.serviceName,
+      serviceTypeId:record.serviceTypeId,
+      cleaning_type: record.serviceType,
+      price: record.price,  
+    });
+    setModalOpen(true);
+  };
 
-  const handleSubmit = async () => {
+   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      const payload = {
+        
+        department_name: values.department_name,
+        service_name: values.sub_category,
+        service_type_name: values.cleaning_type,
+        price: values.price,
+      };
 
-      const res = await fetch(
-        "https://swachifyapi-fpcub9f8dcgjbzcq.centralindia-01.azurewebsites.net/api/Master/createMaster",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        }
-      );
+      if (editingRecord) {
+        // 🧩 Update existing record with ID
+         const Updatepayload = {
+            departmentId:values.departmentId,
+        department_name: values.department_name,
+        service_name: values.sub_category,
+        serviceId:values.serviceId,
+        service_type_name: values.cleaning_type,
+        serviceTypeId:values.serviceTypeId,
+        price: values.price,
+      };
+        await updateMasterData(editingRecord.id, Updatepayload);
+        message.success("Master data updated successfully");
+      } else {
+        // 🆕 Create new record
+        await createMasterData(payload);
+        message.success("Master data created successfully");
+      }
 
-      if (!res.ok) throw new Error("Failed to create master record");
-
-      message.success("Master data added successfully");
       setModalOpen(false);
       fetchMasterData();
     } catch (error) {
-      console.error("Error adding master data:", error);
+      console.error("Error saving master data:", error);
       message.error("Failed to save data");
     }
   };
 
   const columns = [
-    {
-      title: "Department",
-      dataIndex: "department_name",
-      key: "department_name",
+  {
+    title: "Department",
+    dataIndex: "departmentName",
+    key: "departmentName",
+  },
+  {
+    title: "Service",
+    dataIndex: "serviceName",
+    key: "serviceName",
+  },
+  {
+    title: "Service Type",
+    dataIndex: "serviceType",
+    key: "serviceType",
+  },
+  {
+    title: "Price (₹)",
+    dataIndex: "price",
+    key: "price",
+  },
+ 
+  
+  {
+      title: "Actions",
+      key: "actions",
+      render: (_: any, record: any) => (
+        <Space>
+          <Button
+            
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+          >
+            Edit
+          </Button>
+          {/* <Button
+            danger
+            size="small"
+            icon={<DeleteOutlined />}
+            // 🧱 Dummy delete button, no logic yet
+          >
+            Delete
+          </Button> */}
+        </Space>
+      ),
     },
-    {
-      title: "Sub Category",
-      dataIndex: "sub_category",
-      key: "sub_category",
-    },
-    {
-      title: "Cleaning Type",
-      dataIndex: "cleaning_type",
-      key: "cleaning_type",
-    },
-    {
-      title: "Price (₹)",
-      dataIndex: "price",
-      key: "price",
-    },
-  ];
+];
+
 
   return (
     <div style={{ padding: 20 }}>
       <Space style={{ marginBottom: 16 }}>
-        <Button type="primary" onClick={handleAdd}>
-          + Add Master Data
+        <Button onClick={handleAdd}>
+          + Add Service 
         </Button>
       </Space>
 
@@ -105,6 +159,7 @@ const MasterScreen = () => {
         columns={columns}
         dataSource={data}
         bordered
+         scroll={{ x: "max-content", y: 300 }}
       />
 
       <Modal

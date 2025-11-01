@@ -37,7 +37,8 @@ import {
   PhoneOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { createBooking } from "../../app/services/auth";
+import { createBooking ,getAllMasterData } from "../../app/services/auth";
+
 
 const { Title, Text } = Typography;
 
@@ -252,6 +253,13 @@ const Services: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
   const [master, setMaster] = useState<SectionKey>("living"); // default to Living per SS
+ const [masterData, setMasterData] = useState<any[]>([]);
+const [loading, setLoading] = useState<boolean>(false);
+const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>>({});
+
+
+
+  
 
   const [serviceForm, setServiceForm] = useState<FormState>({
     bedroom: { subService: null, type: null, addOnHours: [] },
@@ -270,7 +278,7 @@ const Services: React.FC = () => {
   const [discount, setDiscount] = useState<number>(0);
   const [discountPct, setDiscountPct] = useState<number>(0);
   const [customerRequest, setCustomerRequest] = useState<number>(0);
-  const [loading, setLoading] = useState(false);
+  
   const [customerData, setCustomerData] = useState<any>(null);
 
   const setSection = <K extends keyof ServicePlan,>(
@@ -316,6 +324,40 @@ const Services: React.FC = () => {
     const pct = grandTotal > 0 ? Math.round((discountAmount / grandTotal) * 100) : 0;
     setDiscountPct(pct);
   }, [customerRequest, grandTotal]);
+ useEffect(() => {
+  const fetchMasterData = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllMasterData();
+      console.log("Fetched Master Data:", data);
+
+      // Group by department name
+      const grouped = data.reduce((acc: any, item: any) => {
+        const deptName = item.departmentName?.toLowerCase() || "other";
+        if (!acc[deptName]) acc[deptName] = [];
+        acc[deptName].push({
+          label: item.serviceName,
+          value: item.serviceId,
+          price: item.price,
+          deptId: item.departmentId,
+          serviceTypeId: item.serviceTypeId,
+        });
+        return acc;
+      }, {});
+
+      setSubServiceOptions(grouped);
+      setMasterData(data);
+    } catch (err) {
+      console.error("Error loading master data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchMasterData();
+}, []);
+
+
 
   const discountedTotal = useMemo(
     () => Math.max(grandTotal - discount, 0),
@@ -468,18 +510,40 @@ const Services: React.FC = () => {
   /* Customer Details */
   const CustomerDetails = (
     <>
-      <div style={styles.stepsWrap}>
-        <Steps
-          current={currentStep}
-          onChange={(idx) => setCurrentStep(idx as StepKey)}
-          items={[
-            { title: "Customer Details" },
-            { title: "Service Selection" },
-          ]}
-          size="small"
-          style={styles.stepsBar}
-        />
-      </div>
+      <Steps
+  current={currentStep}
+  onChange={(idx) => setCurrentStep(idx as StepKey)}
+  items={[
+    {
+      title: (
+        <span
+          style={{
+            color: currentStep === 0 ? "#1677ff" : "#8c8c8c",
+            fontWeight: currentStep === 0 ? 700 : 500,
+            textDecoration: currentStep === 0 ? "underline" : "none",
+          }}
+        >
+          Customer Details
+        </span>
+      ),
+    },
+    {
+      title: (
+        <span
+          style={{
+            color: currentStep === 1 ? "#1677ff" : "#8c8c8c",
+            fontWeight: currentStep === 1 ? 700 : 500,
+            textDecoration: currentStep === 1 ? "underline" : "none",
+          }}
+        >
+          Service Selection
+        </span>
+      ),
+    },
+  ]}
+  size="small"
+/>
+
       <Card bordered style={{ borderRadius: 12 }}>
         <Space direction="vertical" size={2} style={{ width: "100%" }}>
           <Title level={4} style={{ margin: 0 }}>
@@ -600,13 +664,11 @@ const Services: React.FC = () => {
             Sub Category
           </Text>
           <Select
-            value={state.subService ?? undefined}
-            placeholder="Select sub‑service"
-            style={{ width: "100%" }}
-            options={SUBSERVICES[section]}
-            onChange={(v) => setSection(section, "subService", v as string)}
-            allowClear
-          />
+  placeholder="Select service"
+  loading={loading}
+  options={subServiceOptions[section?.toLowerCase()] || []}
+/>
+
         </Col>
 
         <Col xs={24} md={12}>
@@ -773,12 +835,19 @@ const Services: React.FC = () => {
             <Space>
               {/* <Text type="secondary">Master Category</Text> */}
               <Select
-                style={{ minWidth: 220 }}
-                value={master}
-                options={MASTER_OPTIONS}
-                onChange={(v) => setMaster(v as SectionKey)}
-                suffixIcon={<AppstoreAddOutlined />}
-              />
+  style={{ minWidth: 220 }}
+  value={master}
+  loading={loading}
+  options={
+    Object.keys(subServiceOptions).map((key) => ({
+      label: key.charAt(0).toUpperCase() + key.slice(1),
+      value: key,
+    })) || []
+  }
+  onChange={(v) => setMaster(v as SectionKey)}
+  suffixIcon={<AppstoreAddOutlined />}
+/>
+
             </Space>
           </Space>
         </Col>
