@@ -26,11 +26,41 @@ const MasterScreen = () => {
   const [form] = Form.useForm();
 
   const fetchMasterData = async () => {
-    setLoading(true);
-    const masterData = await getAllMasterData(); 
-    setData(masterData);
+  setLoading(true);
+  try {
+    const masterData = await getAllMasterData();
+
+    // Safely handle structure whether it has .departments or is directly an array
+    const departments = Array.isArray(masterData)
+      ? masterData
+      : masterData?.departments || [];
+
+    const flattenedData = departments.flatMap((dept: any) =>
+      (dept.services || []).flatMap((service: any) =>
+        (service.serviceTypes || []).map((stype: any) => ({
+          id: `${dept.departmentId}-${service.serviceID}-${stype.serviceTypeID}`,
+          departmentId: dept.departmentId,
+          departmentName: dept.departmentName,
+          serviceId: service.serviceID,
+          serviceName: service.serviceName,
+          serviceTypeId: stype.serviceTypeID,
+          serviceType: stype.serviceType,
+          price: stype.price,
+          hours: stype.hours,
+        }))
+      )
+    );
+
+    setData(flattenedData);
+  } catch (error) {
+    console.error("Error fetching master data:", error);
+    message.error("Failed to load master data");
+  } finally {
     setLoading(false);
-  };
+  }
+};
+
+
 
 
 
