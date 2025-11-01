@@ -91,3 +91,13 @@
   background: #0D9488 !important;
   border-color: #0D9488 !important;
 }
+.ant-steps .ant-steps-item-process .ant-steps-item-icon {
+    background-color: rgb(20, 184, 166);
+    border-color: rgb(20, 184, 166);
+}
+
+.ant-steps .ant-steps-item-content {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 8px;
+}

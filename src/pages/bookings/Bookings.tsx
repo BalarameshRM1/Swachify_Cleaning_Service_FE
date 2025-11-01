@@ -129,7 +129,7 @@ const Bookings: React.FC = () => {
         setLoadingBookings(true);
         const raw = await getallBookings(); // This fetches the (now correctly) enriched data
         if (raw) {
-          const normalized = raw.map(normalize).sort((a: any, b: any) => b.id - a.id);
+          const normalized = raw.map(normalize).sort((a: any, b: any) => b.id - a.id).filter((b: any) => b.status == "Open");
           setBookings(normalized);
         }
       } catch (error) {
@@ -299,7 +299,7 @@ const Bookings: React.FC = () => {
       }
       const refreshed = await getallBookings();
       if (refreshed) {
-        const normalized = refreshed.map(normalize).sort((a: any, b: any) => b.id - a.id);
+        const normalized = refreshed.map(normalize).sort((a: any, b: any) => b.id - a.id).filter((b: any) => b.status == "Open");
         setBookings(normalized);
       }
       closeAssignModal();
@@ -328,7 +328,7 @@ const Bookings: React.FC = () => {
     try {
       await deleteBookingById(selectedBookingId);
       message.success(`Booking #${selectedBookingId} deleted successfully.`);
-      setBookings((prev) => prev.filter((b: any) => b.id !== selectedBookingId));
+      setBookings((prev) => prev.filter((b: any) => b.id !== selectedBookingId).filter((b: any) => b.status == "Open"));
       closeDeleteModal();
     } catch (error: any) {
       console.error("Failed to delete booking:", error);
@@ -348,7 +348,7 @@ const Bookings: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 24 }}>
-        Bookings Management
+        BOOKINGS MANAGEMENT
       </Title>
 
       <div
@@ -420,7 +420,7 @@ const Bookings: React.FC = () => {
                           style={{ fontSize: 13, fontWeight: 500, paddingBottom: 4 }}
                         >
                           {/* Use the normalized serviceNames */}
-                          Plan: {item.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(",")}
+                          Plan: {item.services.map((s:any)=>`${s.department_name} - ${s.service_name}- ${s.service_type}`).join(",")}
                         </Text>
 
                         <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>
@@ -654,7 +654,7 @@ const Bookings: React.FC = () => {
                           color: isAvailable ? "#15803d" : "#991b1b",
                         }}
                       >
-                        {isChecking ? "Checking..." : isAvailable ? "Available" : "Unavailable"}
+                        {isChecking ? "Checking..." : isAvailable ? "Available" : "Assigned"}
                       </span>
                     </Tooltip>
                   </Space>
