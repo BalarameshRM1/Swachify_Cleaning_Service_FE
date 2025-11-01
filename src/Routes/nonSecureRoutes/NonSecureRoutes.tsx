@@ -5,6 +5,7 @@ import Landing from '../../pages/landing/landingpage';
 import PrivacyPolicy from '../../pages/privacy/PrivacyPolicy';
 import TermsOfService from '../../pages/terms/TermsOfService';
 import { getUserDetails } from '../../utils/helpers/storage';
+import RefundPolicy from '../../pages/refund/RefundPolicy';
 
 export const NonSecureRoutes = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ export const NonSecureRoutes = () => {
       <Route path="/forgotpassword" element={<ForgotPassword />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/refund" element={<RefundPolicy />} />
     </Routes>
   );
 };
