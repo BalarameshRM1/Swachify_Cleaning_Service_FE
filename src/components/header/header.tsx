@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Layout,
   Input,
-  Select,
+  //Select,
   Dropdown,
   Typography,
   Space,
@@ -14,10 +14,10 @@ import {
   Modal,
 } from "antd";
 import {
-  BellOutlined,
+ // BellOutlined,
   SearchOutlined,
-  EnvironmentFilled,
-  UserOutlined,
+ // EnvironmentFilled,
+  //UserOutlined,
   LogoutOutlined,
   SettingOutlined,
   ExclamationCircleOutlined,
@@ -27,7 +27,7 @@ import { useNavigate } from "react-router-dom";
 
 const { Header } = Layout;
 const { Text } = Typography;
-const { Option } = Select;
+//const { Option } = Select;
 const { useBreakpoint } = Grid;
 const { confirm } = Modal;
 
@@ -38,7 +38,7 @@ const HeaderBar: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
   const [searchValue, setSearchValue] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
-  const [location, setLocation] = useState<string>("All Locations");
+ // const [location, setLocation] = useState<string>("All Locations");
 
   useEffect(() => {
     const userDetails = JSON.parse(localStorage.getItem("user") || "null");
@@ -119,10 +119,10 @@ const HeaderBar: React.FC = () => {
       onClick={({ key }) => {
         if (key === "logout") handleLogout();
         if (key === "settings") navigate("/app/settings");
-        if (key === "profile") navigate("/app/profile");
+        //if (key === "profile") navigate("/app/profile");
       }}
       items={[
-        { key: "profile", icon: <UserOutlined />, label: "Profile" },
+       // { key: "profile", icon: <UserOutlined />, label: "Profile" },
         { key: "settings", icon: <SettingOutlined />, label: "Settings" },
         { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
       ]}
@@ -202,7 +202,7 @@ const HeaderBar: React.FC = () => {
         </AutoComplete>
 
         {/* Location Dropdown */}
-        <div
+        {/* <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -231,14 +231,14 @@ const HeaderBar: React.FC = () => {
             <Option value="Hyderabad">Hyderabad</Option>
             <Option value="Bangalore">Bangalore</Option>
           </Select>
-        </div>
+        </div> */}
       </Space>
 
       {/* Notifications + Avatar */}
       <Space size="middle" align="center">
-        <BellOutlined
+        {/* <BellOutlined
           style={{ fontSize: 25, color: "#475569", cursor: "pointer" }}
-        />
+        /> */}
         <Dropdown overlay={userMenu} trigger={["click"]}>
           <Space
             style={{

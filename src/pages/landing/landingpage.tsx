@@ -22,11 +22,14 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { loginUser } from "../../app/features/user/userSlice";
 import { menuItems, services, pricingPlans, testimonials } from '../../utils/constants/data.ts';
 
+
 const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [activeTab] = useState('login');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loginForm] = Form.useForm();
+  //const [loginForm] = Form.useForm();
+const [formValid, setFormValid] = useState(false);
 
 
 
@@ -49,61 +52,87 @@ useEffect(() => {
   const savedUsers = JSON.parse(localStorage.getItem('savedUsers') || '[]');
   const lastUsed = localStorage.getItem('lastUsedEmail');
 
-  if (savedUsers.length > 0) {
-    const matchedUser = savedUsers.find((u: any) => u.email === lastUsed) || savedUsers[0];
+  if (savedUsers.length > 0 && lastUsed) {
+    const matchedUser =
+      savedUsers.find((u: any) => u.email === lastUsed) || savedUsers[0];
+
     loginForm.setFieldsValue({
       email: matchedUser.email,
       password: matchedUser.password,
       remember: true,
     });
+  } else {
+    
+    loginForm.resetFields();
+    loginForm.setFieldsValue({ remember: false });
+    
   }
 }, [loginForm]);
 
 
+useEffect(() => {
+  if (activeTab === 'login') {
+    const { email, password } = loginForm.getFieldsValue(['email', 'password']);
+    const errors = loginForm.getFieldsError(['email', 'password']);
+    const hasErrors = errors.some((f) => (f.errors || []).length > 0);
+    const hasEmail = !!(email && String(email).trim().length > 0);
+    const hasPassword = !!(password && String(password).trim().length > 0);
+
+    setFormValid(hasEmail && hasPassword && !hasErrors);
+  }
+}, [activeTab, loginForm]);
+const closeBookingModal = async ()=>{
+    loginForm.resetFields()
+    setAuthModalOpen(false)
+}
 
 
 
 const handleLogin = async (values: any) => {
-    const { email, password, remember } = values;
+  const { email, password, remember } = values;
 
-  if (remember) {
-    const savedUsers = JSON.parse(localStorage.getItem('savedUsers') || '[]');
+  try {
+    // ✅ Remember Me logic
+    if (remember) {
+      const savedUsers = JSON.parse(localStorage.getItem('savedUsers') || '[]');
 
-    // Check if user already exists
-    const userExists = savedUsers.some((u: any) => u.email === email);
+      // Check if user already exists
+      const existingIndex = savedUsers.findIndex((u: any) => u.email === email);
 
-    if (!userExists) {
-      savedUsers.push({ email, password });
+      if (existingIndex !== -1) {
+        savedUsers[existingIndex] = { email, password };
+      } else {
+        savedUsers.push({ email, password });
+      }
+
+      localStorage.setItem('savedUsers', JSON.stringify(savedUsers));
+      localStorage.setItem('lastUsedEmail', email);
     } else {
-      // update existing user’s password
-      const updatedUsers = savedUsers.map((u: any) =>
-        u.email === email ? { email, password } : u
-      );
-      localStorage.setItem('savedUsers', JSON.stringify(updatedUsers));
+      // ❌ User did NOT check "Remember me" → clear stored data
+      localStorage.removeItem('savedUsers');
+      localStorage.removeItem('lastUsedEmail');
     }
 
-    localStorage.setItem('savedUsers', JSON.stringify(savedUsers));
-    localStorage.setItem('lastUsedEmail', email);
-  }
-  const response = await dispatch(loginUser({ email: values.email, password: values.password }));
-  // console.log('Login response:', response);
- 
+    // ✅ Dispatch login
+    const response = await dispatch(loginUser({ email, password }));
 
-  if(response.meta.requestStatus === 'rejected') {
-    message.error(response.payload || 'Login failed. Please try again.');
-  }else{
-    // console.log('user data after login:', response.payload);
-    setUserDetails('user',response.payload);
-    setAuthModalOpen(false);
-    loginForm.resetFields();
-    navigate('/app/dashboard');
+    if (response.meta.requestStatus === 'rejected') {
+      message.error(response.payload || 'Login failed. Please try again.');
+    } else {
+      // ✅ Successful login
+      setUserDetails('user', response.payload);
+      setAuthModalOpen(false);
+      loginForm.resetFields();
+
+      message.success('Login successful!');
+      navigate('/app/dashboard');
+    }
+
+  } catch (error) {
+    console.error('Login error:', error);
+    message.error('Something went wrong during login.');
   }
-  //   setTimeout(() => {
-  //   setAuthModalOpen(false);
-  //   loginForm.resetFields();
-  //   navigate('/app/dashboard');  // ✅ Correct way
-  // }, 1000);
-}
+};
 
 //   // Auth handlers
 //  const handleLogin = (values: any) => {
@@ -691,16 +720,22 @@ const handleLogin = async (values: any) => {
           gap: 32
         }}>
           {pricingPlans.map((plan, idx) => (
-            <div
-              key={idx}
-              style={{
-                padding: 32,
-                borderRadius: 16,
-                border: plan.popular ? '2px solid #14b8a6' : '2px solid #e2e8f0',
-                background: plan.popular ? 'linear-gradient(135deg, #f0fdfa 0%, #ecfeff 100%)' : '#fff',
-                position: 'relative',
-                transition: 'all 0.3s ease'
-              }}
+  <div
+    key={idx}
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between", // keeps button at bottom
+      padding: 32,
+      borderRadius: 16,
+      border: plan.popular ? "2px solid #14b8a6" : "2px solid #e2e8f0",
+      background: plan.popular
+        ? "linear-gradient(135deg, #f0fdfa 0%, #ecfeff 100%)"
+        : "#fff",
+      position: "relative",
+      transition: "all 0.3s ease",
+      minHeight: 520, // ensures all cards have same height
+    }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1)';
               }}
@@ -1098,7 +1133,7 @@ const handleLogin = async (values: any) => {
                 {[
                   { label: 'About Us', section: 'about' },
                   { label: 'Reviews', section: 'testimonials' },
-                  { label: 'Careers', section: null },
+                 // { label: 'Careers', section: null },
                   { label: 'Contact', section: 'contact' }
                 ].map((item, idx) => (
                   <a
@@ -1112,17 +1147,36 @@ const handleLogin = async (values: any) => {
               </div>
             </div>
 
-            <div>
-              <h4 style={{ fontWeight: 600, color: '#fff', marginBottom: 12 }}>Support</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14 }}>
-                {['Help Center', 'Terms of Service', 'Privacy Policy', 'Refund Policy'].map((item, idx) => (
-                  <a key={idx} href="#" style={{ color: '#cbd5e1' }}>
-                    {item}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
+           <div>
+  <h4 style={{ fontWeight: 600, color: '#fff', marginBottom: 12 }}>Support</h4>
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      fontSize: 14,
+    }}
+  >
+    {[
+      { label: 'Help Center', href: 'mailto:info@swachify.com' },
+      { label: 'Terms of Service', href: '/terms' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Refund Policy', href: '/refund' },
+    ].map((item, idx) => (
+      <a
+        key={idx}
+        href={item.href}
+        style={{ color: '#cbd5e1' }}
+        target={item.href.startsWith('http') || item.href.startsWith('mailto') ? '_blank' : '_self'}
+        rel="noopener noreferrer"
+      >
+        {item.label}
+      </a>
+    ))}
+  </div>
+</div>
+</div>
+
 
           <div style={{
             paddingTop: 32,
@@ -1167,7 +1221,7 @@ const handleLogin = async (values: any) => {
       {/* Auth Modal */}
           <Modal
       open={authModalOpen}
-      onCancel={() => setAuthModalOpen(false)}
+      onCancel={() => closeBookingModal()}
       footer={null}
       width={480}
       centered
@@ -1239,67 +1293,102 @@ const handleLogin = async (values: any) => {
         </div>
 
         {/* ---------- Login Form ---------- */}
-        {activeTab === 'login' && (
-          <Form form={loginForm} onFinish={handleLogin} layout="vertical">
-            <Form.Item
-              label="Email Address"
-              name="email"
-              normalize={(value) => value.trim()}
-              rules={[
-                { required: true, message: 'Please enter your email' },
-                { type: 'email', message: 'Please enter a valid email' },
-              ]}
-            >
-              <Input size="large" placeholder="your@email.com" />
-            </Form.Item>
+      {activeTab === 'login' && (
+  <Form
+    form={loginForm}
+    onFinish={handleLogin}
+    layout="vertical"
+    onValuesChange={() => {
+      const { email, password } = loginForm.getFieldsValue(['email', 'password']);
 
-            <Form.Item
-              label="Password"
-              name="password"
-              
-              rules={[{ required: true, message: 'Please enter your password' }]}
-            >
-              <Input.Password size="large" placeholder="Enter password" />
-            </Form.Item>
+      
+      const relaxedEmailRegex = /^[^\s@]+@[^\s@]+$/;
+      const isEmailValid = relaxedEmailRegex.test(email?.trim() || "");
 
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: 24,
-              }}
-            >
-              <Form.Item name="remember" valuePropName="checked" noStyle>
-                <Checkbox style={{marginTop:8,}}>Remember me</Checkbox>
-              </Form.Item>
-              <Button
-                type="link"
-                onClick={handleForgotPassword}
-                style={{ padding: 0 ,color: "rgb(20, 184, 166)"}}
-              >
-                Forgot password?
-              </Button>
-            </div>
+    
+      const isPasswordValid = !!(password && password.trim().length >= 6);
 
-            <Button
-              type="primary"
-              htmlType="submit"
-              size="large"
-              loading={loading}
-              block
-              style={{
-                background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                border: 'none',
-                height: 48,
-                fontSize: 16,
-                fontWeight: 600,
-                borderRadius: 12,
-              }}
-            >
-              Sign In
-            </Button>
-          </Form>
-        )}
+      
+      const errors = loginForm.getFieldsError(['email', 'password']);
+      const hasErrors = errors.some((f) => (f.errors || []).length > 0);
+
+   
+      setFormValid(isEmailValid && isPasswordValid && !hasErrors);
+    }}
+  >
+    <Form.Item
+      label="Email Address"
+      name="email"
+      normalize={(value) => (value ? value.trim() : value)}
+      rules={[
+        { required: true, message: 'Please enter your email' },
+        { type: 'email', message: 'Please enter a valid email' },
+      ]}
+    >
+      <Input size="large" placeholder="your@email.com" />
+    </Form.Item>
+
+    <Form.Item
+      label="Password"
+      name="password"
+      rules={[
+        { required: true, message: 'Please enter your password' },
+        { min: 6, message: 'Password must be at least 6 characters' },
+      ]}
+    >
+      <Input.Password size="large" placeholder="Enter password" />
+    </Form.Item>
+
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: 24,
+      }}
+    >
+      <Form.Item
+        name="remember"
+        valuePropName="checked"
+        initialValue={false}
+        style={{ marginBottom: 0 }}
+      >
+        <Checkbox style={{ marginTop: 8 }}>Remember me</Checkbox>
+      </Form.Item>
+
+      <Button
+        type="link"
+        onClick={handleForgotPassword}
+        style={{ padding: 0, color: 'rgb(20, 184, 166)' }}
+      >
+        Forgot password?
+      </Button>
+    </div>
+
+    <Button
+      type="primary"
+      htmlType="submit"
+      size="large"
+      loading={loading}
+      block
+      disabled={!formValid}
+      style={{
+        background: formValid
+          ? 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)'
+          : '#d1d5db',
+        border: 'none',
+        height: 48,
+        fontSize: 16,
+        fontWeight: 600,
+        borderRadius: 12,
+        cursor: formValid ? 'pointer' : 'not-allowed',
+        transition: 'all 0.15s ease',
+      }}
+    >
+      Sign In
+    </Button>
+  </Form>
+)}
+
 
         {/* ---------- Register Form ---------- */}
         {/* {activeTab === 'register' && (
