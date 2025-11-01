@@ -273,6 +273,7 @@ const Bookings: React.FC = () => {
     setSelectedBookingId(null);
     setSelectedEmployeeId(null);
   };
+  
 
   const handleAssignEmployee = async () => {
     if (!selectedEmployeeId || !selectedBookingId) {
@@ -291,7 +292,7 @@ const Bookings: React.FC = () => {
         )
       );
       const result = await assignEmployeeToBooking(selectedBookingId, selectedEmployeeId);
-      if (result && result.statusUpdated === false) {
+      if (result && "statusUpdated" in result && result.statusUpdated === false) {
         message.warning("Employee assigned, but booking status could not be updated.");
       } else {
         message.success("Employee assigned and booking updated.");
@@ -419,7 +420,7 @@ const Bookings: React.FC = () => {
                           style={{ fontSize: 13, fontWeight: 500, paddingBottom: 4 }}
                         >
                           {/* Use the normalized serviceNames */}
-                          Plan: {item.serviceNames}
+                          Plan: {item.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(",")}
                         </Text>
 
                         <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>

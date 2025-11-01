@@ -5,6 +5,7 @@ import { getallBookings, getallBookingsByUserId, otpSend, otpSendAPi, updateTick
 import moment from "moment";
 import { getUserDetails } from "../../utils/helpers/storage";
 import { getAllUsers } from "../../app/services/auth";
+import LoaderGif from "../../assets/SWACHIFY_gif.gif";
 
 const { Text, Title } = Typography;
 
@@ -58,6 +59,7 @@ const Tickets: React.FC = () => {
   const [otpValue, setOtpValue] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [employees, setEmployees] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   
 
 
@@ -113,14 +115,28 @@ const Tickets: React.FC = () => {
   }
 
   useEffect(() => {
-    document.title = "Service Tickets - Swachify Admin Panel";
-    let data = getUserDetails('user');
-    if(data?.role_id === 3){
-      getallBookingsByUserApi(data.id);
-    }else{
-      getallBookingsApi();
+  document.title = "Service Tickets - Swachify Admin Panel";
+  const data = getUserDetails("user");
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      if (data?.role_id === 3) {
+        await getallBookingsByUserApi(data.id);
+      } else {
+        await getallBookingsApi();
+      }
+      await getAllUsers().then((res) => setEmployees(res || []));
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      setTimeout(() => setLoading(false), 800); // small delay for smoother transition
     }
-  }, []);
+  };
+
+  loadData();
+}, []);
+
 
   useEffect(() => {
     if (filter === "all") {
@@ -256,6 +272,22 @@ const Tickets: React.FC = () => {
       console.error(error);
     }
   };
+  if (loading) {
+  return (
+    <div
+      style={{
+        height: "100vh",
+        backgroundColor: "#f9fafb",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <img src={LoaderGif} alt="Loading..." width={220} />
+    </div>
+  );
+}
+
 
   return (
    <div
@@ -325,7 +357,8 @@ const Tickets: React.FC = () => {
                         {ticket?.status.charAt(0)?.toUpperCase() + ticket?.status.slice(1)}
                       </Text>{" "}
                       <Text style={{ marginLeft: 8, color: "#374151" }}>
-                        Ticket #{ticket?.id?.toString()?.slice(-6)}
+                        {/* Ticket #{ticket?.id?.toString()?.slice(-6)} */}
+                          {ticket.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(", ")}
                       </Text>
                     </Col>
                     {ticket?.status=== "Completed" && (
