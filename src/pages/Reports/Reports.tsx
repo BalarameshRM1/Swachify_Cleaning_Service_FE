@@ -54,6 +54,16 @@ interface DepartmentInfo {
   department_name: string;
   is_active: boolean;
 }
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+  role_id?: number;
+  full_name?: string;
+}
+
 
 interface Booking {
   id: number;
@@ -96,7 +106,7 @@ const Reports: React.FC = () => {
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
 
- // const [users, setUsers] = useState<User[]>([]);
+ const [users, setUsers] = useState<User[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
 
   const [selectedCustomerName, setSelectedCustomerName] = useState<string | undefined>();
@@ -108,35 +118,42 @@ const Reports: React.FC = () => {
   }, []);
 
   const fetchAllData = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
+    const [usersData, deptData, bookingsData] = await Promise.all([
+      getAllUsers(),
+      getAllDepartments(),
+      getallBookings(),
+    ]);
 
-      const [usersData, deptData, bookingsData] = await Promise.all([
-        getAllUsers(),
-        getAllDepartments(),
-        getallBookings(),
-      ]);
+    const normalizedBookings = (bookingsData || []).map((b: any) => ({
+      ...b,
+      assign_to_name: b.employee_name || null,
+      status: { id: b.status_id, status: b.status || "Unknown", is_active: true },
+      department: b.services?.[0]
+        ? {
+            id: b.services[0].dept_id,
+            department_name: b.services[0].department_name,
+            is_active: true,
+          }
+        : { id: 0, department_name: "N/A", is_active: false },
+      preferred_date: b.preferred_date || b.created_date,
+    }));
 
-      console.log("=== RAW API RESPONSES ===");
-      console.log("Total Bookings:", bookingsData?.length);
-      console.log("Users:", usersData?.length);
-      console.log("Departments:", deptData?.length);
-      console.log("Sample Booking:", bookingsData?.[0]);
+    setUsers(usersData || []);
+    setDepartments(deptData || []);
+    setBookings(normalizedBookings);
+    setFilteredBookings(normalizedBookings);
 
-     // setUsers(usersData || []);
-      setDepartments(deptData || []);
-      setBookings(bookingsData || []);
-      setFilteredBookings(bookingsData || []);
+    message.success(`Loaded ${normalizedBookings.length} bookings successfully`);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    message.error("Failed to load data");
+  } finally {
+    setLoading(false);
+  }
+};
 
-      message.success(`Loaded ${bookingsData?.length || 0} bookings successfully`);
-
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error("Failed to load data");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -161,10 +178,10 @@ const Reports: React.FC = () => {
   }
 
   // Get unique customer names from bookings
-  const getUniqueCustomers = (): string[] => {
-    const names = bookings.map(b => b.full_name).filter(Boolean);
-    return Array.from(new Set(names)).sort();
-  };
+  // const getUniqueCustomers = (): string[] => {
+  //   const names = bookings.map(b => b.full_name).filter(Boolean);
+  //   return Array.from(new Set(names)).sort();
+  // };
 
   // Handle date range
   const handleDateChange = (values: [Dayjs | null, Dayjs | null] | null) => {
@@ -442,28 +459,30 @@ const Reports: React.FC = () => {
                   placeholder={["Start Date", "End Date"]}
                   value={dateRange}
                   format="MMM DD, YYYY"
+                  inputReadOnly
                 />
               </Col>
 
               <Col xs={24} sm={12} md={8}>
                 <Select
-                  placeholder="Select Customer"
-                  allowClear
-                  showSearch
-                  style={{ width: "100%" }}
-                  value={selectedCustomerName}
-                  onChange={setSelectedCustomerName}
-                  filterOption={(input, option) => {
-                    const label = String(option?.children || "");
-                    return label.toLowerCase().includes(input.toLowerCase());
-                  }}
-                >
-                  {getUniqueCustomers().map((name) => (
-                    <Option key={name} value={name}>
-                      {name}
-                    </Option>
-                  ))}
-                </Select>
+  placeholder="Search Employee"
+  allowClear
+  showSearch
+  style={{ width: "100%" }}
+  value={selectedCustomerName}
+  onChange={setSelectedCustomerName}
+  filterOption={(input, option) => {
+    const label = String(option?.children || "");
+    return label.toLowerCase().includes(input.toLowerCase());
+  }}
+>
+  {users.map((user) => (
+    <Option key={user.id} value={user.full_name || `${user.first_name} ${user.last_name}`}>
+      {user.full_name || `${user.first_name} ${user.last_name}`}
+    </Option>
+  ))}
+</Select>
+
               </Col>
 
               <Col xs={24} sm={12} md={8}>

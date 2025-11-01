@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState,useEffect } from "react";
 import {
   Card,
   Row,
@@ -36,10 +36,11 @@ import {
   MailOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { createBooking } from "../../app/services/auth.ts";
+import { createBooking ,getAllMasterData } from "../../app/services/auth.ts";
 import { getUserDetails } from "../../utils/helpers/storage.ts";
 import "./Services.css";
-import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
+//import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
+
 
 const { Title, Text } = Typography;
 
@@ -131,7 +132,14 @@ const Services: React.FC = () => {
   };
 
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
-  const [master, setMaster] = useState<SectionKey>("bathroom");
+  const [master, setMaster] = useState<SectionKey>("living"); // default to Living per SS
+ //const [setMasterData] = useState<any[]>([]);
+const [loading, setLoading] = useState<boolean>(false);
+const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>>({});
+
+
+
+  
 
   const [serviceForm, setServiceForm] = useState<FormState>({
     bedroom: { subService: null, type: null, addOnHours: [] },
@@ -148,7 +156,7 @@ const Services: React.FC = () => {
   });
 
   const [customerRequest, setCustomerRequest] = useState<number>(0);
-  const [loading, setLoading] = useState(false);
+  
   const [customerData, setCustomerData] = useState<any>(null);
 
   const setSection = <K extends keyof ServicePlan,>(
@@ -212,6 +220,40 @@ const Services: React.FC = () => {
     if (!hasService || subtotal <= 0) return 0;
     return Math.round((discountAmount / subtotal) * 100);
   }, [hasService, subtotal, discountAmount]);
+ useEffect(() => {
+  const fetchMasterData = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllMasterData();
+      console.log("Fetched Master Data:", data);
+
+      // Group by department name
+      const grouped = data.reduce((acc: any, item: any) => {
+        const deptName = item.departmentName?.toLowerCase() || "other";
+        if (!acc[deptName]) acc[deptName] = [];
+        acc[deptName].push({
+          label: item.serviceName,
+          value: item.serviceId,
+          price: item.price,
+          deptId: item.departmentId,
+          serviceTypeId: item.serviceTypeId,
+        });
+        return acc;
+      }, {});
+
+      setSubServiceOptions(grouped);
+      //setMasterData(data);
+    } catch (err) {
+      console.error("Error loading master data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchMasterData();
+}, []);
+
+
 
   const discountedTotal = useMemo(() => {
     if (!hasService || subtotal <= 0) return 0;
@@ -353,18 +395,45 @@ const Services: React.FC = () => {
 
   const CustomerDetails = (
     <>
-      <div className="sv-steps-wrap">
-        <Steps
-          current={currentStep}
-          onChange={(idx) => setCurrentStep(idx as StepKey)}
-          items={[{ title: "Customer Details" }, { title: "Service Selection" }]}
-          size="small"
-          className="sv-steps-bar"
-        />
-      </div>
-      <Card bordered className="sv-card">
-        <Space direction="vertical" size={2} className="sv-w-full">
-          <Title level={4} className="sv-m-0">Booking Details</Title>
+      <Steps
+  current={currentStep}
+  onChange={(idx) => setCurrentStep(idx as StepKey)}
+  items={[
+    {
+      title: (
+        <span
+          style={{
+            color: currentStep === 0 ? "#1677ff" : "#8c8c8c",
+            fontWeight: currentStep === 0 ? 700 : 500,
+            textDecoration: currentStep === 0 ? "underline" : "none",
+          }}
+        >
+          Customer Details
+        </span>
+      ),
+    },
+    {
+      title: (
+        <span
+          style={{
+            color: currentStep === 1 ? "#1677ff" : "#8c8c8c",
+            fontWeight: currentStep === 1 ? 700 : 500,
+            textDecoration: currentStep === 1 ? "underline" : "none",
+          }}
+        >
+          Service Selection
+        </span>
+      ),
+    },
+  ]}
+  size="small"
+/>
+
+      <Card bordered style={{ borderRadius: 12 }}>
+        <Space direction="vertical" size={2} style={{ width: "100%" }}>
+          <Title level={4} style={{ margin: 0 }}>
+            Booking Details
+          </Title>
         </Space>
         <Form layout="vertical" form={form} className="sv-form">
           <Row gutter={[8, 0]}>
@@ -470,21 +539,21 @@ const Services: React.FC = () => {
   );
 
   const CategoryRow: React.FC<{ section: SectionKey }> = ({ section }) => {
-    const state = serviceForm[section];
-    return (
-      <div>
-        <Row gutter={[8, 8]} align="middle">
-          <Col xs={24} md={12}>
-            <Text strong className="sv-block sv-mb-6">Select Service Sub Category</Text>
-            <Select
-              value={state.subService ?? undefined}
-              placeholder="Select sub category"
-              className="sv-w-full"
-              options={SUBSERVICES[section]}
-              onChange={(v) => setSection(section, "subService", v as string)}
-              allowClear
-            />
-          </Col>
+  const state = serviceForm[section];
+  return (
+    <div>
+      <Row gutter={[8, 8]} align="middle">
+        <Col xs={24} md={12}>
+          <Text strong style={{ display: "block", marginBottom: 6 }}>
+            Sub Category
+          </Text>
+          <Select
+  placeholder="Select service"
+  loading={loading}
+  options={subServiceOptions[section?.toLowerCase()] || []}
+/>
+
+        </Col>
 
           <Col xs={24} md={12}>
             <Text strong className="sv-block sv-mb-6">Sub Category Type</Text>
@@ -611,12 +680,19 @@ const Services: React.FC = () => {
             <Title level={4} className="sv-m-0">Select Service Category</Title>
             <Space>
               <Select
-                className="sv-master-select"
-                value={master}
-                options={MASTER_OPTIONS}
-                onChange={(v) => setMaster(v as SectionKey)}
-                suffixIcon={<AppstoreAddOutlined />}
-              />
+  style={{ minWidth: 220 }}
+  value={master}
+  loading={loading}
+  options={
+    Object.keys(subServiceOptions).map((key) => ({
+      label: key.charAt(0).toUpperCase() + key.slice(1),
+      value: key,
+    })) || []
+  }
+  onChange={(v) => setMaster(v as SectionKey)}
+  suffixIcon={<AppstoreAddOutlined />}
+/>
+
             </Space>
           </Space>
         </Col>

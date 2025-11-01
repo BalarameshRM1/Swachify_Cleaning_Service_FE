@@ -207,7 +207,7 @@ const handleLogin = async (values: any) => {
 
 
   // Navigate to forgot password page with email as query param (optional)
-  navigate(`/forgotPassword?email=${encodeURIComponent(email)}`);
+  navigate(`/forgotPasswordlink?email=${encodeURIComponent(email)}`);
 };
 
   const scrollToSection = (id: string) => {

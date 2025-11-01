@@ -8,6 +8,7 @@ import Bookings from "../../pages/bookings/Bookings";
 // import Profile from "../../pages/profile/Profile";
 import Employees from "../../pages/employees/Employees";
 import Reports from "../../pages/Reports/Reports";
+import MasterScreen from "../../pages/masterScreen/MasterServices";
 
 export const SecureRoutes = () => {
     
@@ -21,6 +22,7 @@ export const SecureRoutes = () => {
             <Route path="tickets" element={<Tickets />} />
             <Route path="bookings" element={<Bookings />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="master" element={<MasterScreen />} /> 
 
 
         </Route>
