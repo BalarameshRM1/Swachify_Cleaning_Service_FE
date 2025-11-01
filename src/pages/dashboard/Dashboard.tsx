@@ -10,7 +10,7 @@ import { getallBookings, getallBookingsByUserId, getAllUsers } from "../../app/s
 import { getUserDetails } from "../../utils/helpers/storage";
 import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
-
+import moment from "moment";
 const { Title, Text } = Typography;
 
 
@@ -399,7 +399,9 @@ const Dashboard: React.FC = () => {
                           <Text style={{ fontSize: 14, color: "#6b7280" }}>
                             Date:{" "}
                             <span style={{ color: "#374151" }}>
-                              {booking.preferred_date || "N/A"}
+              {moment(booking?.created_date).format("MMMM D, YYYY")}
+
+                              {/* {booking.preferred_date || "N/A"} */}
                             </span>
                           </Text>
                         </div>
@@ -490,7 +492,7 @@ const Dashboard: React.FC = () => {
         background: "#fafafa",
       }}
     >
-      ({dashboardTasks?.pending?.length > 0 ? (
+      {dashboardTasks?.pending?.length > 0 ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {dashboardTasks.pending.map((booking: any) => (
             <div
@@ -512,14 +514,21 @@ const Dashboard: React.FC = () => {
             >
               <div style={{ flex: 1, minWidth: 0 }}>
                 <Text strong style={{ fontSize: 16, display: "block", marginBottom: 10, color: "#1f2937" }}>
-                  {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`}
+                  {/* {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`} */}
+                    {booking.department?.department_name
+                            || (Array.isArray(booking.services) && booking.services.length > 0
+                                ? booking.services.map((s: any) => `${s.department_name} - ${s.service_name}`).join(", ")
+                                : `Booking #${String(booking.id ?? "").toString().slice(-6)}`)}
                 </Text>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <Text style={{ fontSize: 14, color: "#6b7280" }}>
                     Customer: <span style={{ color: "#374151" }}>{booking.full_name || "Unknown"}</span>
                   </Text>
                   <Text style={{ fontSize: 14, color: "#6b7280" }}>
-                    Date: <span style={{ color: "#374151" }}>{booking.preferred_date || "N/A"}</span>
+                    Date: <span style={{ color: "#374151" }}>
+              {moment(booking?.created_date).format("MMMM D, YYYY")}
+                      {/* {booking.created_date || "N/A"} */}
+                      </span>
                   </Text>
                 </div>
               </div>
@@ -554,7 +563,7 @@ const Dashboard: React.FC = () => {
                 description="No active tickets"
               />
             )
-            })
+            }
             </div>
           </Card>
         </Col>

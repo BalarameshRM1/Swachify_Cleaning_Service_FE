@@ -258,15 +258,15 @@ const navigate = useNavigate();
     if (!hasService || subtotal <= 0) return 0;
     return Math.min(subtotal, Math.max(0, willingToPay));
   }, [hasService, subtotal, willingToPay]);
-  const changeStep = async (idx: StepKey) => {
-      if(!customerData){
-             message.warning("Please fill customer details first.");
-             setCurrentStep(currentStep as StepKey)
-            }
-            else{
-              setCurrentStep(idx as StepKey)  
-            }
-  }
+  // const changeStep = async (idx: StepKey) => {
+  //     if(!customerData){
+  //            message.warning("Please fill customer details first.");
+  //            setCurrentStep(currentStep as StepKey)
+  //           }
+  //           else{
+  //             setCurrentStep(idx as StepKey)  
+  //           }
+  // }
   const handleSubmit = async () => {
     try {
       setLoading(true);

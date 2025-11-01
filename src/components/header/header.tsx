@@ -15,7 +15,7 @@ import {
 import {
  // BellOutlined,
   SearchOutlined,
-  UserOutlined,
+  // UserOutlined,
   LogoutOutlined,
   SettingOutlined,
   ExclamationCircleOutlined,
