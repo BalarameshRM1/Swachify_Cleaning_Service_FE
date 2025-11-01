@@ -330,7 +330,7 @@ const Tickets: React.FC = () => {
                       </Text>{" "}
                       <Text style={{ marginLeft: 8, color: "#374151" }}>
                         {/* Ticket #{ticket?.id?.toString()?.slice(-6)} */}
-                        {ticket.services.map((s:any)=>`${s.department_name} - ${s.service_name}- ${s.service_type}`).join(",")}
+                        Plan: {ticket.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(",")}
 
                       </Text>
                     </Col>
