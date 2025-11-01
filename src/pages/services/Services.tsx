@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState,useEffect } from "react";
 import {
   Card,
   Row,
@@ -39,7 +39,7 @@ import dayjs from "dayjs";
 import { createBooking ,getAllMasterData } from "../../app/services/auth.ts";
 import { getUserDetails } from "../../utils/helpers/storage.ts";
 import "./Services.css";
-import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
+//import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
 
 
 const { Title, Text } = Typography;
@@ -133,7 +133,7 @@ const Services: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
   const [master, setMaster] = useState<SectionKey>("living"); // default to Living per SS
- const [masterData, setMasterData] = useState<any[]>([]);
+ //const [setMasterData] = useState<any[]>([]);
 const [loading, setLoading] = useState<boolean>(false);
 const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>>({});
 
@@ -242,7 +242,7 @@ const [subServiceOptions, setSubServiceOptions] = useState<Record<string, any[]>
       }, {});
 
       setSubServiceOptions(grouped);
-      setMasterData(data);
+      //setMasterData(data);
     } catch (err) {
       console.error("Error loading master data:", err);
     } finally {

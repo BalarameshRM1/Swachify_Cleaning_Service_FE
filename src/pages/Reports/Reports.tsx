@@ -447,7 +447,7 @@ const Reports: React.FC = () => {
 
               <Col xs={24} sm={12} md={8}>
                 <Select
-                  placeholder="Select Customer"
+                  placeholder="Search Customer"
                   allowClear
                   showSearch
                   style={{ width: "100%" }}

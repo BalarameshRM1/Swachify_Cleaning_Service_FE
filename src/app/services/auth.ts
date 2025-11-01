@@ -83,6 +83,69 @@ export const getAllDepartments = async() =>{
     }
 }
 
+export const getAllMasterData = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/Master/getallmasterData`);
+    if (!response.ok) throw new Error("Failed to fetch master data");
+
+    const result = await response.json();
+    console.log("Master API result:", result);
+
+    
+    return Array.isArray(result?.departments) ? result.departments : [];
+  } catch (error) {
+    console.error("Error fetching Master Data:", error);
+    return [];
+  }
+};
+export const createMasterData = async (masterData: any) => {
+  try {
+    const response = await fetch(`${baseUrl}/Master/createmasterData`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(masterData),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`Failed to create master data: ${err}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error createMasterData:", error);
+    throw error;
+  }
+};
+export const updateMasterData = async (id: number, updatedData: any) => {
+  try {
+     const response = await fetch(`${baseUrl}/Master/createmasterData`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(" Update failed:", errText);
+      console.error("GettigDetails",id)
+      throw new Error(`Failed to update master data (${response.status})`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error updateMasterData:", error);
+    throw error;
+  }
+};
+
+
 // export const getAllServices = async() =>{
 //     try {
 //         const response = await fetch(`${baseUrl}/Master/getallservices`);
