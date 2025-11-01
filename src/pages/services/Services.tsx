@@ -1,5 +1,5 @@
-import React, { useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ added import
+import React, { useMemo, useRef, useState,useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 import {
   Card,
   Row,
@@ -40,6 +40,7 @@ import dayjs from "dayjs";
 import { createBooking ,getAllMasterData } from "../../app/services/auth.ts";
 import { getUserDetails } from "../../utils/helpers/storage.ts";
 import "./Services.css";
+import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
 //import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
 
 
@@ -120,10 +121,6 @@ const usdFormatter = (value?: string | number) => {
   return `$ ${n}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-// const usdParser = (value?: string) =>
-//   !value ? 0 : Number(String(value).replace(/[^0-9.-]+/g, "")) || 0;
-
-
 const Services: React.FC = () => {
   const [form] = Form.useForm();
   const [isContinueDisabled, setIsContinueDisabled] = useState(true);
@@ -137,7 +134,9 @@ const Services: React.FC = () => {
   };
 
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
-  const [master, setMaster] = useState<SectionKey>("bedroom");
+  const [master, setMaster] = useState<SectionKey>("bedroom"); // default to Living per SS
+const [loading, setLoading] = useState<boolean>(false);
+const [setSubServiceOptions] = useState<Record<string, any[]>>({});  
 
   const [serviceForm, setServiceForm] = useState<FormState>({
     bedroom: { subService: null, type: null, addOnHours: [] },
@@ -366,34 +365,31 @@ const navigate = useNavigate();
       console.log("✅ Final Booking Payload:", payload);
 
       const response = await createBooking(payload);
-     if (response?.status === 200 || response?.status === 201) {
-  message.success("Booking created successfully!");
-  form.resetFields();
-  setCustomerData(null);
-  setServiceForm({
-    bedroom: { subService: null, type: null, addOnHours: [] },
-    bathroom: { subService: null, type: null, addOnHours: [] },
-    kitchen: { subService: null, type: null, addOnHours: [] },
-    living: { subService: null, type: null, addOnHours: [] },
-  });
-  setAddonsOpen({
-    bedroom: false,
-    bathroom: false,
-    kitchen: false,
-    living: false,
-  });
-  setCustomerRequest(0);
-  setCurrentStep(0);
-  setMaster("bathroom");
-
-  // ✅ Redirect to Bookings page
-  setTimeout(() => {
+      if (response?.status === 200 || response?.status === 201) {
+        message.success("Booking created successfully!");
+        form.resetFields();
+        setCustomerData(null);
+        setServiceForm({
+          bedroom: { subService: null, type: null, addOnHours: [] },
+          bathroom: { subService: null, type: null, addOnHours: [] },
+          kitchen: { subService: null, type: null, addOnHours: [] },
+          living: { subService: null, type: null, addOnHours: [] },
+        });
+        setAddonsOpen({
+          bedroom: false,
+          bathroom: false,
+          kitchen: false,
+          living: false,
+        });
+        setCustomerRequest(0);
+        setCurrentStep(0);
+        setMaster("bathroom");  
+        setTimeout(() => {
     navigate("../bookings");
   }, 800);
 } else {
   message.error("Failed to create booking. Please try again.");
 }
-
     } catch (err: any) {
       // eslint-disable-next-line no-console
       console.error("Booking error:", err);
@@ -409,25 +405,49 @@ const navigate = useNavigate();
 
   const CustomerDetails = (
     <>
-      <div className="sv-steps-wrap">
-        <Steps
-          current={currentStep}
-          onChange={(idx) =>
-          changeStep(idx as StepKey)  
-          }
-          items={[{ title: "Customer Details" }, { title: "Service Selection" }]}
-          size="small"
-          className="sv-steps-bar"
-        />
-      </div>
-   <Card bordered className="sv-card">
-  <Space direction="vertical" size={2} className="sv-w-full">
-    <Title level={4} className="sv-m-0">
-      Booking Details
-    </Title>
-  </Space>
+    <div className="sv-steps-wrap">
+      <Steps
+  current={currentStep}
+  onChange={(idx) => setCurrentStep(idx as StepKey)}
+  items={[
+    {
+      title: (
+        <span
+          style={{
+            color: currentStep === 0 ? "#1677ff" : "#8c8c8c",
+            fontWeight: currentStep === 0 ? 700 : 500,
+            textDecoration: currentStep === 0 ? "underline" : "none",
+          }}
+        >
+          Customer Details
+        </span>
+      ),
+    },
+    {
+      title: (
+        <span
+          style={{
+            color: currentStep === 1 ? "#1677ff" : "#8c8c8c",
+            fontWeight: currentStep === 1 ? 700 : 500,
+            textDecoration: currentStep === 1 ? "underline" : "none",
+          }}
+        >
+          Service Selection
+        </span>
+      ),
+    },
+  ]}
+  size="small"
+  className="sv-steps-bar"
+/></div>
 
-  <Form
+      <Card bordered className="sv-card" style={{ borderRadius: 12 }}>
+        <Space direction="vertical" size={2} className="sv-w-full" style={{ width: "100%" }}>
+          <Title level={4} style={{ margin: 0 }}>
+            Booking Details
+          </Title>
+        </Space>
+          <Form
     layout="vertical"
     form={form}
     className="sv-form"
@@ -446,21 +466,20 @@ const navigate = useNavigate();
       setIsContinueDisabled(!allFilled);
     }}
   >
-    <Row gutter={[8, 0]}>
-      {/* Full Name */}
-      <Col xs={24} md={12}>
-        <Form.Item
-          label="Full name"
-          name="fullName"
-          rules={[
-            { required: true, message: "Please enter your name" },
-            {
-              pattern: /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/,
-              message: "Enter valid full name (First and Last name)",
-            },
-          ]}
-        >
-          <Input
+          <Row gutter={[8, 0]}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label="Full name"
+                name="fullName"
+                rules={[
+                  { required: true, message: "Please enter your name" },
+                  {
+                    pattern: /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/,
+                    message: "Enter valid full name (First and Last name)",
+                  },
+                ]}
+              >
+                <Input
             prefix={<UserOutlined />}
             placeholder="Enter full name"
             onChange={(e) => {
@@ -469,40 +488,36 @@ const navigate = useNavigate();
               form.setFieldsValue({ fullName: clean });
             }}
           />
-        </Form.Item>
-      </Col>
-
-      {/* Preferred Date - disable manual entry */}
-      <Col xs={24} md={12}>
-        <Form.Item
-          label="Preferred date"
-          name="date"
-          rules={[{ required: true, message: "Please select a date" }]}
-        >
-          <DatePicker
-            className="sv-w-full"
-            suffixIcon={<CalendarOutlined />}
-            disabledDate={(d) => d && d < dayjs().startOf("day")}
-            format="DD-MM-YYYY"
-            inputReadOnly   // ✅ disables manual typing
-          />
-        </Form.Item>
-      </Col>
-
-      {/* Phone - Only numbers, start with 6–9, 10 digits */}
-      <Col xs={24} md={12}>
-        <Form.Item
-          label="Phone"
-          name="phone"
-          rules={[
-            { required: true, message: "Please enter your phone number" },
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label="Preferred date"
+                name="date"
+                rules={[{ required: true, message: "Please select a date" }]}
+              >
+                <DatePicker
+                  className="sv-w-full"
+                  suffixIcon={<CalendarOutlined />}
+                  disabledDate={(d) => d && d < dayjs().startOf("day")}
+                  format="DD-MM-YYYY"
+                  inputReadOnly
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label="Phone"
+                name="phone"
+                rules={[
+                  { required: true, message: "Please enter your phone number" },
             {
               pattern: /^[6-9][0-9]{9}$/,
               message: "Enter a valid 10-digit phone number starting with 6–9",
             },
-          ]}
-        >
-          <Input
+                ]}
+              >
+                 <Input
             prefix={<PhoneOutlined />}
             placeholder="9876543210"
             maxLength={10}
@@ -514,23 +529,21 @@ const navigate = useNavigate();
               form.setFieldsValue({ phone: onlyNums });
             }}
           />
-        </Form.Item>
-      </Col>
-
-      {/* Email - should not start with number or special symbol */}
-      <Col xs={24} md={12}>
-        <Form.Item
-          name="email"
-          label="Email"
-          rules={[
-            { required: true, message: "Please enter email" },
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Please enter email" },
             {
               pattern: /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
               message: "Email cannot start with number or special character",
             },
-          ]}
-        >
-          <Input
+                ]}
+              >
+                 <Input
             prefix={<MailOutlined />}
             placeholder="Enter email address"
             onChange={(e) => {
@@ -540,16 +553,14 @@ const navigate = useNavigate();
               form.setFieldsValue({ email: val });
             }}
           />
-        </Form.Item>
-      </Col>
-
-      {/* Address - must contain door/flat no. + pincode */}
-      <Col xs={24}>
-        <Form.Item
-          label="Address"
-          name="address"
-          rules={[
-            { required: true, message: "Please enter your address" },
+              </Form.Item>
+            </Col>
+            <Col xs={24}>
+              <Form.Item
+                label="Address"
+                name="address"
+                rules={[
+                   { required: true, message: "Please enter your address" },
             {
               validator: (_, value) => {
                 if (!value || value.trim() === "")
@@ -573,9 +584,9 @@ const navigate = useNavigate();
                 return Promise.resolve();
               },
             },
-          ]}
-        >
-          <Input.TextArea
+                ]}
+              >
+                <Input.TextArea
             rows={3}
             placeholder="Flat, street, landmark, city, postal code"
             maxLength={200}
@@ -585,49 +596,43 @@ const navigate = useNavigate();
               form.setFieldsValue({ address: clean });
             }}
           />
-        </Form.Item>
-      </Col>
-    </Row>
-
-    {/* Continue Button */}
-    <Row justify="end">
-      <Col xs={24} sm={12} md={8} lg={6}>
-        <Button
-          size="large"
-          type="primary"
-          icon={<ArrowRightOutlined />}
-          onClick={async () => {
-            try {
-              const values = await form.validateFields();
-              setCustomerData(values);
-              setCurrentStep(1);
-            } catch {
-              message.error("Please complete all required fields.");
-            }
-          }}
-          block
-          className="sv-btn-primary"
-          disabled={isContinueDisabled}
-        >
-          Continue
-        </Button>
-      </Col>
-    </Row>
-  </Form>
-</Card>
-
-
+            </Form.Item>
+            </Col>
+          </Row>
+          <Row justify="end">
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Button
+                size="large"
+                type="primary"
+                icon={<ArrowRightOutlined />}
+                onClick={async () => {
+                  try {
+                    const values = await form.validateFields();
+                    setCustomerData(values);
+                    setCurrentStep(1);
+                  } catch {
+                    message.error("Please complete all required fields.");
+                  }
+                }}
+                block
+                className="sv-btn-primary"
+                disabled={isContinueDisabled}
+              >
+                Continue
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Card>
     </>
   );
 
-   const CategoryRow: React.FC<{ section: SectionKey }> = ({ section }) => {
+  const CategoryRow: React.FC<{ section: SectionKey }> = ({ section }) => {
   const state = serviceForm[section];
-
-
   return (
-    <Row gutter={[16, 16]} align="middle">
-      {/* Sub Category */}
-      <Col xs={24} md={12}>
+    <div>
+      <Row gutter={[8, 8]} align="middle">
+        <Col xs={24} md={12}>
         <Text strong className="sv-block sv-mb-6">
           Select Service Sub Category
         </Text>
@@ -648,48 +653,45 @@ const navigate = useNavigate();
         />
       </Col>
 
-
-      {/* Sub Category Type */}
-      <Col xs={24} md={12}>
-        <Text strong className="sv-block sv-mb-6">
+          <Col xs={24} md={12}>
+            <Text strong className="sv-block sv-mb-6">
           Sub Category Type
         </Text>
-        <Select
-          value={state.type ?? undefined}
-          placeholder="Select cleaning type"
-          className="sv-w-full"
-          allowClear
-          disabled={!state.subService} // ✅ will disable when no subService
+            <Select
+              value={state.type ?? undefined}
+              placeholder="Select cleaning type"
+              className="sv-w-full"
+              disabled={!state.subService} // ✅ will disable when no subService
           onChange={(v) => setSection(section, "type", v as CleanType)}
-          options={[
-            {
-              label: (
-                <Space size={6}>
-                  <span>Normal</span>
-                  <Tag className="sv-accent-tag">
+              allowClear
+              options={[
+                {
+                  label: (
+                    <Space size={6}>
+                      <span>Normal</span>
+                       <Tag className="sv-accent-tag">
                     +{`$${PRICING.typeDelta.Normal}`}
                   </Tag>
-                </Space>
-              ),
-              value: "Normal",
-            },
-            {
-              label: (
-                <Space size={6}>
-                  <span>Deep Cleaning</span>
-                  <Tag className="sv-accent-tag">
-                    +{`$${PRICING.typeDelta.Deep}`}
-                  </Tag>
-                </Space>
-              ),
-              value: "Deep",
-            },
-          ]}
-        />
-      </Col>
-    </Row>
-  );
-};
+                    </Space>
+                  ),
+                  value: "Normal",
+                },
+                {
+                  label: (
+                    <Space size={6}>
+                      <span>Deep Cleaning</span>
+                      <Tag className="sv-accent-tag">+{`$${PRICING.typeDelta.Deep}`}</Tag>
+                    </Space>
+                  ),
+                  value: "Deep",
+                },
+              ]}
+            />
+          </Col>
+        </Row>
+      </div>
+    );
+  };
 
   const SectionCard: React.FC<{ section: SectionKey }> = ({ section }) => {
     const meta = SECTION_META[section];
@@ -775,7 +777,7 @@ const navigate = useNavigate();
         </ConfigProvider>
       </div>
 
-<Row
+  <Row
   align="middle"
   justify="space-between"
   className="sv-toolbar allign_category"
@@ -821,7 +823,6 @@ const navigate = useNavigate();
   {/* Right side - empty (to balance center alignment) */}
   <Col flex="100px" />
 </Row>
-
 
       <Row gutter={[16, 16]} className="sv-content-row">
         <Col xs={24} lg={16} className="sv-left-pane">
@@ -929,10 +930,10 @@ const navigate = useNavigate();
                   <Text strong>{hasService ? usdFormatter(subtotal) : "$ 0"}</Text>
                 </div>
 
-              <div className="sv-req-wrap">
-  <div className="sv-flex-between sv-mb-6">
-    <Text strong>Customer Requested</Text>
-    <InputNumber
+                <div className="sv-req-wrap">
+                  <div className="sv-flex-between sv-mb-6">
+                    <Text strong>Customer Requested</Text>
+               <InputNumber
       className="sv-money-input"
       min={0}
       value={customerRequest}
@@ -960,8 +961,8 @@ const navigate = useNavigate();
         }
       }}
       placeholder="$ 0"
-    />
-  </div>
+    />                
+    </div>
 </div>
 
 
