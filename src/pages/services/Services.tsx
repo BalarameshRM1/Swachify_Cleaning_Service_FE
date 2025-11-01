@@ -136,7 +136,7 @@ const Services: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
   const [master, setMaster] = useState<SectionKey>("bedroom"); // default to Living per SS
 const [loading, setLoading] = useState<boolean>(false);
-const [setSubServiceOptions] = useState<Record<string, any[]>>({});  
+const [setSubServiceOptions] = useState<any>({});  
 
   const [serviceForm, setServiceForm] = useState<FormState>({
     bedroom: { subService: null, type: null, addOnHours: [] },
@@ -258,15 +258,15 @@ const navigate = useNavigate();
     if (!hasService || subtotal <= 0) return 0;
     return Math.min(subtotal, Math.max(0, willingToPay));
   }, [hasService, subtotal, willingToPay]);
-  const changeStep = async (idx: StepKey) => {
-      if(!customerData){
-             message.warning("Please fill customer details first.");
-             setCurrentStep(currentStep as StepKey)
-            }
-            else{
-              setCurrentStep(idx as StepKey)  
-            }
-  }
+  // const changeStep = async (idx: StepKey) => {
+  //     if(!customerData){
+  //            message.warning("Please fill customer details first.");
+  //            setCurrentStep(currentStep as StepKey)
+  //           }
+  //           else{
+  //             setCurrentStep(idx as StepKey)  
+  //           }
+  // }
   const handleSubmit = async () => {
     try {
       setLoading(true);

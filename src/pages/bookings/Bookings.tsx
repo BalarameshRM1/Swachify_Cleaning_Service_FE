@@ -90,7 +90,7 @@ const Bookings: React.FC = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [assigningEmployee, setAssigningEmployee] = useState(false);
+  // const [assigningEmployee, setAssigningEmployee] = useState(false);
 
 
  
@@ -550,7 +550,7 @@ const Bookings: React.FC = () => {
         width={650}
         bodyStyle={{ padding: "16px 24px" }}
       >
-       {assigningEmployee && (
+       {/* {assigningEmployee && (
   <div
     style={{
       position: "absolute",
@@ -583,7 +583,7 @@ const Bookings: React.FC = () => {
       Assigning employee...
     </Text>
   </div>
-)}
+)} */}
 
 
         <div style={{ maxHeight: 400, overflowY: "auto", marginTop: 16, paddingRight: 8 }}>
