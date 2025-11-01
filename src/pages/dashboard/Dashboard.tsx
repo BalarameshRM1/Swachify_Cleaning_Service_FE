@@ -6,14 +6,10 @@ import {
   FileTextOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
-import {
-  getallBookings,
-  getallBookingsByUserId,
-  getAllUsers,
-} from "../../app/services/auth";
+import { getallBookings, getallBookingsByUserId, getAllUsers } from "../../app/services/auth";
 import { getUserDetails } from "../../utils/helpers/storage";
 import "./Dashboard.css";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
@@ -99,10 +95,9 @@ const Dashboard: React.FC = () => {
         level={2}
         style={{ marginTop: 0, marginBottom: 32, fontWeight: 700 }}
       >
-        Welcome Swachify
+        Welcome Swachify!
       </Title>
 
-      {/* === TOP STAT CARDS === */}
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} lg={userData?.role_id !== 3 ? 6 : 8}>
           <Card
@@ -177,13 +172,7 @@ const Dashboard: React.FC = () => {
               height: "160px",
               background: "white",
             }}
-            bodyStyle={{
-              padding: "28px",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
+            bodyStyle={{ padding: '28px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
           >
             <div
               style={{
@@ -193,7 +182,7 @@ const Dashboard: React.FC = () => {
               }}
             >
               <Text style={{ color: "#6b7280", fontSize: 16, fontWeight: 500 }}>
-                Pending Tickets
+                Pending Active Bookings
               </Text>
               <ClockCircleOutlined
                 className="icon-bounce"
@@ -247,7 +236,7 @@ const Dashboard: React.FC = () => {
               }}
             >
               <Text style={{ color: "#6b7280", fontSize: 16, fontWeight: 500 }}>
-                Open Tickets
+                In-Progress Open Tickets
               </Text>
               <FileTextOutlined
                 className="icon-bounce"
@@ -329,7 +318,6 @@ const Dashboard: React.FC = () => {
         )}
       </Row>
 
-      {/* === RECENT BOOKINGS SECTION === */}
       <Row gutter={[24, 24]} style={{ marginTop: "32px" }}>
         <Col xs={24} lg={12}>
           <Card
@@ -388,18 +376,13 @@ const Dashboard: React.FC = () => {
                       }}
                     >
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <Text
-                          strong
-                          style={{
-                            fontSize: 16,
-                            display: "block",
-                            marginBottom: 10,
-                            color: "#1f2937",
-                          }}
-                        >
-                          {booking.department?.department_name ||
-                            `Booking #${booking.id.toString().slice(-6)}`}
+                        <Text strong style={{ fontSize: 16, display: 'block', marginBottom: 10, color: '#1f2937' }}>
+                          {booking.department?.department_name
+                            || (Array.isArray(booking.services) && booking.services.length > 0
+                                ? booking.services.map((s: any) => `${s.department_name} - ${s.service_name}`).join(", ")
+                                : `Booking #${String(booking.id ?? "").toString().slice(-6)}`)}
                         </Text>
+
                         <div
                           style={{
                             display: "flex",
@@ -443,7 +426,6 @@ const Dashboard: React.FC = () => {
                             borderRadius: 8,
                             cursor: "pointer",
                           }}
-                          // onClick={() => navigate("/bookings")}
                           onClick={() => navigate("../bookings")}
 
                         >
