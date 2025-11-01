@@ -31,6 +31,7 @@ import {
   deleteBookingById,
 } from "../../app/services/auth";
 import LoaderGif from "../../assets/SWACHIFY_gif.gif";
+import { useLocation } from "react-router-dom"; // <-- 1. IMPORT useLocation
 
 const { Title, Text } = Typography;
 
@@ -78,6 +79,7 @@ const getStatusStyle = (raw?: string) => {
 };
 
 const Bookings: React.FC = () => {
+  const location = useLocation(); 
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -114,17 +116,6 @@ const Bookings: React.FC = () => {
       (typeof b.slot_id === "number" ? Slots.find((s) => s.id === b.slot_id)?.slot_time : "") ||
       "N/A";
 
-    let planType = null;
-    if (Array.isArray(b.services) && b.services.length > 0 && b.services[0]?.service_type) {
-      const serviceType = b.services[0].service_type; 
-      
-      if (serviceType === "Deep Cleaning") {
-        planType = "Deep Cleaning";
-      } else if (serviceType === "Normal Cleaning") {
-        planType = "Normal Cleaning";
-      }
-    }
-
     return {
       ...b,
       status: statusText,     
@@ -132,20 +123,26 @@ const Bookings: React.FC = () => {
       serviceNames: serviceNames, 
       bookingIdText: b.booking_id || b.id,
       slotText: slotText,
-      planType: planType, 
     };
   };
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        setLoadingBookings(true);        
+        setLoadingBookings(true);
+        const initialFilter = location.state?.initialFilter; 
+        
         const raw = await getallBookings(); 
         if (raw) {
           const normalized = raw.map(normalize).sort((a: any, b: any) => b.id - a.id);
           
-          const openBookings = normalized.filter((b: any) => b.status === "Open");
-          setBookings(openBookings);
+          if (initialFilter) {
+            const filtered = normalized.filter((b: any) => b.status === initialFilter);
+            setBookings(filtered);
+            window.history.replaceState({}, document.title);
+          } else {
+            setBookings(normalized);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch bookings:", error);
@@ -154,7 +151,7 @@ const Bookings: React.FC = () => {
       }
     };
     fetchBookings();
-  }, []); 
+  }, [location.state]); 
 
   if (loadingBookings) {
     return (
@@ -312,12 +309,10 @@ const Bookings: React.FC = () => {
       } else {
         message.success("Employee assigned and booking updated.");
       }
-      
       const refreshed = await getallBookings();
       if (refreshed) {
         const normalized = refreshed.map(normalize).sort((a: any, b: any) => b.id - a.id);
-        const openBookings = normalized.filter((b: any) => b.status === "Open");
-        setBookings(openBookings);
+        setBookings(normalized);
       }
       closeAssignModal();
     } catch (error: any) {
@@ -364,17 +359,14 @@ const Bookings: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 8 }}>
-        BOOKINGS MANAGEMENT
+      <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 24 }}>
+        Bookings Management
       </Title>
-      {/* <Text type="secondary" style={{ fontSize: 16, display: 'block', marginBottom: 24 }}>
-        This page shows all new bookings that need an employee assigned.
-      </Text> */}
 
       <div
         className="scrollable-content"
         style={{
-          maxHeight: "calc(100vh - 220px)",
+          maxHeight: "calc(100vh - 180px)",
           overflowY: "auto",
           paddingRight: 12,
           paddingLeft: 4,
@@ -426,33 +418,27 @@ const Bookings: React.FC = () => {
                       }}
                     >
                       <Space direction="vertical" size={4}>
-                        <Title
-                          level={5}
-                          style={{ fontSize: 16, color: "#115e59", fontWeight: 600, margin: 0 }}
-                        >
-                          {item.deptName}
-                        </Title>
-
-                        <Text
-                          type="secondary"
-                          style={{ fontSize: 13, fontWeight: 500, paddingBottom: 4 }}
-                        >
-                          Service: {item.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(",")}
-                        </Text>
-                        
-                    
-                        {item.planType && (
-                          <Tag
-                            color={
-                              item.planType === "Premium" ? "gold" :
-                              item.planType === "Ultimate" ? "purple" : "cyan"
-                            }
-                            style={{ fontWeight: 500 }}
-                          >
-                            {item.planType} Plan
-                          </Tag>
-                        )}
-
+                        <div style={{ marginBottom: 8 }}>
+                          {item.services.map((s: any, index: number) => (
+                            <div key={index} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                              <Text style={{ fontSize: 16, fontWeight: 600, color: "#1f2937", marginRight: 8 }}>
+                                {s.department_name} - {s.service_name}
+                              </Text>
+                              
+                              <Tag 
+                                style={{ 
+                                  backgroundColor: "#e0f2fe", 
+                                  color: "#0284c7", 
+                                  borderColor: "#bfdbfe",
+                                  fontWeight: 500,
+                                  marginRight: 0 
+                                }}
+                              >
+                                {s.service_type || 'Standard Plan'}
+                              </Tag>
+                            </div>
+                          ))}
+                        </div>
 
                         <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>
                           <Text style={{ fontSize: 14 }}>
@@ -490,29 +476,10 @@ const Bookings: React.FC = () => {
                           {st.text}
                         </span>
 
-                        {/* {item.planType && (
-                          <Tag
-                            color={
-                              item.planType === "Premium" ? "gold" :
-                              item.planType === "Ultimate" ? "purple" : "cyan"
-                            }
-                            style={{
-                              fontWeight: "bold",
-                              padding: "4px 12px",
-                              borderRadius: "16px",
-                              textAlign: "center",
-                              minWidth: 100,
-                              fontSize: 12,
-                            }}
-                          >
-                            {item.planType} Plan
-                          </Tag>
-                        )} */}
-
                         <Button
                           type="primary"
                           onClick={() => openAssignModal(item.id)}
-                          disabled={false} 
+                          disabled={item.status !== "Open"}
                           style={{ backgroundColor: "#0D9488", borderColor: "#0D9488" }}
                         >
                           Assign Employee
@@ -536,11 +503,7 @@ const Bookings: React.FC = () => {
                 <CalendarOutlined style={{ fontSize: 48, color: "#cbd5e1", marginBottom: 16 }} />
                 <br />
                 <Text strong type="secondary" style={{ fontSize: 16, color: "#9ca3af" }}>
-                  No "Open" bookings found.
-                </Text>
-                <br />
-                <Text type="secondary" style={{ color: "#9ca3af" }}>
-                  All new bookings have been assigned.
+                  No bookings found.
                 </Text>
               </Card>
             </Col>
@@ -755,11 +718,6 @@ const Bookings: React.FC = () => {
             }}
           >
             <Text strong>{selectedBooking.deptName}</Text>
-            {selectedBooking.planType && (
-              <Tag color="magenta" style={{ marginLeft: 8 }}>
-                {selectedBooking.planType} Plan
-              </Tag>
-            )}
             <br />
             <Text type="secondary" style={{ fontSize: 13 }}>
               Status: {selectedBooking.status || "Unknown"}
