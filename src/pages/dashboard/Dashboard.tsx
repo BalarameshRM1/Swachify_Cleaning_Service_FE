@@ -6,14 +6,19 @@ import {
   FileTextOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+
 import { getallBookings, getallBookingsByUserId, getAllUsers } from "../../app/services/auth";
 import { getUserDetails } from "../../utils/helpers/storage";
 import "./Dashboard.css";
 
 const { Title, Text } = Typography;
 
+
+
 const Dashboard: React.FC = () => {
   const userData = getUserDetails('user');
+  const navigate = useNavigate();
   const [userList, setUserList] = React.useState<any>([]);
   const [dashboardTasks, setDashboardTasks] = React.useState<any>({
     pending: [],
@@ -123,6 +128,11 @@ const Dashboard: React.FC = () => {
               height: '160px',
               background: 'white',
             }}
+//            onClick={() => {
+//   console.log("Navigating to bookings...");
+//   navigate("/bookings");
+// }}
+
             bodyStyle={{ padding: '28px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

@@ -110,7 +110,8 @@ const Reports: React.FC = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
 
   const [selectedCustomerName, setSelectedCustomerName] = useState<string | undefined>();
-  const [selectedDeptId, setSelectedDeptId] = useState<number | undefined>();
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+
 
   // Fetch all data on mount
   useEffect(() => {
@@ -124,12 +125,16 @@ const Reports: React.FC = () => {
       getAllUsers(),
       getAllDepartments(),
       getallBookings(),
+      console.log(departments)
     ]);
 
     const normalizedBookings = (bookingsData || []).map((b: any) => ({
       ...b,
       assign_to_name: b.employee_name || null,
-      status: { id: b.status_id, status: b.status || "Unknown", is_active: true },
+     status: typeof b.status === "object"
+  ? b.status
+  : { id: b.status_id, status: b.status || "Unknown", is_active: true },
+
       department: b.services?.[0]
         ? {
             id: b.services[0].dept_id,
@@ -195,8 +200,9 @@ const Reports: React.FC = () => {
   // Reset filters
   const handleReset = () => {
     setDateRange(null);
+    setSelectedStatus(null);
     setSelectedCustomerName(undefined);
-    setSelectedDeptId(undefined);
+    //setSelectedDeptId(undefined);
     setFilteredBookings(bookings);
     message.info("Filters reset - Showing all bookings");
   };
@@ -227,10 +233,18 @@ const Reports: React.FC = () => {
     }
 
     // Department filter
-    if (selectedDeptId !== undefined) {
-      filtered = filtered.filter((b) => b.dept_id === selectedDeptId);
-      filterCount++;
-    }
+    if (selectedStatus) {
+  filtered = filtered.filter((b) => {
+  const statusValue =
+    typeof b.status === "string"
+      ? b.status
+      : b.status?.status || "Unknown";
+  return statusValue === selectedStatus;
+});
+
+  filterCount++;
+}
+
 
     console.log(`Applied ${filterCount} filter(s), found ${filtered.length} result(s)`);
     setFilteredBookings(filtered);
@@ -485,26 +499,24 @@ const Reports: React.FC = () => {
 
               </Col>
 
-              <Col xs={24} sm={12} md={8}>
-                <Select
-                  placeholder="Select Department"
-                  allowClear
-                  showSearch
-                  style={{ width: "100%" }}
-                  value={selectedDeptId}
-                  onChange={setSelectedDeptId}
-                  filterOption={(input, option) => {
-                    const label = String(option?.children || "");
-                    return label.toLowerCase().includes(input.toLowerCase());
-                  }}
-                >
-                  {departments.map((d) => (
-                    <Option key={d.id} value={d.id}>
-                      {d.department_name}
-                    </Option>
-                  ))}
-                </Select>
-              </Col>
+             <Col xs={24} sm={12} md={8}>
+  <Select
+    placeholder="Select Status"
+    allowClear
+    style={{ width: "100%" }}
+    value={selectedStatus}
+    onChange={setSelectedStatus}
+  >
+    {[...new Set(bookings.map((b) => b.status?.status || "Unknown"))].map(
+      (status) => (
+        <Option key={status} value={status}>
+          {status}
+        </Option>
+      )
+    )}
+  </Select>
+</Col>
+
             </Row>
 
             {/* Filter and Export Buttons */}
