@@ -1,49 +1,61 @@
 import React from "react";
 import { Form, Input, Button, Typography, message } from "antd";
 import { Link } from "react-router-dom";
+import { Sendresetlink } from "../../app/services/auth";
 
 const { Title, Text } = Typography;
 
-interface User {
-  id: string;
-  email: string;
-  password: string;
-  name: string;
-  lastLogin?: string;
-}
+// interface User {
+//   id: string;
+//   email: string;
+//   password: string;
+//   name: string;
+//   lastLogin?: string;
+// }
 
-const getUsers = (): User[] => {
-  const usersStr = localStorage.getItem("users");
-  if (!usersStr) return [];
-  try {
-    return JSON.parse(usersStr) as User[];
-  } catch {
-    return [];
-  }
-};
+// const getUsers = (): User[] => {
+//   const usersStr = localStorage.getItem("users");
+//   if (!usersStr) return [];
+//   try {
+//     return JSON.parse(usersStr) as User[];
+//   } catch {
+//     return [];
+//   }
+// };
 
-const sendPasswordResetEmail = async (email: string, user: User) => {
-  const resetLink = `https://your-app.com/reset-password/${user.id}`;
-  console.log(`Password reset link for ${email}: ${resetLink}`);
-  return new Promise((resolve) => setTimeout(resolve, 1500));
-};
+// const sendPasswordResetEmail = async (email: string, user: User) => {
+//   const resetLink = `https://your-app.com/reset-password/${user.id}`;
+//   console.log(`Password reset link for ${email}: ${resetLink}`);
+//   return new Promise((resolve) => setTimeout(resolve, 1500));
+// };
 
 const ForgotPasswordLink: React.FC = () => {
   const [form] = Form.useForm();
 
   const onFinish = async (values: { email: string }) => {
     const email = values.email.trim().toLowerCase();
-    const users = getUsers();
-    const user = users.find((u) => u.email === email);
 
-    if (!user) {
-      message.error("No account found with this email.");
-      return;
+    try {
+      message.loading({ content: "Sending reset link...", key: "sending" });
+
+      // ✅ Call backend API
+      const response = await Sendresetlink({ email });
+
+      message.success({
+        content: `Password reset link sent to ${email}`,
+        key: "sending",
+        duration: 3,
+      });
+
+      console.log("✅ API Response:", response);
+    } catch (error: any) {
+      console.error("❌ Error sending reset link:", error);
+      message.error({
+        content:
+          error?.message || "Failed to send reset link. Please try again.",
+        key: "sending",
+      });
     }
-
-    message.info("Sending reset email...");
-    await sendPasswordResetEmail(email, user);
-    message.success(`✓ Password reset link sent to ${email}. Check console for demo link.`);
   };
 
   return (
