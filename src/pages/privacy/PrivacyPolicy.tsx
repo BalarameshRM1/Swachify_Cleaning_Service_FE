@@ -1,17 +1,35 @@
 import React from "react";
-import { Typography, Divider, Layout } from "antd";
+import { Typography, Divider, Layout, Button } from "antd";
+import { useNavigate } from "react-router-dom";
+import { CloseOutlined } from "@ant-design/icons";
 
 const { Title, Paragraph, Text, Link } = Typography;
 const { Content } = Layout;
 
 const PrivacyPolicy: React.FC = () => {
-  return (
-    <Layout style={{ background: "#fff" }}>
+  const navigate = useNavigate();
+
+   return (
+    <Layout style={{ background: "#fff", position: "relative", minHeight: "100vh" }}>
+
+      <Button
+        type="text"
+        icon={<CloseOutlined style={{ fontSize: 22, color: "#000" }} />}
+        onClick={() => navigate("/")}
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+          zIndex: 1000,
+        }}
+      />
+
       <Content style={{ padding: "60px 20px", maxWidth: 1000, margin: "0 auto" }}>
         <Typography>
           <Title level={2} style={{ textAlign: "center", marginBottom: 40 }}>
             Privacy Policy
           </Title>
+
 
          
 

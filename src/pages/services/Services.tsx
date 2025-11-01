@@ -37,10 +37,11 @@ import {
   MailOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { createBooking } from "../../app/services/auth.ts";
+import { createBooking ,getAllMasterData } from "../../app/services/auth.ts";
 import { getUserDetails } from "../../utils/helpers/storage.ts";
 import "./Services.css";
-import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
+//import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
+
 
 const { Title, Text } = Typography;
 
@@ -153,7 +154,7 @@ const Services: React.FC = () => {
   });
 
   const [customerRequest, setCustomerRequest] = useState<number>(0);
-  const [loading, setLoading] = useState(false);
+  
   const [customerData, setCustomerData] = useState<any>(null);
 const navigate = useNavigate();
 
@@ -219,6 +220,40 @@ const navigate = useNavigate();
     if (!hasService || subtotal <= 0) return 0;
     return Math.round((discountAmount / subtotal) * 100);
   }, [hasService, subtotal, discountAmount]);
+ useEffect(() => {
+  const fetchMasterData = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllMasterData();
+      console.log("Fetched Master Data:", data);
+
+      // Group by department name
+      const grouped = data.reduce((acc: any, item: any) => {
+        const deptName = item.departmentName?.toLowerCase() || "other";
+        if (!acc[deptName]) acc[deptName] = [];
+        acc[deptName].push({
+          label: item.serviceName,
+          value: item.serviceId,
+          price: item.price,
+          deptId: item.departmentId,
+          serviceTypeId: item.serviceTypeId,
+        });
+        return acc;
+      }, {});
+
+      setSubServiceOptions(grouped);
+      //setMasterData(data);
+    } catch (err) {
+      console.error("Error loading master data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchMasterData();
+}, []);
+
+
 
   const discountedTotal = useMemo(() => {
     if (!hasService || subtotal <= 0) return 0;

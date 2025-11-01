@@ -10,7 +10,8 @@ import {
   FileTextOutlined,
   ExclamationCircleOutlined,
   MenuUnfoldOutlined,
-  MenuFoldOutlined
+  MenuFoldOutlined,
+  PlusOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, theme, Modal, message, Button } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
@@ -26,7 +27,8 @@ const MenuItems = [
   { menuIcon: CalendarOutlined, label: 'Bookings', path: '/app/bookings' },
   { menuIcon: ScheduleOutlined, label: 'Tickets', path: '/app/tickets' },
   { menuIcon: UsergroupAddOutlined, label: 'Employees', path: '/app/employees' },
-  { menuIcon: FileTextOutlined, label: 'MIS-Reports', path: '/app/reports' },
+  { menuIcon: FileTextOutlined, label: 'CMIS-Reports', path: '/app/reports' },
+  { menuIcon: PlusOutlined  , label: 'Create Service', path: '/app/master' },
   { menuIcon: SettingOutlined, label: 'Settings', path: '/app/settings' },
   { menuIcon: LogoutOutlined, label: 'Logout' },
 ];

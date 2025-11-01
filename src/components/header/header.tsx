@@ -13,7 +13,7 @@ import {
   Modal,
 } from "antd";
 import {
-  BellOutlined,
+ // BellOutlined,
   SearchOutlined,
   UserOutlined,
   LogoutOutlined,
@@ -115,10 +115,10 @@ const HeaderBar: React.FC = () => {
       onClick={({ key }) => {
         if (key === "logout") handleLogout();
         if (key === "settings") navigate("/app/settings");
-        if (key === "profile") navigate("/app/profile");
+        //if (key === "profile") navigate("/app/profile");
       }}
       items={[
-        { key: "profile", icon: <UserOutlined />, label: "Profile" },
+       // { key: "profile", icon: <UserOutlined />, label: "Profile" },
         { key: "settings", icon: <SettingOutlined />, label: "Settings" },
         { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
       ]}
@@ -233,9 +233,9 @@ const HeaderBar: React.FC = () => {
 
       {/* Notifications + Avatar */}
       <Space size="middle" align="center">
-        <BellOutlined
+        {/* <BellOutlined
           style={{ fontSize: 25, color: "#475569", cursor: "pointer" }}
-        />
+        /> */}
         <Dropdown overlay={userMenu} trigger={["click"]}>
           <Space
             style={{

@@ -87,6 +87,8 @@ const Bookings: React.FC = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [assigningEmployee, setAssigningEmployee] = useState(false);
+
 
  
   const normalize = (b: any) => {
@@ -532,22 +534,41 @@ const Bookings: React.FC = () => {
         width={650}
         bodyStyle={{ padding: "16px 24px" }}
       >
-        {checkingAvailability && (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "20px 0",
-              background: "#f0f9ff",
-              borderRadius: 8,
-              marginBottom: 16,
-            }}
-          >
-            <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-            <Text style={{ display: "block", marginTop: 12, color: "#0284c7" }}>
-              Checking employee availability...
-            </Text>
-          </div>
-        )}
+       {assigningEmployee && (
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      background: "rgba(255,255,255,0.8)",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+      borderRadius: 12,
+    }}
+  >
+    <img
+      src={LoaderGif}
+      alt="Assigning..."
+      style={{ width: 120, height: 120, objectFit: "contain" }}
+    />
+    <Text
+      style={{
+        marginTop: 12,
+        fontSize: 16,
+        fontWeight: 600,
+        color: "#0D9488",
+      }}
+    >
+      Assigning employee...
+    </Text>
+  </div>
+)}
+
 
         <div style={{ maxHeight: 400, overflowY: "auto", marginTop: 16, paddingRight: 8 }}>
           {loadingEmployees ? (
