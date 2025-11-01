@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col,message, Button, Typography, Empty, Input, Modal } from "antd";
+import { useLocation } from "react-router-dom"; 
+import { Card, Row, Col,message, Button, Typography, Empty, Input, Modal, Tag } from "antd";
 import { UserOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { getallBookings, getallBookingsByUserId, otpSend, otpSendAPi, updateTicketByEmployeeCompleted, updateTicketByEmployeeInprogress } from "../../app/services/auth";
 import moment from "moment";
@@ -8,16 +9,6 @@ import { getAllUsers } from "../../app/services/auth";
 import LoaderGif from "../../assets/SWACHIFY_gif.gif";
 
 const { Text, Title } = Typography;
-
-// interface Ticket {
-//   id: number;
-//   service: string;
-//   employee: string;
-//   customerName: string;
-//   address: string;
-//   time: string;
-//   status: "open" | "Pending" | "In-Progress" | "Completed";
-// }
 
 const Slots = [
   {
@@ -44,26 +35,26 @@ const Slots = [
     "is_active": true,
     "service_bookings": []
   }
-]
-
-// const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
+];
 
 const Tickets: React.FC = () => {
-  const [filter, setFilter] = useState<"all" | "Open" | "Pending" | "In-Progress" | "Completed">("all");
-  const [allTickets, setAllTickets] = useState<any[]>([]);
-  const [filteredTickets, setFilteredTickets] = useState<any[]>(
-    filter === "all" ? allTickets : allTickets.filter((ticket) => ticket.status.status === filter)
+  const location = useLocation(); 
+  
+  const initialFilterFromState = location.state?.initialFilter;
+  
+  const [filter, setFilter] = useState<"all" | "Open" | "Pending" | "In-Progress" | "Completed">(
+    initialFilterFromState && ["Open", "Pending", "In-Progress", "Completed"].includes(initialFilterFromState) 
+      ? initialFilterFromState 
+      : "all"
   );
-
+  
+  const [allTickets, setAllTickets] = useState<any[]>([]);
+  const [filteredTickets, setFilteredTickets] = useState<any[]>([]); 
   const [otpModalVisible, setOtpModalVisible] = useState(false);
   const [otpValue, setOtpValue] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
-
-
-
   const tabButton = (tab: typeof filter, label: string) => (
     <Button
       type={filter === tab ? "primary" : "default"}
@@ -85,13 +76,16 @@ const Tickets: React.FC = () => {
       const response = await getallBookings();
       if(!response) return;
       response?.sort((a:any, b:any) => b.id - a.id);
-      const latestReps = response?.filter((booking:any) => booking?.status?.status !== "Open" || booking.status_id === 1);
+
+      const normalizedBookings = response.map((b: any) => ({
+        ...b,
+        normalizedStatus: typeof b.status === "string" ? b.status : b.status?.status || "Unknown"
+      }));
+
+      const latestReps = normalizedBookings.filter((booking:any) => booking.normalizedStatus !== "Open");
 
       console.log("Filtered Bookings:", latestReps);
-
-      setFilteredTickets(latestReps);
-      setAllTickets(latestReps);
-      console.log("Bookings API Response:", latestReps);
+      setAllTickets(latestReps); 
     } catch (error) {
       console.error("Error fetching bookings:", error);
     }
@@ -102,176 +96,141 @@ const Tickets: React.FC = () => {
       const response = await getallBookingsByUserId(id);
       if(!response) return;
       response?.sort((a:any, b:any) => b.id - a.id);
-      const latestReps = response?.filter((booking:any) => booking?.status?.status !== "Open" || booking.status_id === 1);
+
+      const normalizedBookings = response.map((b: any) => ({
+        ...b,
+        normalizedStatus: typeof b.status === "string" ? b.status : b.status?.status || "Unknown"
+      }));
+      
+      const latestReps = normalizedBookings.filter((booking:any) => booking.normalizedStatus !== "Open");
 
       console.log("Filtered Bookings:", latestReps);
-
-      setFilteredTickets(latestReps);
       setAllTickets(latestReps);
-      console.log("Bookings API Response:", latestReps);
     } catch (error) {
       console.error("Error fetching bookings:", error);
     }
   }
 
   useEffect(() => {
-  document.title = "Service Tickets - Swachify Admin Panel";
-  const data = getUserDetails("user");
+    document.title = "Service Tickets - Swachify Admin Panel";
+    const data = getUserDetails("user");
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      if (data?.role_id === 3) {
-        await getallBookingsByUserApi(data.id);
-      } else {
-        await getallBookingsApi();
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        if (data?.role_id === 3) {
+          await getallBookingsByUserApi(data.id);
+        } else {
+          await getallBookingsApi();
+        }
+        await getAllUsers().then((res) => setEmployees(res || []));
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setTimeout(() => setLoading(false), 800);
       }
-      await getAllUsers().then((res) => setEmployees(res || []));
-    } catch (error) {
-      console.error("Error loading data:", error);
-    } finally {
-      setTimeout(() => setLoading(false), 800); // small delay for smoother transition
-    }
-  };
+    };
 
-  loadData();
-}, []);
+    loadData();
+
+    if (initialFilterFromState) {
+      window.history.replaceState({}, document.title)
+    }
+
+  }, []); 
 
 
   useEffect(() => {
     if (filter === "all") {
       setFilteredTickets(allTickets);
     } else {
-      setFilteredTickets(allTickets.filter((ticket) => ticket.status.status === filter));
+      setFilteredTickets(allTickets.filter((ticket) => ticket.normalizedStatus === filter));
     }
-  }, [filter]);
+  }, [filter, allTickets]);
 
-    const handleOpenOtpModal = (ticketId: number) => {
+  const handleOpenOtpModal = (ticketId: number) => {
     setSelectedTicketId(ticketId);
     setOtpModalVisible(true);
   };
-  useEffect(() => {
-  const fetchEmployees = async () => {
-    try {
-      const res = await getAllUsers();
-      setEmployees(res || []);
-    } catch (error) {
-      console.error("Error fetching employees:", error);
-    }
-  };
-  fetchEmployees();
-}, []);
+
 
   const handleVerifyOtp = async () => {
-  if (!otpValue) {
-    message.error("Please enter the OTP.");
-    return;
-  }
-
-  try {
-    const selectedTicket = allTickets.find(t => t.id === selectedTicketId);
-    if (!selectedTicket) {
-      message.error("Ticket not found!");
+    if (!otpValue) {
+      message.error("Please enter the OTP.");
       return;
     }
 
-    const customerPhone = selectedTicket?.phone;
-    if (!customerPhone) {
-      message.error("Customer phone number not found for this booking!");
-      return;
+    try {
+      const selectedTicket = allTickets.find(t => t.id === selectedTicketId);
+      if (!selectedTicket) {
+        message.error("Ticket not found!");
+        return;
+      }
+
+      const customerPhone = selectedTicket?.phone;
+      if (!customerPhone) {
+        message.error("Customer phone number not found for this booking!");
+        return;
+      }
+
+      const response = await otpSendAPi(customerPhone, otpValue);
+      console.log("OTP Verify Response:", response);
+
+      
+      if (
+        typeof response === "string" &&
+        (response.toLowerCase().includes("otp verified") ||
+         response.toLowerCase().includes("verified successfully"))
+      ) {
+        message.success("OTP verified successfully!");
+
+        await updateTicketByEmployeeInprogress(selectedTicket.id);
+
+        setOtpModalVisible(false);
+        setOtpValue("");
+
+        let data = getUserDetails('user');
+        if (data?.role_id === 3) {
+          await getallBookingsByUserApi(data.id);
+        } else {
+          await getallBookingsApi();
+        }
+
+      } else {
+        message.error("Invalid OTP. Please try again.");
+      }
+    } catch (error) {
+      console.error("OTP verification failed:", error);
+      message.error("Failed to verify OTP. Please try again.");
     }
+  };
 
-    const response = await otpSendAPi(customerPhone, otpValue);
-    console.log("OTP Verify Response:", response);
 
-    
-    if (
-      typeof response === "string" &&
-      (response.toLowerCase().includes("otp verified") ||
-       response.toLowerCase().includes("verified successfully"))
-    ) {
-      message.success("OTP verified successfully!");
+  const getEmployeeName = (id: any) => {
+    if (!id) {
+      return "Not Assigned";
+    }
+    const emp = employees.find((e) => Number(e.id) === Number(id));
+    return emp ? emp.first_name : "Not Assigned";
+  };
 
-      await updateTicketByEmployeeInprogress(selectedTicket.id);
 
-      setOtpModalVisible(false);
-      setOtpValue("");
-
+  const handleCompleteService = async (ticketId: number) => {
+    try {
+      await updateTicketByEmployeeCompleted(ticketId);
+      message.success("Service completed successfully!");
       let data = getUserDetails('user');
       if (data?.role_id === 3) {
         await getallBookingsByUserApi(data.id);
       } else {
         await getallBookingsApi();
       }
-
-    } else {
-      message.error("Invalid OTP. Please try again.");
-    }
-  } catch (error) {
-    console.error("OTP verification failed:", error);
-    message.error("Failed to verify OTP. Please try again.");
-  }
-};
-
-
-   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [bookingsData, usersData] = await Promise.all([
-          getallBookings(),
-          getAllUsers(),
-        ]);
-
-        console.log("Fetched bookings data:", bookingsData);
-
-       
-        setEmployees(usersData || []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-    const getEmployeeName = (id: any) => {
-  console.log("🔍 Checking employee assignment:", {
-    employee_id_from_ticket: id,
-    allEmployees: employees?.length,
-    sampleEmployee: employees?.[0],
-  });
-
-  if (!id) {
-    console.warn("⚠️ Ticket has no assigned employee_id");
-    return "Not Assigned";
-  }
-
-  const emp = employees.find((e) => {
-    const match = Number(e.id) === Number(id);
-    if (match) console.log("✅ Found employee match:", e);
-    return match;
-  });
-
-  if (!emp) {
-    console.error("❌ No employee found for ID:", id);
-    console.table(employees.map(e => ({ id: e.id, name: e.first_name })));
-  }
-
-  return emp ? emp.first_name : "Not Assigned";
-};
-
-
-  const handleCompleteService = async (ticketId: number) => {
-    try {
-      // TODO: Call your API to update status to "Completed"
-      await updateTicketByEmployeeCompleted(ticketId);
-      message.success("Service completed successfully!");
-      await getallBookingsApi();
-      window.location.reload();
     } catch (error) {
       message.error("Failed to complete service");
       console.error(error);
     }
   };
+
   if (loading) {
   return (
     <div
@@ -286,7 +245,7 @@ const Tickets: React.FC = () => {
       <img src={LoaderGif} alt="Loading..." width={220} />
     </div>
   );
-}
+  }
 
 
   return (
@@ -347,29 +306,42 @@ const Tickets: React.FC = () => {
                     <Col>
                       <Text
                         style={{
-                          backgroundColor: ticket?.status=== "Completed" ? "#d1fae5" : "#fef3c7",
+                          backgroundColor: ticket.normalizedStatus === "Completed" ? "#d1fae5" : ticket.normalizedStatus === "In-Progress" ? "#ccfbf1" : "#fef3c7",
                           padding: "2px 8px",
                           borderRadius: "4px",
-                          color: ticket?.status=== "Completed" ? "#065f46" : "#d97706",
+                          color: ticket.normalizedStatus === "Completed" ? "#065f46" : ticket.normalizedStatus === "In-Progress" ? "#0f766e" : "#d97706",
                           fontWeight: 500
                         }}
                       >
-                        {ticket?.status.charAt(0)?.toUpperCase() + ticket?.status.slice(1)}
-                      </Text>{" "}
-                      <Text style={{ marginLeft: 8, color: "#374151" }}>
-                        {/* Ticket #{ticket?.id?.toString()?.slice(-6)} */}
-                          {ticket.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(", ")}
+                        {ticket.normalizedStatus.charAt(0)?.toUpperCase() + ticket.normalizedStatus.slice(1)}
                       </Text>
                     </Col>
-                    {ticket?.status=== "Completed" && (
+                    {ticket.normalizedStatus === "Completed" && (
                       <Text style={{ color: "#065f46", fontWeight: 500 }}>✓ Completed</Text>
                     )}
                   </Row>
 
-                  <Title level={4} style={{ marginTop: "8px" }}>
-                    {/* {ticket?.service} */}
-                    {ticket?.department?.department_name}
-                  </Title>
+                  <div style={{ marginTop: 12, marginBottom: 8 }}>
+                    {ticket.services.map((s: any, index: number) => (
+                      <div key={index} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <Text style={{ fontSize: 16, fontWeight: 600, color: "#1f2937", marginRight: 8 }}>
+                          {s.department_name} - {s.service_name}
+                        </Text>
+                        
+                        <Tag 
+                          style={{ 
+                            backgroundColor: "#e0f2fe", 
+                            color: "#0284c7", 
+                            borderColor: "#bfdbfe",
+                            fontWeight: 500,
+                            marginRight: 0 
+                          }}
+                        >
+                          {s.service_type || 'Standard Plan'}
+                        </Tag>
+                      </div>
+                    ))}
+                  </div>
 
                   <Text>
                     <UserOutlined /> {ticket?.full_name}
@@ -390,14 +362,14 @@ const Tickets: React.FC = () => {
                   <br />
                   <Text>
                     <CalendarOutlined /> {moment(ticket?.preferred_date).format("LLL") || "No Date Provided"} - {Slots.find((slot) => slot.id === ticket?.slot_id)?.slot_time}
-                    {/* {ticket?.created_date} */}
                   </Text>
 
                                       {/* Action buttons */}
 
                   {getUserDetails('user')?.role_id === 3 && (
                     <Row justify="end" style={{ marginTop: 12, gap: 8 }}>
-                      {ticket?.status?.status === "Pending" && (
+                      {/* <-- UPDATED --> */}
+                      {ticket.normalizedStatus === "Pending" && (
   <Button
     type="primary"
     style={{
@@ -429,8 +401,8 @@ const Tickets: React.FC = () => {
   </Button>
 )}
 
-
-                      {ticket?.status?.status === "In-Progress" && (
+                      {/* <-- UPDATED --> */}
+                      {ticket.normalizedStatus === "In-Progress" && (
                         <Button
                           type="primary"
                           style={{
@@ -448,27 +420,7 @@ const Tickets: React.FC = () => {
                   )}
 
 
-                  {/* {ticket?.status?.status === "Completed" && (
-                    <Row justify="end" style={{ marginTop: 12 }}>
-                      <Col>
-                        <Card
-                          size="small"
-                          style={{
-                            backgroundColor: "#f3f4f6",
-                            borderRadius: 6,
-                            width: 180,
-                            textAlign: "center",
-                          }}
-                        >
-                          <Text style={{ fontWeight: 500 }}>Customer's OTP</Text>
-                          <br />
-                          <Text style={{ color: "red", fontWeight: 600, fontSize: 16 }}>
-                            {generateOTP()}
-                          </Text>
-                        </Card>
-                      </Col>
-                    </Row>
-                  )} */}
+                  {/* ... (rest of your card JSX) ... */}
                 </Card>
               </Col>
             ))

@@ -12,6 +12,7 @@ import {
   Spin,
   Badge,
   Tooltip,
+  Tag, 
 } from "antd";
 import {
   UserOutlined,
@@ -30,6 +31,7 @@ import {
   deleteBookingById,
 } from "../../app/services/auth";
 import LoaderGif from "../../assets/SWACHIFY_gif.gif";
+import { useLocation } from "react-router-dom"; // <-- 1. IMPORT useLocation
 
 const { Title, Text } = Typography;
 
@@ -77,6 +79,7 @@ const getStatusStyle = (raw?: string) => {
 };
 
 const Bookings: React.FC = () => {
+  const location = useLocation(); 
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -92,7 +95,7 @@ const Bookings: React.FC = () => {
 
  
   const normalize = (b: any) => {
-    const statusText = b.status || "Unknown";
+    const statusText = typeof b.status === "string" ? b.status : b.status?.status || "Unknown";
 
     let deptName = "Unknown Department";
     if (Array.isArray(b.services) && b.services.length > 0 && b.services[0].department_name) {
@@ -119,7 +122,7 @@ const Bookings: React.FC = () => {
       ...b,
       status: statusText,     
       deptName: deptName,     
-      serviceNames: serviceNames, // e.g., "Triple, Single"
+      serviceNames: serviceNames, 
       bookingIdText: b.booking_id || b.id,
       slotText: slotText,
     };
@@ -129,10 +132,19 @@ const Bookings: React.FC = () => {
     const fetchBookings = async () => {
       try {
         setLoadingBookings(true);
-        const raw = await getallBookings(); // This fetches the (now correctly) enriched data
+        const initialFilter = location.state?.initialFilter; 
+        
+        const raw = await getallBookings(); 
         if (raw) {
           const normalized = raw.map(normalize).sort((a: any, b: any) => b.id - a.id);
-          setBookings(normalized);
+          
+          if (initialFilter) {
+            const filtered = normalized.filter((b: any) => b.status === initialFilter);
+            setBookings(filtered);
+            window.history.replaceState({}, document.title);
+          } else {
+            setBookings(normalized);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch bookings:", error);
@@ -141,7 +153,7 @@ const Bookings: React.FC = () => {
       }
     };
     fetchBookings();
-  }, []);
+  }, [location.state]); 
 
   if (loadingBookings) {
     return (
@@ -160,7 +172,7 @@ const Bookings: React.FC = () => {
       </div>
     );
   }
-
+  
   const checkEmployeeAvailability = async (
     employeeId: number,
     bookingDate: string,
@@ -376,7 +388,6 @@ const Bookings: React.FC = () => {
         <Row gutter={[20, 20]}>
           {bookings.length > 0 ? (
             bookings.map((item: any) => {
-              // 'item.status' is now the normalized string (e.g., "Open")
               const st = getStatusStyle(item.status);
               const dateText =
                 (item.preferred_date && moment(item.preferred_date).format("MMM D,  YYYY")) ||
@@ -419,21 +430,27 @@ const Bookings: React.FC = () => {
                       }}
                     >
                       <Space direction="vertical" size={4}>
-                        <Title
-                          level={5}
-                          style={{ fontSize: 16, color: "#115e59", fontWeight: 600, margin: 0 }}
-                        >
-                          {/* Use the normalized deptName */}
-                          {item.deptName}
-                        </Title>
-
-                        <Text
-                          type="secondary"
-                          style={{ fontSize: 13, fontWeight: 500, paddingBottom: 4 }}
-                        >
-                          {/* Use the normalized serviceNames */}
-                          Plan: {item.services.map((s:any)=>`${s.department_name} - ${s.service_name}`).join(",")}
-                        </Text>
+                        <div style={{ marginBottom: 8 }}>
+                          {item.services.map((s: any, index: number) => (
+                            <div key={index} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                              <Text style={{ fontSize: 16, fontWeight: 600, color: "#1f2937", marginRight: 8 }}>
+                                {s.department_name} - {s.service_name}
+                              </Text>
+                              
+                              <Tag 
+                                style={{ 
+                                  backgroundColor: "#e0f2fe", 
+                                  color: "#0284c7", 
+                                  borderColor: "#bfdbfe",
+                                  fontWeight: 500,
+                                  marginRight: 0 
+                                }}
+                              >
+                                {s.service_type || 'Standard Plan'}
+                              </Tag>
+                            </div>
+                          ))}
+                        </div>
 
                         <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>
                           <Text style={{ fontSize: 14 }}>
@@ -468,14 +485,13 @@ const Bookings: React.FC = () => {
                             fontSize: 12,
                           }}
                         >
-                          {/* Use the text from getStatusStyle */}
                           {st.text}
                         </span>
 
                         <Button
                           type="primary"
                           onClick={() => openAssignModal(item.id)}
-                          disabled={item.status !== "Open"} // Disable if not "Open"
+                          disabled={item.status !== "Open"}
                           style={{ backgroundColor: "#0D9488", borderColor: "#0D9488" }}
                         >
                           Assign Employee

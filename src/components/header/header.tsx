@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Layout,
   Input,
-  //Select,
   Dropdown,
   Typography,
   Space,
@@ -14,10 +13,8 @@ import {
   Modal,
 } from "antd";
 import {
- // BellOutlined,
   SearchOutlined,
- // EnvironmentFilled,
-  //UserOutlined,
+  UserOutlined,
   LogoutOutlined,
   SettingOutlined,
   ExclamationCircleOutlined,
@@ -27,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 
 const { Header } = Layout;
 const { Text } = Typography;
-//const { Option } = Select;
+// const { Option } = Select;
 const { useBreakpoint } = Grid;
 const { confirm } = Modal;
 
@@ -38,7 +35,7 @@ const HeaderBar: React.FC = () => {
   const [userData, setUserData] = useState<any>(null);
   const [searchValue, setSearchValue] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
- // const [location, setLocation] = useState<string>("All Locations");
+  // const [location, setLocation] = useState<string>("All Locations");
 
   useEffect(() => {
     const userDetails = JSON.parse(localStorage.getItem("user") || "null");
@@ -154,7 +151,8 @@ const HeaderBar: React.FC = () => {
           style={{
             width: screens.xs ? 36 : 48,
             height: screens.xs ? 36 : 48,
-            paddingTop: 8,
+            paddingTop: 10,
+            // marginTop: 4,
             borderRadius: "50%",
             objectFit: "cover",
           }}
