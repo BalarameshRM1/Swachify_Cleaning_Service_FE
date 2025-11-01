@@ -1,12 +1,40 @@
 import React from "react";
-import { Divider, Typography } from "antd";
+import { Button, Divider, Typography } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph } = Typography;
 
 const TermsOfService: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
-    <div style={{ padding: "40px", maxWidth: 900, margin: "0 auto" }}>
-      <Title level={2}>Terms and Conditions</Title>
+    <div
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        background: "#fff",
+        padding: "40px",
+        maxWidth: 900,
+        margin: "0 auto",
+      }}
+    >
+      {/* ❌ Close Button */}
+      <Button
+        type="text"
+        icon={<CloseOutlined style={{ fontSize: 22, color: "#000" }} />}
+        onClick={() => navigate("/")}
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+          zIndex: 1000,
+        }}
+      />
+
+      <Title level={2} style={{ textAlign: "center", marginBottom: 40 }}>
+        Terms and Conditions
+      </Title>
     
 
        <Paragraph>

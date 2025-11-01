@@ -13,8 +13,10 @@ import {
   Modal,
 } from "antd";
 import {
+ // BellOutlined,
   SearchOutlined,
-  UserOutlined,
+ // EnvironmentFilled,
+  //UserOutlined,
   LogoutOutlined,
   SettingOutlined,
   ExclamationCircleOutlined,
@@ -116,10 +118,10 @@ const HeaderBar: React.FC = () => {
       onClick={({ key }) => {
         if (key === "logout") handleLogout();
         if (key === "settings") navigate("/app/settings");
-        if (key === "profile") navigate("/app/profile");
+        //if (key === "profile") navigate("/app/profile");
       }}
       items={[
-        { key: "profile", icon: <UserOutlined />, label: "Profile" },
+       // { key: "profile", icon: <UserOutlined />, label: "Profile" },
         { key: "settings", icon: <SettingOutlined />, label: "Settings" },
         { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
       ]}
