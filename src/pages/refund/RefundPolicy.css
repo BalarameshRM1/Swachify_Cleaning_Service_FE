@@ -1,0 +1,162 @@
+/* 🌈 Background layout */
+.refund-layout {
+  min-height: 100vh;
+  width: 100%;
+  background: radial-gradient(circle at top left, #e0f2fe, #ccfbf1, #f9fafb);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  position: relative;
+  overflow: hidden;
+  font-family: "Poppins", "Inter", sans-serif;
+}
+
+/* 💎 Animated background accent */
+.refund-layout::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(20,184,166,0.3), transparent 70%);
+  border-radius: 50%;
+  filter: blur(50px);
+  z-index: 0;
+}
+
+/* ❌ Close button */
+.refund-close-btn {
+  position: absolute !important;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+  border: none;
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  color: white !important;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+  transition: all 0.3s ease;
+}
+
+.refund-close-btn:hover {
+  transform: rotate(90deg) scale(1.08);
+  background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+  box-shadow: 0 8px 24px rgba(14, 165, 233, 0.4);
+}
+
+/* 📦 Content Container */
+.refund-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  animation: fadeUp 0.8s ease forwards;
+}
+
+/* 🧊 Glass Card */
+.refund-box {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 50px 60px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.refund-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 50px rgba(20, 184, 166, 0.15);
+}
+
+/* 🏷️ Title */
+.refund-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 24px !important;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.refund-title::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #14b8a6, #0ea5e9);
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+
+/* ✍️ Text styling */
+.refund-box p {
+  font-size: 16px;
+  color: #334155;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.refund-box ul {
+  margin-left: 24px;
+  list-style: disc;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* 🔗 Links */
+.refund-box a {
+  color: #0ea5e9;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.refund-box a:hover {
+  color: #14b8a6;
+  text-decoration: underline;
+}
+
+/* 🌀 Animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 📱 Mobile View */
+@media (max-width: 768px) {
+  .refund-box {
+    padding: 30px 22px;
+  }
+
+  .refund-title {
+    font-size: 24px;
+  }
+
+  .refund-close-btn {
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+  }
+}
