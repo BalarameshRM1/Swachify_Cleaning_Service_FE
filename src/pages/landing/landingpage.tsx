@@ -273,7 +273,7 @@ const handleLogin = async (values: any) => {
         backgroundClip: 'text',
       }}
     >
-      Swachify
+      SWACHIFY
     </div>
 
     <div
@@ -1158,7 +1158,7 @@ const handleLogin = async (values: any) => {
     }}
   >
     {[
-      { label: 'Help Center', href: 'mailto:info@swachify.com' },
+      //{ label: 'Help Center', href: 'mailto:info@swachify.com' },
       { label: 'Terms of Service', href: '/terms' },
       { label: 'Privacy Policy', href: '/privacy' },
       { label: 'Refund Policy', href: '/refund' },
