@@ -99,7 +99,7 @@ const HeaderBar: React.FC = () => {
   // **Logout modal with custom color**
   const handleLogout = () => {
     confirm({
-      title: "Are you sure you want to log out?",
+      title: "Are you sure do you want to log out?",
       icon: <ExclamationCircleOutlined />,
       okText: "Yes",
       okType: "default",
@@ -154,33 +154,44 @@ const HeaderBar: React.FC = () => {
       }}
     >
       {/* Logo */}
-      <Space align="center" style={{ gap: screens.xs ? 8 : 12 }}>
-        <img
-          src={BrandLogo}
-          alt="Logo"
-          style={{
-            width: screens.xs ? 36 : 48,
-            height: screens.xs ? 36 : 48,
-            paddingTop: 10,
-            // marginTop: 4,
-            borderRadius: "50%",
-            objectFit: "cover",
-          }}
-        />
-        {!screens.xs && (
-          <Text
-            style={{
-              fontSize: screens.lg ? 28 : 24,
-              fontWeight: 700,
-              background: "linear-gradient(90deg, #0D9488, #14b8a6)",
-              WebkitBackgroundClip: "text",
-              color: "transparent",
-            }}
-          >
-            Swachify
-          </Text>
-        )}
-      </Space>
+     <Space
+  align="center"
+  style={{
+    gap: screens.xs ? 8 : 12,
+    display: "flex",
+    alignItems: "center", 
+  }}
+>
+  <img
+    src={BrandLogo}
+    alt="Logo"
+    style={{
+      width: screens.xs ? 36 : 48,
+      height: screens.xs ? 36 : 48,
+      borderRadius: "50%",
+      objectFit: "cover",
+      paddingTop:10,
+    }}
+  />
+
+  {!screens.xs && (
+    <Text
+      style={{
+        fontSize: screens.lg ? 28 : 24,
+        fontWeight: 700,
+        background: "linear-gradient(90deg, #0D9488, #14b8a6)",
+        WebkitBackgroundClip: "text",
+        color: "transparent",
+        lineHeight: 1, 
+        position: "relative",
+        top: "-4px", 
+      }}
+    >
+      SWACHIFY
+    </Text>
+  )}
+</Space>
+
 
       {/* Search + Location */}
       <Space size="middle" align="center">

@@ -63,7 +63,7 @@ const LayoutComponent: React.FC = () => {
   // **Logout modal same as header**
   const handleLogout = () => {
     confirm({
-      title: 'Are you sure you want to log out?',
+      title: 'Are you sure  do you want to log out?',
       icon: <ExclamationCircleOutlined />,
       okText: 'Yes',
       cancelText: 'No',

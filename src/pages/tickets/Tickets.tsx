@@ -13,25 +13,25 @@ const { Text, Title } = Typography;
 const Slots = [
   {
     "id": 1,
-    "slot_time": "9AM - 11AM",
+    "slot_time": "9AM - 12AM",
     "is_active": true,
     "service_bookings": []
   },
   {
     "id": 2,
-    "slot_time": "11AM - 1 PM",
+    "slot_time": "12AM - 3PM",
     "is_active": true,
     "service_bookings": []
   },
   {
     "id": 3,
-    "slot_time": "1PM - 3PM",
+    "slot_time": "3PM - 6PM",
     "is_active": true,
     "service_bookings": []
   },
   {
     "id": 4,
-    "slot_time": "3PM - 5 PM",
+    "slot_time": "6PM - 9PM",
     "is_active": true,
     "service_bookings": []
   }
