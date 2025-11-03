@@ -373,7 +373,7 @@ if (loading) {
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', animation: 'fadeIn 0.5s' }}>
         <Row justify="space-between" align="middle" style={{ paddingBottom: 24, flexWrap: 'wrap', gap: 16 }}>
             <Col>
-                <Title level={2} style={{ margin: 0 }}>EMPLOYEES</Title>
+                <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff",margin: 0 }}>EMPLOYEES</Title>
             </Col>
             <Col>
                 <Space wrap>

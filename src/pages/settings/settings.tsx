@@ -624,8 +624,8 @@ const Settings: React.FC = () => {
             border: '1px solid #e5e7eb',
           }}
         >
-          <Title level={2} style={{ margin: 0, fontSize: 28, color: '#1f2937' }}>
-            Settings
+          <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff",margin: 0, fontSize: 28,  }}>
+            SETTINGS
           </Title>
           <Text style={{ color: '#6b7280', fontSize: 14 }}>
             Manage your account settings and preferences
