@@ -226,11 +226,18 @@ const Reports: React.FC = () => {
       filterCount++;
     }
 
-    // Customer filter (using full_name)
-    if (selectedCustomerName) {
-      filtered = filtered.filter((b) => b.full_name === selectedCustomerName);
-      filterCount++;
-    }
+     if (selectedCustomerName) {
+    filtered = filtered.filter(
+      (b) =>
+        (b.assign_to_name &&
+          b.assign_to_name.trim().toLowerCase() ===
+            selectedCustomerName.trim().toLowerCase()) ||
+        (b.created_by_name &&
+          b.created_by_name.trim().toLowerCase() ===
+            selectedCustomerName.trim().toLowerCase())
+    );
+    filterCount++;
+  }
 
     // Department filter
     if (selectedStatus) {
