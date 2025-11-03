@@ -361,7 +361,7 @@ const Bookings: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 24 }}>
+      <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 24,marginLeft: "30%", }}>
         BOOKINGS MANAGEMENT
       </Title>
 
