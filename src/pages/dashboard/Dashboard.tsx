@@ -93,9 +93,9 @@ const Dashboard: React.FC = () => {
     >
       <Title
         level={2}
-        style={{ marginTop: 0, marginBottom: 32, fontWeight: 700 }}
+        style={{ marginTop: 0, marginBottom: 32, fontWeight: 700,textAlign:'center' }}
       >
-        Welcome Swachify!
+        WELCOME SWACHIFY!
       </Title>
 
       <Row gutter={[24, 24]}>
