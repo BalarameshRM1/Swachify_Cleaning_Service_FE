@@ -232,10 +232,10 @@ export const getAlllocations = async() =>{
 
 export const getAllRoles = async() =>{
     try {
-        const response = await fetch(`${baseUrl}/Master/getallroles`);
+        const response = await fetch(`${baseUrl}/Master/getallmasterData`);
         if (!response.ok) throw new Error("Failed to getAllRoles");
         const data = await response.json();
-        return data;
+        return data.roles||[];
     } catch (error) {
         console.error("Error getAllRoles:", error);
     }
@@ -594,6 +594,7 @@ export const getAllLocations = async () => {
     return [];
   }
 };
+
 
 
 export const otpSend = async (mobileNumber: any) => {
