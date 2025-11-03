@@ -101,3 +101,12 @@
     vertical-align: top;
     margin-right: 8px;
 }
+.ant-steps .ant-steps-item-wait .ant-steps-item-icon {
+    background-color: rgb(20, 184, 166);
+    border-color: rgb(20, 184, 166);
+    color: #ffffff;
+}
+:where(.css-dev-only-do-not-override-ac2jek).ant-steps .ant-steps-item:not(.ant-steps-item-active):not(.ant-steps-item-process)>.ant-steps-item-container[role='button']:hover .ant-steps-item-icon {
+    border-color: rgb(20, 184, 166);
+    color: white;
+}
