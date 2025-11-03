@@ -482,12 +482,12 @@ const Bookings: React.FC = () => {
                           type="primary"
                           onClick={() => openAssignModal(item.id)}
                           disabled={item.status !== "Open"}
-                          style={{ backgroundColor: "#0D9488", borderColor: "#0D9488" }}
+                          style={{ backgroundColor: "#0D9488", borderColor: "#0D9488",minWidth: "150px", height: "40px",fontWeight: 500, fontSize: "15px", }}
                         >
                           Assign Employee
                         </Button>
 
-                        <Button type="primary" danger onClick={() => openDeleteModal(item.id)}>
+                        <Button type="primary" danger onClick={() => openDeleteModal(item.id)}  style={{ minWidth: "150px", height: "40px", fontWeight: 500, fontSize: "15px",}}>
                           Delete Booking
                         </Button>
                       </Space>
