@@ -258,15 +258,15 @@ const navigate = useNavigate();
     if (!hasService || subtotal <= 0) return 0;
     return Math.min(subtotal, Math.max(0, willingToPay));
   }, [hasService, subtotal, willingToPay]);
-  // const changeStep = async (idx: StepKey) => {
-  //     if(!customerData){
-  //            message.warning("Please fill customer details first.");
-  //            setCurrentStep(currentStep as StepKey)
-  //           }
-  //           else{
-  //             setCurrentStep(idx as StepKey)  
-  //           }
-  // }
+  const changeStep = async (idx: StepKey) => {
+      if(!customerData){
+             message.warning("Please fill customer details first.");
+             setCurrentStep(currentStep as StepKey)
+            }
+            else{
+              setCurrentStep(idx as StepKey)  
+            }
+  }
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -408,15 +408,15 @@ const navigate = useNavigate();
     <div className="sv-steps-wrap">
       <Steps
   current={currentStep}
-  onChange={(idx) => setCurrentStep(idx as StepKey)}
+  onChange={(idx) => changeStep(idx as StepKey)}
   items={[
     {
       title: (
         <span
           style={{
-            color: currentStep === 0 ? "#1677ff" : "#8c8c8c",
+            color: currentStep === 0 ? "#14B8A6" : "#14B8A68c",
             fontWeight: currentStep === 0 ? 700 : 500,
-            textDecoration: currentStep === 0 ? "underline" : "none",
+            // textDecoration: currentStep === 0 ? "underline" : "none",
           }}
         >
           Customer Details
@@ -427,7 +427,7 @@ const navigate = useNavigate();
       title: (
         <span
           style={{
-            color: currentStep === 1 ? "#1677ff" : "#8c8c8c",
+            color: currentStep === 1 ? "#14B8A6" : "#14B8A6",
             fontWeight: currentStep === 1 ? 700 : 500,
             textDecoration: currentStep === 1 ? "underline" : "none",
           }}
