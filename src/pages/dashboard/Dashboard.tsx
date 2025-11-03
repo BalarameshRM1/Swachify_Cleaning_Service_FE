@@ -334,6 +334,7 @@ const Dashboard: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               background: "white",
+              paddingBottom:'60px',
             }}
             bodyStyle={{
               padding: 0,
@@ -399,7 +400,7 @@ const Dashboard: React.FC = () => {
                           <Text style={{ fontSize: 14, color: "#6b7280" }}>
                             Date:{" "}
                             <span style={{ color: "#374151" }}>
-              {moment(booking?.created_date).format("MMMM D, YYYY")}
+              {moment(booking?.preferred_date).format("MMMM D, YYYY")}
 
                               {/* {booking.preferred_date || "N/A"} */}
                             </span>
@@ -526,7 +527,7 @@ const Dashboard: React.FC = () => {
                   </Text>
                   <Text style={{ fontSize: 14, color: "#6b7280" }}>
                     Date: <span style={{ color: "#374151" }}>
-              {moment(booking?.created_date).format("MMMM D, YYYY")}
+              {moment(booking?.preferred_date).format("MMMM D, YYYY")}
                       {/* {booking.created_date || "N/A"} */}
                       </span>
                   </Text>
