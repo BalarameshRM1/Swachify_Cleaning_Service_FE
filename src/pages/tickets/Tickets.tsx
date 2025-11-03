@@ -268,7 +268,7 @@ const Tickets: React.FC = () => {
       padding: "24px 24px 0 24px",
     }}
   >
-    <Title level={2}>Service Tickets</Title>
+    <Title level={2} style={{marginLeft: "40%",}}>SERVICE TICKETS</Title>
     <Row gutter={[8, 8]} style={{ marginBottom: "16px" }}>
       <Col>{tabButton("all", "All")}</Col>
       <Col>{tabButton("Pending", "Pending")}</Col>
