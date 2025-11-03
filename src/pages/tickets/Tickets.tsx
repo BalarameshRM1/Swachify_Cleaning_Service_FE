@@ -19,7 +19,7 @@ const Slots = [
   },
   {
     "id": 2,
-    "slot_time": "1AM - 4PM",
+    "slot_time": "1PM - 4PM",
     "is_active": true,
     "service_bookings": []
   },
@@ -31,7 +31,7 @@ const Slots = [
   },
   {
     "id": 4,
-    "slot_time": "3PM - 5PM",
+    "slot_time": "9PM - 12AM",
     "is_active": true,
     "service_bookings": []
   }
