@@ -361,7 +361,8 @@ const Tickets: React.FC = () => {
                   </Text>
                   <br />
                   <Text>
-                    <CalendarOutlined /> {moment(ticket?.preferred_date).format("LLL") || "No Date Provided"} - {Slots.find((slot) => slot.id === ticket?.slot_id)?.slot_time}
+                    <CalendarOutlined /> {moment(ticket?.preferred_date).format("LL") || "No Date Provided"} -
+                    {Slots.find(slot => slot.id === ticket?.slot_id)?.slot_time}
                   </Text>
 
                                       {/* Action buttons */}

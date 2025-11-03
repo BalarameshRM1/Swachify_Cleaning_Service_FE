@@ -48,7 +48,7 @@ const HeaderBar: React.FC = () => {
     { label: "Employees", path: "/app/employees" },
     { label: "Bookings", path: "/app/bookings" },
     { label: "Settings", path: "/app/settings" },
-    { label: "MIS-Reports", path: "/app/reports" },
+    { label: "CMIS-Reports", path: "/app/reports" },
   ];
 
     const empPages = [

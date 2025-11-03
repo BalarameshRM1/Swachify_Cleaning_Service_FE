@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { SelectProps } from 'antd';
 import { Card, Col, Row, Select, Typography, Avatar, Tag, Button, Modal, Form, Input, message, Space, Divider } from 'antd';
 import { PhoneFilled, EnvironmentFilled, PlusOutlined } from '@ant-design/icons'; 
-import { createEmployee, getAllUsers, getAllLocations,getAllDepartments } from "../../app/services/auth";
+import { createEmployee, getAllUsers, getAllLocations,getAllDepartments,getAllRoles } from "../../app/services/auth";
 import { Popconfirm } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { deleteEmployeeById } from '../../app/services/auth';
@@ -21,9 +21,9 @@ interface Employee {
   depts: string[];
 }
 
-const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
+//const locations = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad'];
 
-const Role = ['Employee','Admin','Super Admin'];
+//const Role = ['Employee','Admin','Super Admin'];
 
 const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => void }> = ({ employee, onDelete }) => (
   <Card
@@ -137,6 +137,16 @@ const Employees: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true); 
   const[departmentsdata,setdepartmentsdata]=useState<any>([]);
+  const [rolesData, setRolesData] = useState<SelectProps['options']>([]);
+  const locationOptions = [
+  { label: "All Locations", value: "All Locations" },
+  ...locationsData.map((loc: any) => ({
+    label: loc.label,   
+    value: loc.label,   
+  })),
+];
+
+
 
  const getAllUsersApi = async () => {
   try {
@@ -203,40 +213,64 @@ const getAllDepartmentsApi = async () => {
     console.error("Error fetching departments:", error);
   }
 };
+const getAllRolesApi = async () => {
+  try {
+    const roles = await getAllRoles();
+    console.log("Fetched roles:", roles);
+    if (Array.isArray(roles)) {
+      setRolesData(
+        roles.map((r: any) => ({
+          label: r.roleName,
+          value: r.roleId,
+        }))
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+  }
+};
+
+
+
 
 
 
 
   useEffect(()=>{
     const fetchData = async () => {
-      await Promise.all([getAllUsersApi(), getAllLocationsApi(),getAllDepartmentsApi (),]);
+      await Promise.all([getAllUsersApi(), getAllLocationsApi(),getAllDepartmentsApi (), getAllRolesApi(),]);
       setLoading(false);
     };
     fetchData();
   },[]);
-  useEffect(() => {
-  if (employees.length && locationsData.length) {
-    const updated = employees.map((emp: any) => ({
-      ...emp,
-      location:
-        locationsData.find(
-          (loc: any) => Number(loc.value) === Number(emp.location_id)
-        )?.label || "Unknown",
-    }));
-    setFilteredEmployees(updated);
-  }
-}, [employees, locationsData]);
+ useEffect(() => {
+  if (!employees.length || !locationsData.length) return;
 
-
-  useEffect(() => {
-  let employeesToFilter = filteredEmployees;
-  if (locationFilter !== "All Locations") {
-    employeesToFilter = filteredEmployees.filter(
-      (emp: any) => emp.location === locationFilter
+  // Step 1️⃣: Map location_id → readable name
+  const mappedEmployees = employees.map((emp: any) => {
+    const locationObj = locationsData.find(
+      (loc: any) => Number(loc.value) === Number(emp.location_id)
     );
-  }
-  setFilteredEmployees(employeesToFilter);
-}, [locationFilter]);
+
+    return {
+      ...emp,
+      location: locationObj ? locationObj.label : emp.location || "Unknown",
+    };
+  });
+
+  // Step 2️⃣: Apply location filter
+  const employeesToShow =
+    locationFilter === "All Locations"
+      ? mappedEmployees
+      : mappedEmployees.filter(
+          (emp: any) => emp.location === locationFilter
+        );
+
+  // Step 3️⃣: Update grid
+  setFilteredEmployees(employeesToShow);
+}, [employees, locationsData, locationFilter]);
+
+
 
 
   const showModal = () => setIsModalVisible(true);
@@ -258,15 +292,10 @@ const getAllDepartmentsApi = async () => {
       email: values.email,
       mobile: values.phone,
       location_id: values.location,   
-      dept_id: [values.services],     
+      dept_id: values.services,     
       
 
-      role_id:
-        values.Role === "Employee"
-          ? 3 
-          : values.Role === "Admin"
-          ? 2
-          : 1,
+      role_id: values.role_id,
     };
 
     console.log("Corrected Payload to API:", payload);
@@ -307,18 +336,18 @@ const getAllDepartmentsApi = async () => {
 };
 
   
-  const locationOptions: SelectProps['options'] = [
-    {
-        value: 'All Locations',
-        label: (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <EnvironmentFilled style={{ color: '#ef4444', fontSize: '16px' }} />
-                <span>All Locations</span>
-            </div>
-        )
-    },
-    ...locations.map(loc => ({ label: loc, value: loc }))
-  ];
+  // const locationOptions: SelectProps['options'] = [
+  //   {
+  //       value: 'All Locations',
+  //       label: (
+  //           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+  //               <EnvironmentFilled style={{ color: '#ef4444', fontSize: '16px' }} />
+  //               <span>All Locations</span>
+  //           </div>
+  //       )
+  //   },
+  //   ...locations.map(loc => ({ label: loc, value: loc }))
+  // ];
 
  const handleDeleteEmployee = async (id: number) => {
   try {
@@ -344,16 +373,17 @@ if (loading) {
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', animation: 'fadeIn 0.5s' }}>
         <Row justify="space-between" align="middle" style={{ paddingBottom: 24, flexWrap: 'wrap', gap: 16 }}>
             <Col>
-                <Title level={2} style={{ margin: 0 }}>Employees</Title>
+                <Title level={2} style={{ margin: 0 }}>EMPLOYEES</Title>
             </Col>
             <Col>
                 <Space wrap>
                     <Select
-                        defaultValue="All Locations"
-                        style={{ width: 150 }}
-                        onChange={setLocationFilter}
-                        options={locationOptions} 
-                    />
+  value={locationFilter}
+  style={{ width: 180 }}
+  onChange={setLocationFilter}
+  options={locationOptions}
+/>
+
                     <Button className='color' icon={<PlusOutlined />} onClick={showModal}>
                         Add User
                     </Button>
@@ -436,10 +466,7 @@ if (loading) {
               rules={[
                 { required: true, message: "Please enter email" },
                 { type: "email", message: "Please enter a valid email" },
-                {
-                  pattern: /^[a-zA-Z][a-zA-Z0-9._%+-]*@gmail\.com$/,
-                  message: "Email must be a valid Gmail address",
-                },
+                
               ]}
             >
               <Input placeholder="Enter email address" />
@@ -496,6 +523,7 @@ if (loading) {
               rules={[{ required: true, message: "Please select a department" }]}
             >
               <Select
+                mode='multiple'
                 allowClear
                 options={departmentsdata}
                 placeholder="Select department"
@@ -508,20 +536,18 @@ if (loading) {
           {/* Role */}
           <Col xs={24} sm={12}>
             <Form.Item
-              name="Role"
-              label="Role"
-              rules={[{ required: true, message: "Please select a role" }]}
-            >
-              <Select
-                allowClear
-                options={Role.map((s: string) => ({
-                  label: s,
-                  value: s,
-                }))}
-                placeholder="Select Role"
-                showSearch={false}
-              />
-            </Form.Item>
+  name="role_id"
+  label="Role"
+  rules={[{ required: true, message: "Please select a role" }]}
+>
+  <Select
+    allowClear
+    placeholder="Select role"
+    options={rolesData}
+    showSearch
+  />
+</Form.Item>
+
           </Col>
         </Row>
       </Form>
