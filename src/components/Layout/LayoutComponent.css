@@ -27,10 +27,9 @@
 
 
 .layout-main {
-  height: 100vh;
-  overflow: hidden; 
-  display: flex;
-  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 
@@ -38,7 +37,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto;
 }
 
 
@@ -72,7 +71,6 @@
 .mobile-accordion .ant-collapse-header {
   font-weight: 500;
 }
-
 
 @media (max-width: 992px) {
   .layout-sider {
