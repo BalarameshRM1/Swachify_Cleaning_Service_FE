@@ -1,0 +1,281 @@
+.employee-card {
+  border-radius: 10px;
+  border: 1px solid #dcfce7;
+  height: 220px;
+  transition: all 0.3s ease;
+  position: relative;
+  padding-top: 35px;
+}
+
+.delete-button,
+:where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  border-radius: 8px !important;
+  z-index: 20 !important;
+  transform: none !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.employee-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 16px;
+}
+
+.employee-avatar {
+  background-color: #14b8a6 !important;
+  font-size: 24px;
+  color: #fff !important;
+}
+
+.employee-info {
+  overflow: hidden;
+}
+
+.employee-name {
+  margin: 0 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.employee-status {
+  margin-top: 4px;
+}
+
+.employee-divider {
+  margin: 12px 0 !important;
+}
+
+.employee-departments {
+  margin-bottom: 12px;
+}
+
+.department-tags {
+  margin-top: 4px;
+}
+
+.dept-tag {
+  margin-bottom: 4px;
+}
+
+.employee-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.employee-location,
+.employee-phone {
+  margin: 0 !important;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon {
+  color: #ef4444;
+}
+
+.employee-card:hover {
+  box-shadow: 0 0 10px rgba(0, 255, 150, 0.2);
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.loader-image {
+  width: 150px;
+}
+
+.employees-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 150px);
+  animation: fadeIn 0.5s;
+}
+
+.employees-header {
+  padding-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.employees-title {
+  font-weight: bold !important;
+  color: #0a0b0bff !important;
+  margin: 0 !important;
+}
+
+.content-grid {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.scrollable-grid::-webkit-scrollbar {
+  display: none;
+}
+.scrollable-grid {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.employee-modal {
+  height: 90vh;
+  bottom: 80px;
+}
+
+.cancel-btn {
+  border-color: #14b8a6 !important;
+  color: black !important;
+}
+.submit-btn {
+  background-color: #14b8a6 !important;
+  color: #ffffff !important;
+  border-color: #14b8a6 !important;
+}
+
+.employee-form {
+  margin-top: 28px;
+}
+
+.ant-card-hoverable:hover {
+  border-color: #14b8a6 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================== */
+/* 📱 Mobile Small (320px–375px) */
+/* ========================== */
+@media (max-width: 375px) {
+  .employees-container { padding: 8px; }
+  .employee-card {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    position: absolute !important;
+    top: 4px !important;
+    right: 6px !important;
+    z-index: 999 !important;
+    transform: none !important;
+  }
+  .employee-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .employee-avatar { font-size: 18px !important; }
+  .employee-name { font-size: 14px !important; max-width: 150px; }
+  .dept-tag { font-size: 11px; }
+  .employee-footer { flex-direction: column; align-items: center; gap: 5px; }
+  .employee-location, .employee-phone { font-size: 12px; }
+  .employees-title { font-size: 16px !important; }
+  .loader-image { width: 90px; }
+}
+
+/* ========================== */
+/* 📱 Mobile Medium (376px–425px) */
+/* ========================== */
+@media (min-width: 376px) and (max-width: 425px) {
+  .employees-container { padding: 10px; }
+  .employee-card {
+    width: 100%;
+    height: auto;
+    padding: 12px;
+    position: relative;
+  }
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    position: absolute !important;
+    top: 6px !important;
+    right: 8px !important;
+    transform: none !important;
+    z-index: 999 !important;
+  }
+  .employee-avatar { font-size: 20px !important; }
+  .employee-name { font-size: 15px !important; }
+  .dept-tag { font-size: 12px; }
+  .employee-footer { flex-direction: column; align-items: center; }
+}
+
+/* ========================== */
+/* 💻 Tablet (426px–768px) */
+/* ========================== */
+@media (min-width: 426px) and (max-width: 768px) {
+  .employees-container { padding: 14px; }
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
+    gap: 16px;
+  }
+  .employee-card { width: 100%; height: auto; position: relative; }
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    top: 8px !important;
+    right: 8px !important;
+    transform: none !important;
+  }
+  .employee-name { font-size: 16px; }
+  .employees-title { font-size: 20px !important; }
+}
+
+/* ========================== */
+/* 💻 Laptop (769px–1024px) */
+/* ========================== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .employees-container { padding: 20px; }
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(48%, 1fr));
+    gap: 18px;
+  }
+  .employee-card { width: 100%; height: auto; position: relative; }
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    top: 8px !important;
+    right: 8px !important;
+  }
+  .employee-name { font-size: 17px; }
+  .employees-title { font-size: 22px !important; }
+}
+
+/* ========================== */
+/* 🖥️ Desktop (>1024px) */
+/* ========================== */
+@media (min-width: 1025px) {
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .employee-card { width: 100%; position: relative; }
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    top: 8px !important;
+    right: 8px !important;
+  }
+}
