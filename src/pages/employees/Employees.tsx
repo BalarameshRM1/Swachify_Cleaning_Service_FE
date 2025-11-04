@@ -7,6 +7,7 @@ import { Popconfirm } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { deleteEmployeeById } from '../../app/services/auth';
 import LoaderGif from "../../assets/SWACHIFY_gif.gif"; 
+import "./Employees.css"
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -26,105 +27,65 @@ interface Employee {
 //const Role = ['Employee','Admin','Super Admin'];
 
 const EmployeeCard: React.FC<{ employee: Employee; onDelete: (id: number) => void }> = ({ employee, onDelete }) => (
-  <Card
-    hoverable
-    style={{
-      borderRadius: '10px',
-      border: '1px solid #dcfce7',
-      height: '220px',
-      
-      transition: 'all 0.3s ease',
-    }}
+ <Card hoverable className="employee-card">
+  <Popconfirm
+    title="Are you sure you want to delete this employee?"
+    onConfirm={() => onDelete(employee.id)}
+    okText="Yes"
+    cancelText="No"
   >
-    <Popconfirm
-  title="Are you sure you want to delete this employee?"
-  onConfirm={() => onDelete(employee.id)}
-  okText="Yes"
-  cancelText="No"
->
-  <Button
-    type="text"
-    danger
-    icon={<DeleteOutlined />}
-    style={{
-      position: "absolute",
-      top: 8,
-      right: 8,
-      borderRadius: "8px",
-    }}
-  />
-</Popconfirm>
+    <Button
+      type="text"
+      danger
+      icon={<DeleteOutlined />}
+      className="delete-button"
+    />
+  </Popconfirm>
 
-    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 16 }}>
-      <Avatar
-        size={30}
-        style={{
-          backgroundColor: '#14b8a6',
-          fontSize: 24,
-          color: '#fff',
-        }}
+  <div className="employee-header">
+    <Avatar size={30} className="employee-avatar">
+      {employee.name.charAt(0)}
+    </Avatar>
+    <div className="employee-info">
+      <Title level={5} className="employee-name">
+        {employee.name}
+      </Title>
+      <Tag
+        color={employee.status === "Available" ? "success" : "warning"}
+        className="employee-status"
       >
-        {employee.name.charAt(0)}
-      </Avatar>
-      <div style={{ overflow: 'hidden' }}>
-        <Title
-          level={5}
-          style={{
-            margin: 0,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: 120,
-          }}
-        >
-          {employee.name}
-        </Title>
-        <Tag
-          color={employee.status === 'Available' ? 'success' : 'warning'}
-          style={{ marginTop: 4 }}
-        >
-          {employee.status}
-        </Tag>
-      </div>
+        {employee.status}
+      </Tag>
     </div>
+  </div>
 
-    <Divider style={{ margin: '12px 0' }} />
+  <Divider className="employee-divider" />
 
-    <div style={{ marginBottom: 12 }}>
-      <Text strong>Departments:</Text>
-      <div style={{ marginTop: 4 }}>
-        {employee.depts?.length ? (
-          employee.depts.map((dept: string) => (
-            <Tag key={dept} color="#0d9488" style={{ marginBottom: 4 }}>
-              {dept}
-            </Tag>
-          ))
-        ) : (
-          <Text type="secondary">No departments assigned</Text>
-        )}
-      </div>
+  <div className="employee-departments">
+    <Text strong>Departments:</Text>
+    <div className="department-tags">
+      {employee.depts?.length ? (
+        employee.depts.map((dept) => (
+          <Tag key={dept} color="#0d9488" className="dept-tag">
+            {dept}
+          </Tag>
+        ))
+      ) : (
+        <Text type="secondary">No departments assigned</Text>
+      )}
     </div>
+  </div>
 
-    <div
-  style={{
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: "8px",
-  }}
->
-  <Paragraph style={{ margin: 0, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6 }}>
-    <EnvironmentFilled style={{ color: '#ef4444' }} /> {employee.location || 'Unknown'}
-  </Paragraph>
+  <div className="employee-footer">
+    <Paragraph className="employee-location">
+      <EnvironmentFilled className="icon" /> {employee.location || "Unknown"}
+    </Paragraph>
+    <Paragraph className="employee-phone">
+      <PhoneFilled className="icon" /> {employee.phone || "+1 999-9999-99"}
+    </Paragraph>
+  </div>
+</Card>
 
-  <Paragraph style={{ margin: 0, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6 }}>
-    <PhoneFilled style={{ color: '#ef4444' }} />
-    {employee.phone || '+1 999-9999-99'}
-  </Paragraph>
-</div>
-
-  </Card>
 );
 
 
@@ -336,18 +297,22 @@ const getAllRolesApi = async () => {
 };
 
   
-  // const locationOptions: SelectProps['options'] = [
-  //   {
-  //       value: 'All Locations',
-  //       label: (
-  //           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-  //               <EnvironmentFilled style={{ color: '#ef4444', fontSize: '16px' }} />
-  //               <span>All Locations</span>
-  //           </div>
-  //       )
-  //   },
-  //   ...locations.map(loc => ({ label: loc, value: loc }))
-  // ];
+// const locationOptions: SelectProps['options'] = [
+//   {
+//     value: 'All Locations',
+//     label: (
+//       <div className="location-option">
+//         <EnvironmentFilled className="location-icon" />
+//         <span>All Locations</span>
+//       </div>
+//     ),
+//   },
+//   ...locations.map((loc) => ({
+//     label: loc,
+//     value: loc,
+//   })),
+// ];
+
 
  const handleDeleteEmployee = async (id: number) => {
   try {
@@ -363,68 +328,66 @@ const getAllRolesApi = async () => {
 
 if (loading) {
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
-      <img src={LoaderGif} alt="Loading..." style={{ width: "150px" }} />
+    <div className="loader-container">
+      <img src={LoaderGif} alt="Loading..." className="loader-image" />
     </div>
   );
 }
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 150px)', animation: 'fadeIn 0.5s' }}>
-        <Row justify="space-between" align="middle" style={{ paddingBottom: 24, flexWrap: 'wrap', gap: 16 }}>
-            <Col>
-                <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff",margin: 0 }}>EMPLOYEES</Title>
-            </Col>
-            <Col>
-                <Space wrap>
-                    <Select
-  value={locationFilter}
-  style={{ width: 180 }}
-  onChange={setLocationFilter}
-  options={locationOptions}
-/>
 
-                    <Button className='color' icon={<PlusOutlined />} onClick={showModal}>
-                        Add User
-                    </Button>
-                </Space>
-            </Col>
-        </Row>
+ return (
+  <div className="employees-container">
+    <Row justify="space-between" align="middle" className="employees-header">
+      <Col>
+        <Title level={2} className="employees-title">
+          EMPLOYEES
+        </Title>
+      </Col>
+      <Col>
+        <Space wrap>
+          <Select
+            value={locationFilter}
+            style={{ width: 180 }}
+            onChange={setLocationFilter}
+            options={locationOptions}
+          />
+          <Button className="color" icon={<PlusOutlined />} onClick={showModal}>
+            Add User
+          </Button>
+        </Space>
+      </Col>
+    </Row>
 
-        <div className="scrollable-grid" style={{ flex: 1, overflowY: 'auto' }}>
-            <Row gutter={[24, 24]}>
-                {filteredEmployees.map(employee => (
-                    <Col xs={24} sm={12} lg={8} xl={6} key={employee.id}>
-                      <EmployeeCard employee={employee} onDelete={handleDeleteEmployee} />
-                    </Col>
-                ))}
-            </Row>
-        </div>
+    <div className="scrollable-grid content-grid">
+      <Row gutter={[24, 24]}>
+        {filteredEmployees.map((employee) => (
+          <Col xs={24} sm={12} lg={8} xl={6} key={employee.id}>
+            <EmployeeCard
+              employee={employee}
+              onDelete={handleDeleteEmployee}
+            />
+          </Col>
+        ))}
+      </Row>
+    </div>
 
-      <Modal
+    <Modal
       title="Add New User"
       open={isModalVisible}
-      width={1000} 
+      width={1000}
       onCancel={handleCancel}
-         style={{
-        height: "90vh", 
-        bottom:80,
-      }}
+      className="employee-modal"
       footer={[
         <Button
           key="back"
-          style={{ borderColor: "#14B8A6", color: "black" }}
+          className="cancel-btn"
           onClick={handleCancel}
         >
           Cancel
         </Button>,
         <Button
           key="submit"
-          style={{
-            backgroundColor: "#14B8A6",
-            color: "#ffffff",
-            borderColor: "#14B8A6",
-          }}
+          className="submit-btn"
           onClick={() => form.submit()}
         >
           Add User
@@ -435,7 +398,7 @@ if (loading) {
         form={form}
         layout="vertical"
         onFinish={handleAddEmployee}
-        style={{ marginTop: 28 }}
+        className="employee-form"
       >
         <Row gutter={24}>
           {/* Full Name */}
@@ -446,12 +409,11 @@ if (loading) {
               rules={[
                 { required: true, message: "Please enter full name" },
                 {
-                  pattern:/^[A-Za-z]{2,}(?:\s[A-Za-z]{1,})+$/,
-                  message:
-                    "Enter valid full name ",
+                  pattern: /^[A-Za-z]{2,}(?:\s[A-Za-z]{1,})+$/,
+                  message: "Enter valid full name",
                 },
               ]}
-               getValueFromEvent={(e) => e.target.value.trimStart()}
+              getValueFromEvent={(e) => e.target.value.trimStart()}
             >
               <Input placeholder="Enter full name" />
             </Form.Item>
@@ -466,14 +428,13 @@ if (loading) {
               rules={[
                 { required: true, message: "Please enter email" },
                 { type: "email", message: "Please enter a valid email" },
-                
               ]}
             >
               <Input placeholder="Enter email address" />
             </Form.Item>
           </Col>
 
-          {/* Phone Number */}
+          {/* Phone */}
           <Col xs={24} sm={12}>
             <Form.Item
               name="phone"
@@ -490,9 +451,7 @@ if (loading) {
                 placeholder="Enter 10-digit phone number"
                 maxLength={10}
                 onKeyPress={(e) => {
-                  if (!/[0-9]/.test(e.key)) {
-                    e.preventDefault();
-                  }
+                  if (!/[0-9]/.test(e.key)) e.preventDefault();
                 }}
               />
             </Form.Item>
@@ -505,75 +464,54 @@ if (loading) {
               label="Location"
               rules={[{ required: true, message: "Please select a location" }]}
             >
-             <Select
+              <Select
                 options={locationsData}
                 placeholder="Select location"
                 showSearch={false}
                 optionFilterProp="label"
               />
-
             </Form.Item>
           </Col>
+          
 
-          {/* Services */}
+          {/* Departments */}
           <Col xs={24} sm={12}>
-           <Form.Item
+            <Form.Item
               name="services"
               label="Departments"
               rules={[{ required: true, message: "Please select a department" }]}
             >
               <Select
-                mode='multiple'
+                mode="multiple"
                 allowClear
                 options={departmentsdata}
                 placeholder="Select department"
-                showSearch={false} // <-- Re-applying this fix
+                showSearch={false}
               />
             </Form.Item>
-
           </Col>
 
           {/* Role */}
           <Col xs={24} sm={12}>
             <Form.Item
-  name="role_id"
-  label="Role"
-  rules={[{ required: true, message: "Please select a role" }]}
->
-  <Select
-    allowClear
-    placeholder="Select role"
-    options={rolesData}
-    showSearch
-  />
-</Form.Item>
-
+              name="role_id"
+              label="Role"
+              rules={[{ required: true, message: "Please select a role" }]}
+            >
+              <Select
+                allowClear
+                placeholder="Select role"
+                options={rolesData}
+                showSearch
+              />
+            </Form.Item>
           </Col>
         </Row>
       </Form>
     </Modal>
+  </div>
+);
 
-        <style>
-        {`
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            .ant-card-hoverable:hover {
-                border-color: #14b8a6 !important;
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            }
-            .scrollable-grid::-webkit-scrollbar {
-                display: none;
-            }
-            .scrollable-grid {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-        `}
-        </style>
-    </div>
-  );
 };
 
 export default Employees;
