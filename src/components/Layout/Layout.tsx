@@ -22,6 +22,7 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   MenuOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import HeaderBar from "../header/header";
@@ -67,20 +68,32 @@ const LayoutComponent: React.FC = () => {
     { key: "/app/settings", icon: <SettingOutlined />, label: "Settings" },
     { key: "Logout", icon: <LogoutOutlined />, label: "Logout" },
   ];
-
-  const handleLogout = () => {
-    confirm({
-      title: "Are you sure you want to log out?",
-      icon: <ExclamationCircleOutlined />,
-      okText: "Yes",
-      cancelText: "No",
-      onOk() {
-        localStorage.removeItem("user");
-        message.success("Logged out successfully!");
-        navigate("/landing");
-      },
-    });
-  };
+const handleLogout = () => {
+  confirm({
+    title: "Are you sure do you want to log out?",
+    icon: <ExclamationCircleOutlined />,
+    okText: "Yes",
+    cancelText: "No",
+    okButtonProps: {
+      className: "logout-modal-button logout-modal-button-ok", // ✅ external class
+    },
+    cancelButtonProps: {
+      className: "logout-modal-button logout-modal-button-cancel", // ✅ external class
+    },
+    onOk() {
+      localStorage.removeItem("user");
+      message.success("Logged out successfully!");
+      navigate("/landing");
+    },
+    onCancel() {
+      message.open({
+        type: "info",
+        content: "Logout cancelled",
+        icon: <InfoCircleOutlined style={{ color: "rgb(20, 184, 166)" }} />,
+      });
+    },
+  });
+};
 
   const onClick = (e: any) => {
     if (e.key === "Logout") return handleLogout();
