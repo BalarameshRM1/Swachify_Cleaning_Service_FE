@@ -1,0 +1,87 @@
+.loader-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+}
+
+.loader-image {
+  width: 160px;
+  margin-bottom: 20px;
+}
+
+.loader-text {
+  font-size: 16px;
+  color: #555;
+}
+.not-assigned {
+  color: #999;
+  font-style: italic;
+}
+.booking-wrapper {
+  height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.booking-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.booking-title {
+  font-weight: bold;
+  color: #0a0b0bff;
+  font-size: 20px;
+  margin-left: 400px;
+}
+
+.filters-section {
+  flex-shrink: 0;
+}
+
+.filter-buttons {
+  margin-top: 16px;
+}
+
+.excel-btn {
+  background: #52c41a !important;
+  color: white !important;
+}
+
+.summary-row {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 8px;
+}
+
+.table-section {
+  flex: 1;
+  overflow: auto;
+}
+
+.empty-text {
+  padding: 40px 0;
+  text-align: center;
+}
+
+.empty-text p:first-child {
+  font-size: 16px;
+  color: #999;
+}
+
+.empty-text p:last-child {
+  font-size: 14px;
+  color: #bbb;
+}
