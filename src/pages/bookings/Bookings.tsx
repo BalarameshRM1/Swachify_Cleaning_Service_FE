@@ -12,7 +12,7 @@ import {
   Spin,
   Badge,
   Tooltip,
-  Tag, 
+  Tag,
 } from "antd";
 import {
   UserOutlined,
@@ -31,7 +31,8 @@ import {
   deleteBookingById,
 } from "../../app/services/auth";
 import LoaderGif from "../../assets/SWACHIFY_gif.gif";
-import { useLocation } from "react-router-dom"; // <-- 1. IMPORT useLocation
+import { useLocation } from "react-router-dom"; 
+import "./Bookings.css";
 
 const { Title, Text } = Typography;
 
@@ -59,27 +60,34 @@ const Slots = [
   { id: 3, slot_time: "1PM - 3PM" },
   { id: 4, slot_time: "3PM - 5 PM" },
 ];
-const getStatusStyle = (raw?: string) => {
+
+const getStatusClass = (raw?: string) => {
   const status = raw || "Unknown";
   switch (status) {
     case "Pending":
-      return { bg: "#fef3c7", fg: "#b45309", text: status };
+      return "status-pending";
     case "Open":
-      return { bg: "#e0f2fe", fg: "#0284c7", text: status };
-    case "In Progress": 
-    case "In-Progress": 
-      return { bg: "#ccfbf1", fg: "#0f766e", text: "In-Progress" }; 
+      return "status-open";
+    case "In Progress":
+    case "In-Progress":
+      return "status-inprogress";
     case "Completed":
-      return { bg: "#dcfce7", fg: "#15803d", text: status };
+      return "status-completed";
     case "Cancelled":
-      return { bg: "#fee2e2", fg: "#991b1b", text: status };
+      return "status-cancelled";
     default:
-      return { bg: "#f3f4f6", fg: "#4b5563", text: "Unknown" };
+      return "status-unknown";
   }
 };
 
+const getStatusText = (raw?: string) => {
+  const status = raw || "Unknown";
+  if (status === "In Progress" || status === "In-Progress") return "In-Progress";
+  return status;
+};
+
 const Bookings: React.FC = () => {
-  const location = useLocation(); 
+  const location = useLocation();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -92,8 +100,6 @@ const Bookings: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   // const [assigningEmployee, setAssigningEmployee] = useState(false);
 
-
- 
   const normalize = (b: any) => {
     const statusText = typeof b.status === "string" ? b.status : b.status?.status || "Unknown";
 
@@ -106,7 +112,7 @@ const Bookings: React.FC = () => {
     if (Array.isArray(b.services) && b.services.length > 0) {
       const names = b.services
         .map((s: any) => s.service_name)
-        .filter(Boolean) 
+        .filter(Boolean)
         .join(", ");
       if (names) {
         serviceNames = names;
@@ -120,9 +126,9 @@ const Bookings: React.FC = () => {
 
     return {
       ...b,
-      status: statusText,     
-      deptName: deptName,     
-      serviceNames: serviceNames, 
+      status: statusText,
+      deptName: deptName,
+      serviceNames: serviceNames,
       bookingIdText: b.booking_id || b.id,
       slotText: slotText,
     };
@@ -132,12 +138,12 @@ const Bookings: React.FC = () => {
     const fetchBookings = async () => {
       try {
         setLoadingBookings(true);
-        const initialFilter = location.state?.initialFilter; 
-        
-        const raw = await getallBookings(); 
+        const initialFilter = (location as any).state?.initialFilter;
+
+        const raw = await getallBookings();
         if (raw) {
           const normalized = raw.map(normalize).sort((a: any, b: any) => b.id - a.id);
-          
+
           if (initialFilter) {
             const filtered = normalized.filter((b: any) => b.status === initialFilter);
             setBookings(filtered);
@@ -153,26 +159,17 @@ const Bookings: React.FC = () => {
       }
     };
     fetchBookings();
-  }, [location.state]); 
+  }, [location.state]);
 
   if (loadingBookings) {
     return (
-      <div
-        style={{
-          height: "80vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          background: "#ffffff",
-        }}
-      >
-        <img src={LoaderGif} alt="Loading..." style={{ width: 180, height: 180, marginBottom: 16 }} />
-        <Text style={{ fontSize: 16, color: "#0D9488" }}>Loading bookings...</Text>
+      <div className="loader-screen">
+        <img src={LoaderGif} alt="Loading..." className="loader-gif" />
+        <Text className="loader-text">Loading bookings...</Text>
       </div>
     );
   }
-  
+
   const checkEmployeeAvailability = async (
     employeeId: number,
     bookingDate: string,
@@ -191,10 +188,7 @@ const Bookings: React.FC = () => {
     }
   };
 
-  const checkAllEmployeesAvailability = async (
-    bookingId: number,
-    employeesList: Employee[]
-  ) => {
+  const checkAllEmployeesAvailability = async (bookingId: number, employeesList: Employee[]) => {
     const booking = bookings.find((b) => b.id === bookingId);
     if (!booking || employeesList.length === 0) return employeesList;
 
@@ -287,7 +281,6 @@ const Bookings: React.FC = () => {
     setSelectedBookingId(null);
     setSelectedEmployeeId(null);
   };
-  
 
   const handleAssignEmployee = async () => {
     if (!selectedEmployeeId || !selectedBookingId) {
@@ -313,7 +306,10 @@ const Bookings: React.FC = () => {
       }
       const refreshed = await getallBookings();
       if (refreshed) {
-        const normalized = refreshed.map(normalize).sort((a: any, b: any) => b.id - a.id).filter((b: any) => b.status == "Open");
+        const normalized = refreshed
+          .map(normalize)
+          .sort((a: any, b: any) => b.id - a.id)
+          .filter((b: any) => b.status == "Open");
         setBookings(normalized);
       }
       closeAssignModal();
@@ -342,7 +338,11 @@ const Bookings: React.FC = () => {
     try {
       await deleteBookingById(selectedBookingId);
       message.success(`Booking #${selectedBookingId} deleted successfully.`);
-      setBookings((prev) => prev.filter((b: any) => b.id !== selectedBookingId).filter((b: any) => b.status == "Open"));
+      setBookings((prev) =>
+        prev
+          .filter((b: any) => b.id !== selectedBookingId)
+          .filter((b: any) => b.status == "Open")
+      );
       closeDeleteModal();
     } catch (error: any) {
       console.error("Failed to delete booking:", error);
@@ -358,27 +358,16 @@ const Bookings: React.FC = () => {
   };
 
   const selectedBooking = bookings.find((b: any) => b.id === selectedBookingId);
-
   return (
-    <div style={{ padding: 24 }}>
-      <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", marginBottom: 24,marginLeft: "30%", }}>
-        BOOKINGS MANAGEMENT
-      </Title>
+    <div className="bookings-root">
+      <Title className="bookings-title">BOOKINGS MANAGEMENT</Title>
 
-      <div
-        className="scrollable-content"
-        style={{
-          maxHeight: "calc(100vh - 180px)",
-          overflowY: "auto",
-          paddingRight: 12,
-          paddingLeft: 4,
-          paddingBottom: 60,
-        }}
-      >
+      <div className="scrollable-content">
         <Row gutter={[20, 20]}>
           {bookings.length > 0 ? (
             bookings.map((item: any) => {
-              const st = getStatusStyle(item.status);
+              const statusClass = getStatusClass(item.status);
+              const statusText = getStatusText(item.status);
               const dateText =
                 (item.preferred_date && moment(item.preferred_date).format("MMM D,  YYYY")) ||
                 (item.created_date && moment(item.created_date).format("MMM D, YYYY")) ||
@@ -387,107 +376,59 @@ const Bookings: React.FC = () => {
 
               return (
                 <Col xs={24} key={item.id}>
-                  <Card
-                    hoverable
-                    variant="outlined"
-                    style={{
-                      borderRadius: 16,
-                      transition: "all 0.3s",
-                      borderColor: "#e5e7eb",
-                      borderWidth: 1,
-                      cursor: "default",
-                    }}
-                    bodyStyle={{ padding: "20px 24px" }}
-                    onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                      const target = e.currentTarget as HTMLDivElement;
-                      target.style.borderColor = "#0D9488";
-                      target.style.borderWidth = "2px";
-                      target.style.boxShadow = "0 4px 15px rgba(13, 148, 136, 0.3)";
-                    }}
-                    onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                      const target = e.currentTarget as HTMLDivElement;
-                      target.style.borderColor = "#e5e7eb";
-                      target.style.borderWidth = "1px";
-                      target.style.boxShadow = "none";
-                    }}
-                  >
-                    <Space
-                      direction="horizontal"
-                      style={{
-                        width: "100%",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Space direction="vertical" size={4}>
-                        <div style={{ marginBottom: 8 }}>
+                  <Card className="booking-card" hoverable>
+                    <Space direction="horizontal" className="booking-space">
+                      <Space direction="vertical" size={4} className="booking-left">
+                        <div className="services-list">
                           {item.services.map((s: any, index: number) => (
-                            <div key={index} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-                              <Text style={{ fontSize: 16, fontWeight: 600, color: "#1f2937", marginRight: 8 }}>
+                            <div className="service-row" key={index}>
+                              <Text className="service-title">
                                 {s.department_name} - {s.service_name}
                               </Text>
-                              
-                              <Tag 
-                                style={{ 
-                                  backgroundColor: "#e0f2fe", 
-                                  color: "#0284c7", 
-                                  borderColor: "#bfdbfe",
-                                  fontWeight: 500,
-                                  marginRight: 0 
-                                }}
-                              >
-                                {s.service_type || 'Standard Plan'}
-                              </Tag>
+
+                              <Tag className="service-tag">{s.service_type || "Standard Plan"}</Tag>
                             </div>
                           ))}
                         </div>
 
-                        <Space direction="vertical" size={2} style={{ paddingTop: 8 }}>
-                          <Text style={{ fontSize: 14 }}>
-                            <UserOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
+                        <Space direction="vertical" size={2} className="booking-info">
+                          <Text className="info-text">
+                            <UserOutlined className="icon-teal" />
                             {item.full_name || "N/A"}
                           </Text>
-                          <Text style={{ fontSize: 14 }}>
-                            <PhoneOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
+                          <Text className="info-text">
+                            <PhoneOutlined className="icon-teal" />
                             {item.phone || "N/A"}
                           </Text>
-                          <Text style={{ fontSize: 14 }}>
-                            <EnvironmentOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
+                          <Text className="info-text">
+                            <EnvironmentOutlined className="icon-teal" />
                             {item.address || "N/A"}
                           </Text>
-                          <Text style={{ fontSize: 14 }}>
-                            <CalendarOutlined style={{ marginRight: 6, color: "#14b8a6" }} />
+                          <Text className="info-text">
+                            <CalendarOutlined className="icon-teal" />
                             {dateText} - {slotText}
                           </Text>
                         </Space>
                       </Space>
 
-                      <Space direction="vertical" align="end" size={"middle"}>
-                        <span
-                          style={{
-                            backgroundColor: st.bg,
-                            color: st.fg,
-                            fontWeight: "bold",
-                            padding: "4px 12px",
-                            borderRadius: "16px",
-                            textAlign: "center",
-                            minWidth: 100,
-                            fontSize: 12,
-                          }}
-                        >
-                          {st.text}
-                        </span>
+                      <Space direction="vertical" align="end" size={"middle"} className="booking-right">
+                        <span className={`status-badge ${statusClass}`}>{statusText}</span>
 
                         <Button
                           type="primary"
+                          className="assign-button"
                           onClick={() => openAssignModal(item.id)}
                           disabled={item.status !== "Open"}
-                          style={{ backgroundColor: "#0D9488", borderColor: "#0D9488",minWidth: "150px", height: "40px",fontWeight: 500, fontSize: "15px", }}
                         >
                           Assign Employee
                         </Button>
 
-                        <Button type="primary" danger onClick={() => openDeleteModal(item.id)}  style={{ minWidth: "150px", height: "40px", fontWeight: 500, fontSize: "15px",}}>
+                        <Button
+                          type="primary"
+                          danger
+                          className="delete-button"
+                          onClick={() => openDeleteModal(item.id)}
+                        >
                           Delete Booking
                         </Button>
                       </Space>
@@ -497,14 +438,10 @@ const Bookings: React.FC = () => {
               );
             })
           ) : (
-            <Col xs={24} style={{ textAlign: "center", marginTop: 40 }}>
-              <Card
-                variant="outlined"
-                style={{ borderRadius: 16, padding: "40px 0", borderColor: "#e5e7eb" }}
-              >
-                <CalendarOutlined style={{ fontSize: 48, color: "#cbd5e1", marginBottom: 16 }} />
-                <br />
-                <Text strong type="secondary" style={{ fontSize: 16, color: "#9ca3af" }}>
+            <Col xs={24} className="no-bookings-col">
+              <Card className="no-bookings-card" bordered={false}>
+                <CalendarOutlined className="empty-icon" />
+                <Text strong className="empty-text">
                   No bookings found.
                 </Text>
               </Card>
@@ -517,16 +454,19 @@ const Bookings: React.FC = () => {
       <Modal
         title={
           <div>
-            <Title level={4} style={{ margin: 0 }}>
+            <Title level={4} className="modal-title">
               Assign Employee
             </Title>
             {selectedBooking && (
-              <Text type="secondary" style={{ fontSize: 13 }}>
+              <Text type="secondary" className="modal-subtitle">
                 {(selectedBooking.preferred_date &&
                   moment(selectedBooking.preferred_date).format("MMM D, YYYY")) ||
                   (selectedBooking.created_date &&
                     moment(selectedBooking.created_date).format("MMM D, YYYY"))}{" "}
-                - {selectedBooking.slotText || Slots.find((s) => s.id === selectedBooking.slot_id)?.slot_time || "N/A"}
+                -{" "}
+                {selectedBooking.slotText ||
+                  Slots.find((s) => s.id === selectedBooking.slot_id)?.slot_time ||
+                  "N/A"}
               </Text>
             )}
           </div>
@@ -541,66 +481,35 @@ const Bookings: React.FC = () => {
             key="submit"
             type="primary"
             onClick={handleAssignEmployee}
-            style={{ backgroundColor: "#0D9488", borderColor: "#0D9488" }}
+            className="assign-confirm-button"
             disabled={!selectedEmployeeId || checkingAvailability}
           >
             Assign
           </Button>,
         ]}
         width={650}
-        bodyStyle={{ padding: "16px 24px" }}
+        className="assign-modal"
       >
-       {/* {assigningEmployee && (
-  <div
-    style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      background: "rgba(255,255,255,0.8)",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1000,
-      borderRadius: 12,
-    }}
-  >
-    <img
-      src={LoaderGif}
-      alt="Assigning..."
-      style={{ width: 120, height: 120, objectFit: "contain" }}
-    />
-    <Text
-      style={{
-        marginTop: 12,
-        fontSize: 16,
-        fontWeight: 600,
-        color: "#0D9488",
-      }}
-    >
-      Assigning employee...
-    </Text>
+        {/* {assigningEmployee && (
+  <div className="assigning-overlay">
+    <img src={LoaderGif} alt="Assigning..." className="assigning-gif" />
+    <Text className="assigning-text">Assigning employee...</Text>
   </div>
 )} */}
 
-
-        <div style={{ maxHeight: 400, overflowY: "auto", marginTop: 16, paddingRight: 8 }}>
+        <div className="assign-modal-body">
           {loadingEmployees ? (
-            <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <div className="employees-loading">
               <Spin size="large" />
-              <Text style={{ display: "block", marginTop: 12 }}>Loading employees...</Text>
+              <Text className="loading-employees-text">Loading employees...</Text>
             </div>
           ) : employees.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "40px 0" }}>
-              <UserOutlined style={{ fontSize: 48, color: "#cbd5e1", marginBottom: 16 }} />
-              <br />
-              <Text type="secondary" style={{ fontSize: 15 }}>
+            <div className="no-employees">
+              <UserOutlined className="no-employees-icon" />
+              <Text type="secondary" className="no-employees-title">
                 No available employees to assign.
               </Text>
-              <br />
-              <Text type="secondary" style={{ fontSize: 13, display: "block", marginTop: 8 }}>
+              <Text type="secondary" className="no-employees-sub">
                 All employees are currently assigned to other bookings.
               </Text>
             </div>
@@ -611,86 +520,59 @@ const Bookings: React.FC = () => {
               const isAvailable = employee.is_available;
               const isChecking = employee.availability_status === "checking";
 
+              const cardClass = [
+                "employee-card",
+                selectedEmployeeId === employee.id ? "employee-selected" : "",
+                isAvailable ? "employee-available" : "employee-unavailable",
+              ]
+                .filter(Boolean)
+                .join(" ");
+
+              const avatarClass = isAvailable ? "avatar-available" : "avatar-unavailable";
+              const availabilityClass = isChecking
+                ? "availability-checking"
+                : isAvailable
+                ? "availability-available"
+                : "availability-unavailable";
+
               return (
                 <Card
                   key={employee.id}
-                  hoverable={isAvailable}
-                  style={{
-                    marginBottom: 12,
-                    borderRadius: 12,
-                    border:
-                      selectedEmployeeId === employee.id
-                        ? "2px solid #14b8a6"
-                        : isAvailable
-                        ? "1px solid #e8e8e8"
-                        : "1px solid #fca5a5",
-                    cursor: isAvailable ? "pointer" : "not-allowed",
-                    transition: "all 0.2s",
-                    boxShadow:
-                      selectedEmployeeId === employee.id
-                        ? "0 0 0 2px rgba(20, 184, 166, 0.2)"
-                        : "none",
-                    userSelect: "none",
-                    opacity: isAvailable ? 1 : 0.6,
-                    background: isAvailable ? "#ffffff" : "#fef2f2",
-                  }}
+                  hoverable={!!isAvailable}
+                  className={cardClass}
                   onClick={() => isAvailable && setSelectedEmployeeId(employee.id)}
-                  bodyStyle={{ padding: 16 }}
                 >
-                  <Space style={{ width: "100%", justifyContent: "space-between" }} align="center">
+                  <Space className="employee-space" align="center">
                     <Space size="middle" align="center">
                       <Badge
                         count={
                           isChecking ? (
-                            <LoadingOutlined style={{ color: "#14b8a6" }} />
+                            <LoadingOutlined className="status-icon checking" />
                           ) : isAvailable ? (
-                            <CheckCircleOutlined style={{ color: "#22c55e", fontSize: 18 }} />
+                            <CheckCircleOutlined className="status-icon available" />
                           ) : (
-                            <CloseCircleOutlined style={{ color: "#ef4444", fontSize: 18 }} />
+                            <CloseCircleOutlined className="status-icon unavailable" />
                           )
                         }
                         offset={[-5, 5]}
+                        className="employee-badge"
                       >
-                        <Avatar
-                          style={{
-                            backgroundColor: isAvailable ? "#14b8a6" : "#9ca3af",
-                            verticalAlign: "middle",
-                          }}
-                          size="large"
-                        >
+                        <Avatar className={avatarClass} size="large">
                           {firstLetter}
                         </Avatar>
                       </Badge>
-                      <div>
-                        <div style={{ fontSize: 16, lineHeight: 1.2, fontWeight: 500 }}>
-                          {fullName || "Unnamed Employee"}
-                        </div>
-                        <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
-                          {employee.email}
-                        </div>
-                        {employee.mobile && (
-                          <div style={{ fontSize: 12, color: "#999", marginTop: 2 }}>
-                            📞 {employee.mobile}
-                          </div>
-                        )}
+
+                      <div className="employee-details">
+                        <div className="employee-name">{fullName || "Unnamed Employee"}</div>
+                        <div className="employee-email">{employee.email}</div>
+                        {employee.mobile && <div className="employee-mobile">📞 {employee.mobile}</div>}
                       </div>
                     </Space>
 
                     <Tooltip
-                      title={
-                        isAvailable ? "Available for assignment" : "Not available for this time slot"
-                      }
+                      title={isAvailable ? "Available for assignment" : "Not available for this time slot"}
                     >
-                      <span
-                        style={{
-                          padding: "4px 12px",
-                          borderRadius: 12,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          background: isAvailable ? "#dcfce7" : "#fee2e2",
-                          color: isAvailable ? "#15803d" : "#991b1b",
-                        }}
-                      >
+                      <span className={`availability-badge ${availabilityClass}`}>
                         {isChecking ? "Checking..." : isAvailable ? "Available" : "Assigned"}
                       </span>
                     </Tooltip>
@@ -705,7 +587,7 @@ const Bookings: React.FC = () => {
       {/* Delete Modal */}
       <Modal
         title={
-          <Title level={3} style={{ color: "#ef4444" }}>
+          <Title level={3} className="delete-modal-title">
             Confirm Deletion
           </Title>
         }
@@ -715,51 +597,41 @@ const Bookings: React.FC = () => {
           <Button key="back" onClick={closeDeleteModal}>
             Cancel
           </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            danger
-            loading={isDeleting}
-            onClick={handleDeleteBooking}
-          >
+          <Button key="submit" type="primary" danger loading={isDeleting} onClick={handleDeleteBooking}>
             Confirm Delete
           </Button>,
         ]}
         centered
+        className="delete-modal"
       >
-        <Text style={{ fontSize: 15 }}>Are you sure you want to delete this booking?</Text>
+        <Text className="delete-text">Are you sure you want to delete this booking?</Text>
         {selectedBooking && (
-          <div
-            style={{
-              marginTop: 16,
-              padding: "12px 16px",
-              background: "#fff1f2",
-              borderRadius: 8,
-              border: "1px solid #ffccc7",
-            }}
-          >
+          <div className="delete-warning">
             <Text strong>{selectedBooking.deptName}</Text>
             <br />
-            <Text type="secondary" style={{ fontSize: 13 }}>
+            <Text type="secondary" className="delete-detail">
               Status: {selectedBooking.status || "Unknown"}
             </Text>
             <br />
-            <Text type="secondary" style={{ fontSize: 13 }}>
+            <Text type="secondary" className="delete-detail">
               Plan: {selectedBooking.serviceNames || "N/A"}
             </Text>
             <br />
-            <Text type="secondary" style={{ fontSize: 13 }}>
+            <Text type="secondary" className="delete-detail">
               Date:{" "}
               {(selectedBooking.preferred_date &&
                 moment(selectedBooking.preferred_date).format("MMM D, YYYY")) ||
                 (selectedBooking.created_date &&
                   moment(selectedBooking.created_date).format("MMM D, YYYY")) ||
                 "N/A"}{" "}
-              - {selectedBooking.slotText || Slots.find((s) => s.id === selectedBooking.slot_id)?.slot_time || "N/A"}
+              -{" "}
+              {selectedBooking.slotText ||
+                Slots.find((s) => s.id === selectedBooking.slot_id)?.slot_time ||
+                "N/A"}
             </Text>
           </div>
         )}
-        <Text type="danger" style={{ display: "block", marginTop: 16, fontWeight: 600 }}>
+        <Text type="danger" className="delete-note">
           This action cannot be undone.
         </Text>
       </Modal>
