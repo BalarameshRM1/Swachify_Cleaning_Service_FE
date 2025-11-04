@@ -84,16 +84,11 @@ const Dashboard: React.FC = () => {
 
   return (
     <div
-      className="dashboard-wrap"
-      style={{
-        padding: "2px",
-        background: "#f0f2f5",
-        minHeight: "100vh",
-      }}
+      className="dashboard-wrap dashboard-padding-1"
     >
       <Title
         level={2}
-        style={{ marginTop: 0, marginBottom: 32, fontWeight: 700, textAlign: 'center' }}
+        className="dashboard-margin-2"
       >
         WELCOME SWACHIFY!
       </Title>
@@ -101,8 +96,8 @@ const Dashboard: React.FC = () => {
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} lg={userData?.role_id !== 3 ? 6 : 8}>
           <Card
-            className="stat-card-hover gradient-card"
-            style={{
+            className="stat-card-hover gradient-card dashboard-color-3"
+              style={{
               background: "linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)",
               color: "white",
               borderRadius: "20px",
@@ -121,37 +116,21 @@ const Dashboard: React.FC = () => {
             }}
           >
             <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
+              className="dashboard-layout-4"
             >
               <Text
-                style={{
-                  color: "rgba(255,255,255,0.85)",
-                  fontSize: 16,
-                  fontWeight: 500,
-                }}
+                className="dashboard-color-5"
               >
                 Available Services
               </Text>
               <CheckCircleOutlined
-                className="icon-bounce"
-                style={{ fontSize: 36, color: "white", opacity: 0.9 }}
+                className="icon-bounce dashboard-color-6"
               />
             </div>
             <div>
               <Title
                 level={1}
-                style={{
-                  color: "white",
-                  margin: 0,
-                  fontSize: 48,
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  textAlign: "center",
-                }}
+                className="dashboard-color-7"
               >
                 4
               </Title>
@@ -162,44 +141,23 @@ const Dashboard: React.FC = () => {
         {/* Pending */}
         <Col xs={24} sm={12} lg={userData?.role_id !== 3 ? 6 : 8}>
           <Card
-            className="stat-card-hover"
-            style={{
-              borderRadius: "20px",
-              border: "2px solid #dbeafe",
-              boxShadow: "0 2px 12px rgba(37, 99, 235, 0.08)",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              cursor: "pointer",
-              height: "160px",
-              background: "white",
-            }}
+            className="stat-card-hover dashboard-style-8"
             bodyStyle={{ padding: '28px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
           >
             <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
+              className="dashboard-layout-9"
             >
-              <Text style={{ color: "#6b7280", fontSize: 16, fontWeight: 500 }}>
+              <Text className="dashboard-color-10">
                 Pending Active Bookings
               </Text>
               <ClockCircleOutlined
-                className="icon-bounce"
-                style={{ fontSize: 36, color: "#2563eb" }}
+                className="icon-bounce dashboard-color-11"
               />
             </div>
             <div>
               <Title
                 level={1}
-                style={{
-                  color: "#2563eb",
-                  margin: 0,
-                  fontSize: 48,
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  textAlign: "center",
-                }}
+                className="dashboard-color-12"
               >
                 {dashboardTasks?.pending?.length}
               </Title>
@@ -210,16 +168,7 @@ const Dashboard: React.FC = () => {
         {/* Open */}
         <Col xs={24} sm={12} lg={userData?.role_id !== 3 ? 6 : 8}>
           <Card
-            className="stat-card-hover"
-            style={{
-              borderRadius: "20px",
-              border: "2px solid #bbf7d0",
-              boxShadow: "0 2px 12px rgba(5, 150, 105, 0.08)",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              cursor: "pointer",
-              height: "160px",
-              background: "white",
-            }}
+            className="stat-card-hover dashboard-style-13"
             bodyStyle={{
               padding: "28px",
               height: "100%",
@@ -229,31 +178,19 @@ const Dashboard: React.FC = () => {
             }}
           >
             <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
+              className="dashboard-layout-14"
             >
-              <Text style={{ color: "#6b7280", fontSize: 16, fontWeight: 500 }}>
+              <Text className="dashboard-color-15">
                 In-Progress Open Tickets
               </Text>
               <FileTextOutlined
-                className="icon-bounce"
-                style={{ fontSize: 36, color: "#059669" }}
+                className="icon-bounce dashboard-color-16"
               />
             </div>
             <div>
               <Title
                 level={1}
-                style={{
-                  color: "#059669",
-                  margin: 0,
-                  fontSize: 48,
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  textAlign: "center",
-                }}
+                className="dashboard-color-17"
               >
                 {dashboardTasks?.inProgress}
               </Title>
@@ -265,16 +202,7 @@ const Dashboard: React.FC = () => {
         {userData?.role_id !== 3 && (
           <Col xs={24} sm={12} lg={6}>
             <Card
-              className="stat-card-hover"
-              style={{
-                borderRadius: "20px",
-                border: "2px solid #e9d5ff",
-                boxShadow: "0 2px 12px rgba(124, 58, 237, 0.08)",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                cursor: "pointer",
-                height: "160px",
-                background: "white",
-              }}
+              className="stat-card-hover dashboard-style-18"
               bodyStyle={{
                 padding: "28px",
                 height: "100%",
@@ -284,31 +212,19 @@ const Dashboard: React.FC = () => {
               }}
             >
               <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
+                className="dashboard-layout-19"
               >
-                <Text style={{ color: "#6b7280", fontSize: 16, fontWeight: 500 }}>
+                <Text className="dashboard-color-20">
                   Available Employees
                 </Text>
                 <TeamOutlined
-                  className="icon-bounce"
-                  style={{ fontSize: 36, color: "#7c3aed" }}
+                  className="icon-bounce dashboard-color-21"
                 />
               </div>
               <div>
                 <Title
                   level={1}
-                  style={{
-                    color: "#7c3aed",
-                    margin: 0,
-                    fontSize: 48,
-                    fontWeight: 700,
-                    lineHeight: 1,
-                    textAlign: "center",
-                  }}
+                  className="dashboard-color-22"
                 >
                   {userList?.length}
                 </Title>
@@ -318,24 +234,15 @@ const Dashboard: React.FC = () => {
         )}
       </Row>
 
-      <Row gutter={[24, 24]} style={{ marginTop: "32px" }}>
+      <Row gutter={[24, 24]} className="dashboard-margin-23">
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Title level={4} style={{ margin: 0, fontWeight: 600 }}>
+              <Title level={4} className="dashboard-margin-24">
                 Recent Bookings
               </Title>
             }
-            style={{
-              borderRadius: "20px",
-              height: "480px",
-              border: "none",
-              boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)",
-              display: "flex",
-              flexDirection: "column",
-              background: "white",
-              paddingBottom: '60px',
-            }}
+            className="dashboard-padding-25"
             bodyStyle={{
               padding: 0,
               flex: 1,
@@ -349,35 +256,17 @@ const Dashboard: React.FC = () => {
             }}
           >
             <div
-              style={{
-                height: "100%",
-                overflowY: "auto",
-                padding: "20px 24px 60px",
-                background: "#fafafa",
-              }}
+              className="dashboard-padding-26"
             >
               {dashboardTasks?.recent?.length > 0 ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div className="dashboard-layout-27">
                   {dashboardTasks.recent.map((booking: any) => (
                     <div
                       key={booking.id}
-                      className="booking-item"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "20px",
-                        border: "none",
-                        borderRadius: 12,
-                        background: "white",
-                        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
-                        transition: "all 0.3s ease",
-                        cursor: "pointer",
-                        gap: "20px",
-                      }}
+                      className="booking-item dashboard-padding-28"
                     >
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <Text strong style={{ fontSize: 16, display: 'block', marginBottom: 10, color: '#1f2937' }}>
+                      <div className="dashboard-style-29">
+                        <Text strong className="dashboard-color-30">
                           {booking.department?.department_name
                             || (Array.isArray(booking.services) && booking.services.length > 0
                               ? booking.services.map((s: any) => `${s.department_name} - ${s.service_name}`).join(", ")
@@ -385,21 +274,17 @@ const Dashboard: React.FC = () => {
                         </Text>
 
                         <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 6,
-                          }}
+                          className="dashboard-layout-31"
                         >
-                          <Text style={{ fontSize: 14, color: "#6b7280" }}>
+                          <Text className="dashboard-color-32">
                             Customer:{" "}
-                            <span style={{ color: "#374151" }}>
+                            <span className="dashboard-color-33">
                               {booking.full_name || "Unknown"}
                             </span>
                           </Text>
-                          <Text style={{ fontSize: 14, color: "#6b7280" }}>
+                          <Text className="dashboard-color-34">
                             Date:{" "}
-                            <span style={{ color: "#374151" }}>
+                            <span className="dashboard-color-35">
                               {moment(booking?.preferred_date).format("MMMM D, YYYY")}
 
                               {/* {booking.preferred_date || "N/A"} */}
@@ -409,7 +294,7 @@ const Dashboard: React.FC = () => {
                       </div>
 
                       {/* CLICKABLE TAG */}
-                      <div style={{ flexShrink: 0 }}>
+                      <div className="dashboard-style-36">
                         <Tag
                           color={
                             booking.normalizedStatus === "Pending"
@@ -418,12 +303,7 @@ const Dashboard: React.FC = () => {
                                 ? "blue"
                                 : "green"
                           }
-                          style={{
-                            fontWeight: "bold",
-                            minWidth: 100,
-                            textAlign: "center",
-                            cursor: "pointer",
-                          }}
+                          className="dashboard-style-37"
                           onClick={() => navigate("../tickets")}
                         >
                           {booking.normalizedStatus}
@@ -434,12 +314,7 @@ const Dashboard: React.FC = () => {
                 </div>
               ) : (
                 <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    height: "100%",
-                  }}
+                  className="dashboard-layout-38"
                 >
                   <Empty
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -454,19 +329,8 @@ const Dashboard: React.FC = () => {
         {/* Active Tickets Section */}
         <Col xs={24} lg={12}>
           <Card
-            title={<Title level={4} style={{ margin: 0, fontWeight: 600 }}>Active Tickets</Title>}
-            className="active-tickets-card"
-            style={{
-              borderRadius: "20px",
-              height: "480px",
-              border: "none",
-              boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)",
-              transition: "all 0.3s ease",
-              display: "flex",
-              flexDirection: "column",
-              background: "white",
-              paddingBottom: "70px",
-            }}
+            title={<Title level={4} className="dashboard-margin-39">Active Tickets</Title>}
+            className="active-tickets-card dashboard-padding-40"
             bodyStyle={{
               padding: 0,
               flex: 1,
@@ -480,47 +344,29 @@ const Dashboard: React.FC = () => {
             }}
           >
             <div
-              style={{
-                height: "100%",
-                overflowY: "auto",
-                padding: "20px 24px 60px",
-                background: "#fafafa",
-              }}
+              className="dashboard-padding-41"
             >
               {dashboardTasks?.pending?.length > 0 ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div className="dashboard-layout-42">
                   {dashboardTasks.pending.map((booking: any) => (
                     <div
                       key={booking.id}
-                      className="booking-item"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "20px",
-                        border: "none",
-                        borderRadius: 12,
-                        background: "white",
-                        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                        cursor: "pointer",
-                        gap: "20px",
-                      }}
+                      className="booking-item dashboard-padding-43"
                     >
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <Text strong style={{ fontSize: 16, display: "block", marginBottom: 10, color: "#1f2937" }}>
+                      <div className="dashboard-style-44">
+                        <Text strong className="dashboard-color-45">
                           {/* {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`} */}
                           {booking.department?.department_name
                             || (Array.isArray(booking.services) && booking.services.length > 0
                               ? booking.services.map((s: any) => `${s.department_name} - ${s.service_name}`).join(", ")
                               : `Booking #${String(booking.id ?? "").toString().slice(-6)}`)}
                         </Text>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                          <Text style={{ fontSize: 14, color: "#6b7280" }}>
-                            Customer: <span style={{ color: "#374151" }}>{booking.full_name || "Unknown"}</span>
+                        <div className="dashboard-layout-46">
+                          <Text className="dashboard-color-47">
+                            Customer: <span className="dashboard-color-48">{booking.full_name || "Unknown"}</span>
                           </Text>
-                          <Text style={{ fontSize: 14, color: "#6b7280" }}>
-                            Date: <span style={{ color: "#374151" }}>
+                          <Text className="dashboard-color-49">
+                            Date: <span className="dashboard-color-50">
                               {moment(booking?.preferred_date).format("MMMM D, YYYY")}
                               {/* {booking.created_date || "N/A"} */}
                             </span>
@@ -537,12 +383,7 @@ const Dashboard: React.FC = () => {
                                 ? "blue"
                                 : "green"
                           }
-                          style={{
-                            fontWeight: "bold",
-                            minWidth: 100,
-                            textAlign: "center",
-                            cursor: "pointer",
-                          }}
+                          className="dashboard-style-51"
                           onClick={() => navigate("../tickets")}
                         >
                           {booking.normalizedStatus}

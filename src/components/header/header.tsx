@@ -17,6 +17,7 @@ import {
   LogoutOutlined,
   SettingOutlined,
   ExclamationCircleOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import BrandLogo from "../../assets/SWACHIFY_gif.gif";
 import { useNavigate } from "react-router-dom";
@@ -100,28 +101,33 @@ const HeaderBar: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    confirm({
-      title: "Are you sure you want to log out?",
-      icon: <ExclamationCircleOutlined />,
-      okText: "Yes",
-      cancelText: "No",
-      okButtonProps: {
-        style: { backgroundColor: "rgb(20, 184, 166)", color: "#fff" },
-      },
-      cancelButtonProps: {
-        style: { backgroundColor: "rgb(20, 184, 166)", color: "#fff" },
-      },
-      onOk() {
-        localStorage.removeItem("user");
-        message.success("Logged out successfully!");
-        navigate("/landing");
-      },
-      onCancel() {
-        message.info("Logout cancelled");
-      },
-    });
-  };
+ const handleLogout = () => {
+  confirm({
+    title: "Are you sure do you want to log out?",
+    icon: <ExclamationCircleOutlined />,
+    okText: "Yes",
+    cancelText: "No",
+    okButtonProps: {
+      className: "logout-modal-button logout-modal-button-ok", 
+    },
+    cancelButtonProps: {
+      className: "logout-modal-button logout-modal-button-cancel", 
+    },
+    onOk() {
+      localStorage.removeItem("user");
+      message.success("Logged out successfully!");
+      navigate("/landing");
+    },
+    onCancel() {
+      message.open({
+        type: "info",
+        content: "Logout cancelled",
+        icon: <InfoCircleOutlined style={{ color: "rgb(20, 184, 166)" }} />,
+      });
+    },
+  });
+};
+
 
   const userMenu = (
     <Menu

@@ -162,3 +162,25 @@
 }
 
 
+.logout-modal-button {
+  background-color: rgb(20, 184, 166) !important;
+  color: #fff !important;
+  width: 100px !important;
+  height: 38px !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+  border: none !important;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.logout-modal-button:hover {
+  background-color: rgb(15, 160, 145) !important; 
+  transform: scale(1.03);
+}
+
+
+.logout-modal-button-ok {
+  margin-right: 120px !important; 
+}
+
+
