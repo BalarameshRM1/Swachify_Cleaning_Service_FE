@@ -4,13 +4,21 @@
   height: 220px;
   transition: all 0.3s ease;
   position: relative;
+  padding-top: 35px;
 }
 
-.delete-button {
+.delete-button,
+:where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
   position: absolute !important;
-  top: 8px;
-  right: 8px;
+  top: 8px !important;
+  right: 8px !important;
   border-radius: 8px !important;
+  z-index: 20 !important;
+  transform: none !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .employee-header {
@@ -82,18 +90,8 @@
 .employee-card:hover {
   box-shadow: 0 0 10px rgba(0, 255, 150, 0.2);
 }
-/* .location-option {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 
-.location-icon {
-  color: #ef4444;
-  font-size: 16px;
-}
- */
- .loader-container {
+.loader-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -103,6 +101,7 @@
 .loader-image {
   width: 150px;
 }
+
 .employees-container {
   display: flex;
   flex-direction: column;
@@ -127,7 +126,6 @@
   overflow-y: auto;
 }
 
-/* Hide scrollbar */
 .scrollable-grid::-webkit-scrollbar {
   display: none;
 }
@@ -136,13 +134,11 @@
   scrollbar-width: none;
 }
 
-/* Modal styling */
 .employee-modal {
   height: 90vh;
   bottom: 80px;
 }
 
-/* Buttons */
 .cancel-btn {
   border-color: #14b8a6 !important;
   color: black !important;
@@ -153,25 +149,133 @@
   border-color: #14b8a6 !important;
 }
 
-/* Form */
 .employee-form {
   margin-top: 28px;
 }
 
-/* Hover animation */
 .ant-card-hoverable:hover {
   border-color: #14b8a6 !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-/* Fade in animation */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================== */
+/* 📱 Mobile Small (320px–375px) */
+/* ========================== */
+@media (max-width: 375px) {
+  .employees-container { padding: 8px; }
+  .employee-card {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    margin-bottom: 12px;
+    position: relative;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    position: absolute !important;
+    top: 4px !important;
+    right: 6px !important;
+    z-index: 999 !important;
+    transform: none !important;
+  }
+  .employee-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .employee-avatar { font-size: 18px !important; }
+  .employee-name { font-size: 14px !important; max-width: 150px; }
+  .dept-tag { font-size: 11px; }
+  .employee-footer { flex-direction: column; align-items: center; gap: 5px; }
+  .employee-location, .employee-phone { font-size: 12px; }
+  .employees-title { font-size: 16px !important; }
+  .loader-image { width: 90px; }
+}
+
+/* ========================== */
+/* 📱 Mobile Medium (376px–425px) */
+/* ========================== */
+@media (min-width: 376px) and (max-width: 425px) {
+  .employees-container { padding: 10px; }
+  .employee-card {
+    width: 100%;
+    height: auto;
+    padding: 12px;
+    position: relative;
+  }
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    position: absolute !important;
+    top: 6px !important;
+    right: 8px !important;
+    transform: none !important;
+    z-index: 999 !important;
+  }
+  .employee-avatar { font-size: 20px !important; }
+  .employee-name { font-size: 15px !important; }
+  .dept-tag { font-size: 12px; }
+  .employee-footer { flex-direction: column; align-items: center; }
+}
+
+/* ========================== */
+/* 💻 Tablet (426px–768px) */
+/* ========================== */
+@media (min-width: 426px) and (max-width: 768px) {
+  .employees-container { padding: 14px; }
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
+    gap: 16px;
+  }
+  .employee-card { width: 100%; height: auto; position: relative; }
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    top: 8px !important;
+    right: 8px !important;
+    transform: none !important;
+  }
+  .employee-name { font-size: 16px; }
+  .employees-title { font-size: 20px !important; }
+}
+
+/* ========================== */
+/* 💻 Laptop (769px–1024px) */
+/* ========================== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .employees-container { padding: 20px; }
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(48%, 1fr));
+    gap: 18px;
+  }
+  .employee-card { width: 100%; height: auto; position: relative; }
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    top: 8px !important;
+    right: 8px !important;
+  }
+  .employee-name { font-size: 17px; }
+  .employees-title { font-size: 22px !important; }
+}
+
+/* ========================== */
+/* 🖥️ Desktop (>1024px) */
+/* ========================== */
+@media (min-width: 1025px) {
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .employee-card { width: 100%; position: relative; }
+  .delete-button,
+  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+    top: 8px !important;
+    right: 8px !important;
   }
 }
