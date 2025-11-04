@@ -502,6 +502,7 @@ const navigate = useNavigate();
                   disabledDate={(d) => d && d < dayjs().startOf("day")}
                   format="DD-MM-YYYY"
                   inputReadOnly
+                  getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
                 />
               </Form.Item>
             </Col>
@@ -643,11 +644,9 @@ const navigate = useNavigate();
           options={SUBSERVICES[section]}
           allowClear
           onChange={(v) => {
-            // set sub category
             setSection(section, "subService", v as string);
 
 
-            // also clear type if subcategory changes
             setSection(section, "type", null);
           }}
         />
@@ -661,7 +660,7 @@ const navigate = useNavigate();
               value={state.type ?? undefined}
               placeholder="Select cleaning type"
               className="sv-w-full"
-              disabled={!state.subService} // ✅ will disable when no subService
+              disabled={!state.subService} 
           onChange={(v) => setSection(section, "type", v as CleanType)}
               allowClear
               options={[
@@ -777,52 +776,31 @@ const navigate = useNavigate();
         </ConfigProvider>
       </div>
 
-  <Row
-  align="middle"
-  justify="space-between"
-  className="sv-toolbar allign_category"
-  style={{ width: "100%" }}
->
-  {/* Left side - Back button */}
-  <Col flex="100px">
-    <Button
-      icon={<ArrowLeftOutlined />}
-      style={{marginLeft:-110}}
-      onClick={() => setCurrentStep(0)}
-    >
-      Back
-    </Button>
+ <Row align="middle" justify="space-between" className="sv-toolbar allign_category" style={{ width: '100%' }}>
+  <Col>
+    <Button icon={<ArrowLeftOutlined />} onClick={() => setCurrentStep(0)}>Back</Button>
   </Col>
 
-  {/* Center - Title + Dropdown together */}
-  <Col flex="auto" style={{ textAlign: "center",marginRight:260 }}>
-    <Space align="center" size="middle">
-      <Title level={4} className="sv-m-0" style={{ marginBottom: 0 }}>
-        Select Service Category
-      </Title>
-
-  <Select
-  className="sv-master-select"
-  value={master || undefined}
-  options={MASTER_OPTIONS}
-  placeholder="Select Service"
-  suffixIcon={<AppstoreAddOutlined />}
-  style={{ width: 180 }}
-  onChange={(v) => {
-    if (!customerData) {
-      message.warning("Please fill customer details first.");
-      return;
-    }
-    setMaster(v as SectionKey);
-  }}
-/>
-
-    </Space>
+  <Col flex="auto" className="sv-toolbar-end">
+    <div className="sv-inline-end">
+      <Title level={3} className="sv-m-0 sv-ellipsis">Select Service Category </Title>
+      <Select
+        className="sv-master-select"
+        value={master || undefined}
+        options={MASTER_OPTIONS}
+        placeholder="Select Service"
+        suffixIcon={<AppstoreAddOutlined />}
+        style={{ width: 220 }}
+        onChange={(v) => {
+          if (!customerData) { message.warning('Please fill customer details first.'); return; }
+          setMaster(v as SectionKey);
+        }}
+      />
+    </div>
   </Col>
-
-  {/* Right side - empty (to balance center alignment) */}
-  <Col flex="100px" />
 </Row>
+
+
 
       <Row gutter={[16, 16]} className="sv-content-row">
         <Col xs={24} lg={16} className="sv-left-pane">
@@ -1014,3 +992,4 @@ const navigate = useNavigate();
 };
 
 export default Services;
+
