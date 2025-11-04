@@ -455,7 +455,7 @@ const Reports: React.FC = () => {
       }}
     >
       <Card
-        title={<span style={{ fontSize: "20px", fontWeight: 600, marginLeft:"320px"}}>BOOKING REPORTS</span>}
+        title={<span style={{ fontWeight: "bold", color: "#0a0b0bff",fontSize: "20px",  marginLeft:"400px"}}>BOOKING REPORTS</span>}
         bordered={false}
         style={{
           height: "100%",

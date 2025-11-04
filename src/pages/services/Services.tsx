@@ -362,7 +362,7 @@ const navigate = useNavigate();
       };
 
       // eslint-disable-next-line no-console
-      console.log("✅ Final Booking Payload:", payload);
+      console.log(" Final Booking Payload:", payload);
 
       const response = await createBooking(payload);
       if (response?.status === 200 || response?.status === 201) {
