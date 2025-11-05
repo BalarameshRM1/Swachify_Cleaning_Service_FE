@@ -24,6 +24,7 @@ import {
   PlusOutlined,
   DeleteOutlined,
   ArrowRightOutlined,
+  MailOutlined
 } from "@ant-design/icons";
 import {
   // createEmployee,
@@ -176,6 +177,7 @@ const Employees: React.FC = () => {
   const [departmentsdata, setdepartmentsdata] = useState<any>([]);
   const [rolesData, setRolesData] = useState<SelectProps["options"]>([]);
   const [viewType, setViewType] = useState<'grid' | 'card'>('grid'); // <-- VIEW MODE state
+  
 
   const locationOptions = [
     { label: "All Locations", value: "All Locations" },
@@ -195,6 +197,7 @@ const Employees: React.FC = () => {
         name: `${user.first_name} ${user.last_name}`,
         status: user.is_assigned ? "Assigned" : "Available",
         phone: user.mobile || "N/A",
+        email: user.email || "N/A",
         depts: user.depts || [],
         location_id: user.location_id,
       }));
@@ -351,9 +354,16 @@ const Employees: React.FC = () => {
   // Table columns for Grid view
   const columns = [
     {
+  title: "S.NO",
+  key: "sno",
+  render: (_: any, __: any, index: number) => <span>{index + 1}</span>,
+  width: 60,
+},
+
+    {
       title: (
         <span>
-          Employee Code <ArrowRightOutlined style={{ color: "#14b8a6" }} />
+          Emp No 
         </span>
       ),
       dataIndex: "code",
@@ -366,7 +376,7 @@ const Employees: React.FC = () => {
       width: 150,
     },
     {
-      title: "Name",
+      title: " Emp Name",
       dataIndex: "name",
       key: "name",
       render: (text: string) => (
@@ -411,12 +421,23 @@ const Employees: React.FC = () => {
       width: 120,
     },
     {
-      title: "Phone",
+      title: "Mobile",
       dataIndex: "phone",
       key: "phone",
       render: (phone: string) => (
         <span>
           <PhoneFilled style={{ color: "#ef4444" }} /> {phone}
+        </span>
+      ),
+      width: 140,
+    },
+      {
+      title: "Email ID",
+      dataIndex: "email",
+      key: "email",
+      render: (email: string) => (
+        <span>
+          <MailOutlined style={{ color: "#ef4444" }} /> {email}
         </span>
       ),
       width: 140,
@@ -478,6 +499,13 @@ const Employees: React.FC = () => {
         </Col>
         <Col>
           <Space wrap>
+            <Button
+              onClick={() => setViewType(viewType === "grid" ? "card" : "grid")}
+              type={viewType === "grid" ? "primary" : "default"}
+              style={{ marginLeft: 4, marginRight: 330, backgroundColor: "#14B8A6", borderColor: "#14B8A6", color: "white" }}
+            >
+             {viewType == "grid" ? "Grid View" : "Card View"}
+            </Button>
             <Select
               value={locationFilter}
               style={{ width: 180 }}
@@ -492,19 +520,13 @@ const Employees: React.FC = () => {
               Add User
             </Button>
             {/* View Switch */}
-            <Button
-              onClick={() => setViewType("grid")}
-              type={viewType === "grid" ? "primary" : "default"}
-              style={{ marginLeft: 4 }}
-            >
-              Grid View
-            </Button>
-            <Button
+          
+            {/* <Button
               onClick={() => setViewType("card")}
               type={viewType === "card" ? "primary" : "default"}
             >
               Card View
-            </Button>
+            </Button> */}
           </Space>
         </Col>
       </Row>
