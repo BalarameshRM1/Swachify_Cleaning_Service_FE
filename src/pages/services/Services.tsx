@@ -1,5 +1,6 @@
-import React, { useMemo, useRef, useState,useEffect } from "react";
-import { useNavigate } from "react-router-dom"; 
+import React, { useMemo, useRef, useState, useEffect } from "react";
+import { Checkbox } from "antd";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Row,
@@ -37,25 +38,37 @@ import {
   MailOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { createBooking ,getAllMasterData } from "../../app/services/auth.ts";
+import { createBooking, getAllMasterData, getAllDepartments } from "../../app/services/auth.ts";
 import { getUserDetails } from "../../utils/helpers/storage.ts";
 import "./Services.css";
-import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
-//import { MASTER_OPTIONS } from "../../utils/constants/data.ts";
-
 
 const { Title, Text } = Typography;
-
 
 type CleanType = "Normal" | "Deep";
 type SectionKey = "bedroom" | "bathroom" | "kitchen" | "living";
 type StepKey = 0 | 1;
 
+interface ServiceType {
+  serviceTypeID: number;
+  serviceType: string;
+  price: number;
+  hours: number;
+}
+
+interface Service {
+  serviceID: number;
+  serviceName: string;
+  serviceTypes: ServiceType[];
+}
+
+interface Department {
+  departmentId: number;
+  departmentName: string;
+  services: Service[];
+}
+
 const PRICING = {
-  base: { bedroom: 300, bathroom: 400, kitchen: 500, living: 350 } as Record<
-    SectionKey,
-    number
-  >,
+  base: { bedroom: 300, bathroom: 400, kitchen: 500, living: 350 } as Record<SectionKey, number>,
   typeDelta: { Normal: 0, Deep: 150 } as Record<CleanType, number>,
   addOnPerHour: 120,
   minHours: 3,
@@ -88,35 +101,38 @@ type ServicePlan = {
   subService?: string | null;
   type?: CleanType | null;
   addOnHours: number[];
+  actualPrice?: number; // Store the actual price from API
+  serviceId?: number | null; // Store selected service ID
+  serviceTypeId?: number | null; // Store selected service type ID
+  roomSize?: string | null; // Store room size for this service
 };
 type FormState = Record<SectionKey, ServicePlan>;
 
-const SECTION_META: Record<SectionKey, { icon: React.ReactNode; title: string }> =
-  {
-    bedroom: { icon: <HomeOutlined />, title: "Bedroom" },
-    bathroom: { icon: <ApartmentOutlined />, title: "Bathroom" },
-    kitchen: { icon: <AppstoreOutlined />, title: "Kitchen" },
-    living: { icon: <BankOutlined />, title: "Living" },
-  };
+const SECTION_META: Record<SectionKey, { icon: React.ReactNode; title: string }> = {
+  bedroom: { icon: <HomeOutlined />, title: "Bedroom" },
+  bathroom: { icon: <ApartmentOutlined />, title: "Bathroom" },
+  kitchen: { icon: <AppstoreOutlined />, title: "Kitchen" },
+  living: { icon: <BankOutlined />, title: "Living" },
+};
 
 const isActivePlan = (plan: ServicePlan) =>
-  Boolean(plan?.subService || plan?.type || (plan?.addOnHours?.length ?? 0) > 0);
+  Boolean(plan?.serviceId || (plan?.addOnHours?.length ?? 0) > 0);
 
 const calcSectionTotal = (section: SectionKey, plan: ServicePlan) => {
   if (!isActivePlan(plan)) return 0;
-  const base = PRICING.base[section] ?? 0;
-  const typeDelta = plan.type ? PRICING.typeDelta[plan.type] : 0;
-  const addOnSum =
-    (plan.addOnHours?.reduce((a, b) => a + b, 0) ?? 0) * PRICING.addOnPerHour;
-  return base + typeDelta + addOnSum;
+  
+  // Use actual price from API if available, otherwise use base pricing
+  const basePrice = plan.actualPrice || PRICING.base[section] || 0;
+  
+  // Add add-on hours cost
+  const addOnSum = (plan.addOnHours?.reduce((a, b) => a + b, 0) ?? 0) * PRICING.addOnPerHour;
+  
+  return basePrice + addOnSum;
 };
 
 const usdFormatter = (value?: string | number) => {
   if (value === undefined || value === null) return "";
-  const n =
-    typeof value === "number"
-      ? value
-      : Number(String(value).replace(/[^\d.-]/g, ""));
+  const n = typeof value === "number" ? value : Number(String(value).replace(/[^\d.-]/g, ""));
   if (Number.isNaN(n)) return "";
   return `$ ${n}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
@@ -124,7 +140,6 @@ const usdFormatter = (value?: string | number) => {
 const Services: React.FC = () => {
   const [form] = Form.useForm();
   const [isContinueDisabled, setIsContinueDisabled] = useState(true);
-
 
   const anchors = {
     bedroom: useRef<HTMLDivElement>(null),
@@ -134,15 +149,37 @@ const Services: React.FC = () => {
   };
 
   const [currentStep, setCurrentStep] = useState<StepKey>(0);
-  const [master, setMaster] = useState<SectionKey>("bedroom"); // default to Living per SS
-const [loading, setLoading] = useState<boolean>(false);
-const [setSubServiceOptions] = useState<any>({});  
+  const [master, setMaster] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const data = await getAllDepartments();
+        setDepartments(data);
+        if (data && data.length > 0) {
+          setMaster(data[0].departmentId);
+        }
+      } catch (err) {
+        console.error("Failed to load departments:", err);
+      }
+    };
+    fetchDepartments();
+  }, []);
+
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [selectedService, setSelectedService] = useState<number | null>(null);
+  const [selectedServiceType, setSelectedServiceType] = useState<number | null>(null);
+  const [setSubServiceOptions] = useState<any>({});
+  const [globalServiceType, setGlobalServiceType] = useState<number | null>(null); 
+  const [withBasement, setWithBasement] = useState(false);
 
   const [serviceForm, setServiceForm] = useState<FormState>({
-    bedroom: { subService: null, type: null, addOnHours: [] },
-    bathroom: { subService: null, type: null, addOnHours: [] },
-    kitchen: { subService: null, type: null, addOnHours: [] },
-    living: { subService: null, type: null, addOnHours: [] },
+    bedroom: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
+    bathroom: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
+    kitchen: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
+    living: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
   });
 
   const [addonsOpen, setAddonsOpen] = useState<Record<SectionKey, boolean>>({
@@ -153,12 +190,18 @@ const [setSubServiceOptions] = useState<any>({});
   });
 
   const [customerRequest, setCustomerRequest] = useState<number>(0);
-  
   const [customerData, setCustomerData] = useState<any>(null);
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
+  // Update selected department when master changes
+  useEffect(() => {
+    if (master !== null) {
+      const dept = departments.find((d) => d.departmentId === master);
+      setSelectedDepartment(dept || null);
+    }
+  }, [master, departments]);
 
-  const setSection = <K extends keyof ServicePlan,>(
+  const setSection = <K extends keyof ServicePlan>(
     section: SectionKey,
     key: K,
     value: ServicePlan[K]
@@ -166,12 +209,13 @@ const navigate = useNavigate();
     setServiceForm((prev) => ({
       ...prev,
       [section]: { ...prev[section], [key]: value },
+      
     }));
 
   const resetSection = (section: SectionKey) =>
     setServiceForm((prev) => ({
       ...prev,
-      [section]: { subService: null, type: null, addOnHours: [] },
+      [section]: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
     }));
 
   const toggleAddOn = (section: SectionKey, hours: number) =>
@@ -183,7 +227,23 @@ const navigate = useNavigate();
       return { ...prev, [section]: { ...prev[section], addOnHours: next } };
     });
 
-  const sectionsToShow: SectionKey[] = [master];
+  // Map department ID to section key for display - FIXED
+  const getSectionKeyFromDeptId = (deptId: number): SectionKey => {
+    const dept = departments.find(d => d.departmentId === deptId);
+    if (!dept) return "bedroom";
+    
+    // Match based on department name
+    const deptNameLower = dept.departmentName.toLowerCase();
+    if (deptNameLower.includes("bedroom") || deptNameLower.includes("bed")) return "bedroom";
+    if (deptNameLower.includes("bathroom") || deptNameLower.includes("bath")) return "bathroom";
+    if (deptNameLower.includes("kitchen")) return "kitchen";
+    if (deptNameLower.includes("living")) return "living";
+    
+    return "bedroom"; // default fallback
+  };
+
+  const currentSectionKey = master !== null ? getSectionKeyFromDeptId(master) : "bedroom";
+  const sectionsToShow: SectionKey[] = [currentSectionKey];
 
   const grandTotal = useMemo(
     () =>
@@ -194,14 +254,10 @@ const navigate = useNavigate();
     [serviceForm]
   );
 
-  // Derived values for “willing to pay” logic
   const hasService = useMemo(
     () =>
       Object.values(serviceForm).some(
-        (plan) =>
-          plan.subService ||
-          plan.type ||
-          (plan.addOnHours?.length ?? 0) > 0
+        (plan) => plan.serviceId || (plan.addOnHours?.length ?? 0) > 0
       ),
     [serviceForm]
   );
@@ -209,64 +265,71 @@ const navigate = useNavigate();
   const subtotal = grandTotal;
   const willingToPay = Math.max(0, customerRequest || 0);
 
-  // Rule set B: no negative discounts, total never exceeds subtotal
+  // Discount is the difference between subtotal and what customer wants to pay
   const discountAmount = useMemo(() => {
-    if (!hasService || subtotal <= 0) return 0;
-    return Math.max(0, subtotal - willingToPay);
+    if (!hasService || subtotal <= 0 || willingToPay <= 0) return 0;
+    // Only apply discount if customer requested amount is less than subtotal
+    if (willingToPay >= subtotal) return 0;
+    return subtotal - willingToPay;
   }, [hasService, subtotal, willingToPay]);
 
   const discountPct = useMemo(() => {
-    if (!hasService || subtotal <= 0) return 0;
+    if (!hasService || subtotal <= 0 || discountAmount <= 0) return 0;
     return Math.round((discountAmount / subtotal) * 100);
   }, [hasService, subtotal, discountAmount]);
- useEffect(() => {
-  const fetchMasterData = async () => {
-    try {
-      setLoading(true);
-      const data = await getAllMasterData();
-      console.log("Fetched Master Data:", data);
 
-      // Group by department name
-      const grouped = data.reduce((acc: any, item: any) => {
-        const deptName = item.departmentName?.toLowerCase() || "other";
-        if (!acc[deptName]) acc[deptName] = [];
-        acc[deptName].push({
-          label: item.serviceName,
-          value: item.serviceId,
-          price: item.price,
-          deptId: item.departmentId,
-          serviceTypeId: item.serviceTypeId,
-        });
-        return acc;
-      }, {});
+  useEffect(() => {
+    const fetchMasterData = async () => {
+      try {
+        setLoading(true);
+        const data = await getAllMasterData();
+        console.log("Fetched Master Data:", data);
 
-      setSubServiceOptions(grouped);
-      //setMasterData(data);
-    } catch (err) {
-      console.error("Error loading master data:", err);
-    } finally {
-      setLoading(false);
+        const grouped = data.reduce((acc: any, item: any) => {
+          const deptName = item.departmentName?.toLowerCase() || "other";
+          if (!acc[deptName]) acc[deptName] = [];
+          acc[deptName].push({
+            label: item.serviceName,
+            value: item.serviceId,
+            price: item.price,
+            deptId: item.departmentId,
+            serviceTypeId: item.serviceTypeId,
+          });
+          return acc;
+        }, {});
+
+        setSubServiceOptions(grouped);
+      } catch (err) {
+        console.error("Error loading master data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMasterData();
+  }, []);
+
+  // Final total is what customer requested to pay (after discount)
+  // If no customer request, show full subtotal
+  const discountedTotal = useMemo(() => {
+    if (!hasService || subtotal <= 0) return 0;
+    // If customer requested amount is provided and valid, use it
+    if (willingToPay > 0 && willingToPay < subtotal) return willingToPay;
+    // If customer requested more than or equal to subtotal, use subtotal
+    if (willingToPay >= subtotal) return subtotal;
+    // If no customer request, return subtotal
+    return subtotal;
+  }, [hasService, subtotal, willingToPay]);
+
+  const changeStep = async (idx: StepKey) => {
+    if (!customerData) {
+      message.warning("Please fill customer details first.");
+      setCurrentStep(currentStep as StepKey);
+    } else {
+      setCurrentStep(idx as StepKey);
     }
   };
 
-  fetchMasterData();
-}, []);
-
-
-
-  const discountedTotal = useMemo(() => {
-    if (!hasService || subtotal <= 0) return 0;
-    return Math.min(subtotal, Math.max(0, willingToPay));
-  }, [hasService, subtotal, willingToPay]);
-  const changeStep = async (idx: StepKey) => {
-      if(!customerData){
-             message.warning("Please fill customer details first.");
-             setCurrentStep(currentStep as StepKey)
-            }
-            else{
-              setCurrentStep(idx as StepKey)  
-            }
-  }
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -293,44 +356,54 @@ const navigate = useNavigate();
 
       if (!hasService) {
         message.warning("Please select at least one service before submitting.");
+        console.log("selected service",selectedService);
+        console.log("selected service",selectedServiceType);
+        console.log("selected service",setSection);
         setLoading(false);
         return;
       }
 
-      const DEPT_MAP: Record<string, number> = {
-        bedroom: 1,
-        bathroom: 2,
-        kitchen: 3,
-        living: 4,
-      };
+      if (!globalServiceType) {
+        message.error("Please select a service type for all services.");
+        setLoading(false);
+        return;
+      }
 
-      const SERVICE_MAP: Record<string, number> = {
-        single: 1,
-        double: 2,
-        triple: 3,
-        "4bed": 4,
-        with_dining: 5,
-        without_dining: 6,
-      };
-
-      const SERVICE_TYPE_MAP: Record<string, number> = {
-        Normal: 1,
-        Deep: 2,
-      };
-
+      // Build services array from serviceForm - now using global service type
       const services = (Object.keys(serviceForm) as SectionKey[])
         .filter((key) => {
           const s = serviceForm[key];
-          return s.subService || s.type;
+          return s.serviceId; // Only include if service is selected
         })
         .map((key) => {
           const s = serviceForm[key];
+          
+          // Find the department ID for this section
+          const dept = departments.find(d => 
+            d.departmentName.toLowerCase().includes(key)
+          );
+          
           return {
-            deptId: DEPT_MAP[key] ?? 0,
-            serviceId: s.subService ? SERVICE_MAP[s.subService] ?? 0 : 1,
-            serviceTypeId: s.type ? SERVICE_TYPE_MAP[s.type] ?? 0 : 1,
+            deptId: dept?.departmentId ?? 0,
+            serviceId: s.serviceId ?? 0,
+            serviceTypeId: globalServiceType, // Use global service type
           };
-        });
+        })
+        .filter(s => s.deptId !== 0 && s.serviceId !== 0 && s.serviceTypeId !== 0);
+
+      if (services.length === 0) {
+        message.error("Please select at least one service.");
+        setLoading(false);
+        return;
+      }
+
+      // Calculate total room size from all selected services
+      const totalRoomSize = (Object.keys(serviceForm) as SectionKey[])
+        .filter(key => serviceForm[key].serviceId)
+        .reduce((total, key) => {
+          const size = serviceForm[key].roomSize;
+          return total + (size ? Number(size) : 0);
+        }, 0);
 
       const payload = {
         id: 0,
@@ -341,28 +414,32 @@ const navigate = useNavigate();
         modifiedBy: user?.id || 1,
         modifiedDate: new Date().toISOString(),
         isActive: true,
-        preferredDate: date.format
-          ? date.format("YYYY-MM-DD")
-          : dayjs(date).format("YYYY-MM-DD"),
+        preferredDate: date.format ? date.format("YYYY-MM-DD") : dayjs(date).format("YYYY-MM-DD"),
         full_name: fullName,
         phone: phone,
         email: email,
         address: address,
         status_id: 1,
-        total: discountedTotal,                  // final payable
-        subtotal: subtotal,                      // computed subtotal
-        customer_requested_amount: willingToPay, // CR
+        total: discountedTotal,
+        subtotal: subtotal,
+        customer_requested_amount: willingToPay || 0,
         discount_amount: discountAmount,
         discount_percentage: discountPct,
         discount_total: discountedTotal,
+        hours: PRICING.minHours,
+        add_on_hours: Object.values(serviceForm).reduce((sum, plan) => 
+          sum + (plan.addOnHours?.reduce((a, b) => a + b, 0) ?? 0), 0
+        ),
+        room_sqfts: String(totalRoomSize),
+        with_basement: withBasement,
+
         services,
-        is_regular: serviceForm[master].type === "Normal",
-        is_premium: serviceForm[master].type === "Deep",
+        is_regular: globalServiceType === 1,
+        is_premium: globalServiceType === 2,
         is_ultimate: false,
       };
 
-      // eslint-disable-next-line no-console
-      console.log(" Final Booking Payload:", payload);
+      console.log("Final Booking Payload:", payload);
 
       const response = await createBooking(payload);
       if (response?.status === 200 || response?.status === 201) {
@@ -370,10 +447,10 @@ const navigate = useNavigate();
         form.resetFields();
         setCustomerData(null);
         setServiceForm({
-          bedroom: { subService: null, type: null, addOnHours: [] },
-          bathroom: { subService: null, type: null, addOnHours: [] },
-          kitchen: { subService: null, type: null, addOnHours: [] },
-          living: { subService: null, type: null, addOnHours: [] },
+          bedroom: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
+          bathroom: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
+          kitchen: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
+          living: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
         });
         setAddonsOpen({
           bedroom: false,
@@ -382,16 +459,17 @@ const navigate = useNavigate();
           living: false,
         });
         setCustomerRequest(0);
+        setGlobalServiceType(null);
         setCurrentStep(0);
-        setMaster("bathroom");  
+        setSelectedService(null);
+        setSelectedServiceType(null);
         setTimeout(() => {
-    navigate("../bookings");
-  }, 800);
-} else {
-  message.error("Failed to create booking. Please try again.");
-}
+          navigate("../bookings");
+        }, 800);
+      } else {
+        message.error("Failed to create booking. Please try again.");
+      }
     } catch (err: any) {
-      // eslint-disable-next-line no-console
       console.error("Booking error:", err);
       if (err.errorFields) {
         message.error("Please complete all required fields.");
@@ -405,41 +483,41 @@ const navigate = useNavigate();
 
   const CustomerDetails = (
     <>
-    <div className="sv-steps-wrap">
-      <Steps
-  current={currentStep}
-  onChange={(idx) => changeStep(idx as StepKey)}
-  items={[
-    {
-      title: (
-        <span
-          style={{
-            color: currentStep === 0 ? "#14B8A6" : "#14B8A68c",
-            fontWeight: currentStep === 0 ? 700 : 500,
-            // textDecoration: currentStep === 0 ? "underline" : "none",
-          }}
-        >
-          Customer Details
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span
-          style={{
-            color: currentStep === 1 ? "#14B8A6" : "#14B8A6",
-            fontWeight: currentStep === 1 ? 700 : 500,
-            textDecoration: currentStep === 1 ? "underline" : "none",
-          }}
-        >
-          Service Selection
-        </span>
-      ),
-    },
-  ]}
-  size="small"
-  className="sv-steps-bar"
-/></div>
+      <div className="sv-steps-wrap">
+        <Steps
+          current={currentStep}
+          onChange={(idx) => changeStep(idx as StepKey)}
+          items={[
+            {
+              title: (
+                <span
+                  style={{
+                    color: currentStep === 0 ? "#14B8A6" : "#14B8A68c",
+                    fontWeight: currentStep === 0 ? 700 : 500,
+                  }}
+                >
+                  Customer Details
+                </span>
+              ),
+            },
+            {
+              title: (
+                <span
+                  style={{
+                    color: currentStep === 1 ? "#14B8A6" : "#14B8A6",
+                    fontWeight: currentStep === 1 ? 700 : 500,
+                    textDecoration: currentStep === 1 ? "underline" : "none",
+                  }}
+                >
+                  Service Selection
+                </span>
+              ),
+            },
+          ]}
+          size="small"
+          className="sv-steps-bar"
+        />
+      </div>
 
       <Card bordered className="sv-card" style={{ borderRadius: 12 }}>
         <Space direction="vertical" size={2} className="sv-w-full" style={{ width: "100%" }}>
@@ -447,25 +525,25 @@ const navigate = useNavigate();
             Booking Details
           </Title>
         </Space>
-          <Form
-    layout="vertical"
-    form={form}
-    className="sv-form"
-    onValuesChange={() => {
-      const values = form.getFieldsValue();
-      const allFilled =
-        values.fullName &&
-        /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/.test(values.fullName) &&
-        values.date &&
-        /^[6-9][0-9]{9}$/.test(values.phone || "") &&
-        values.email &&
-        /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(values.email) &&
-        values.address &&
-        /\b\d+[A-Za-z]?\b/.test(values.address) && // door number check
-        /\b\d{6}\b/.test(values.address);          // pincode check
-      setIsContinueDisabled(!allFilled);
-    }}
-  >
+        <Form
+          layout="vertical"
+          form={form}
+          className="sv-form"
+          onValuesChange={() => {
+            const values = form.getFieldsValue();
+            const allFilled =
+              values.fullName &&
+              /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/.test(values.fullName) &&
+              values.date &&
+              /^[6-9][0-9]{9}$/.test(values.phone || "") &&
+              values.email &&
+              /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(values.email) &&
+              values.address &&
+              /\b\d+[A-Za-z]?\b/.test(values.address) &&
+              /\b\d{6}\b/.test(values.address);
+            setIsContinueDisabled(!allFilled);
+          }}
+        >
           <Row gutter={[8, 0]}>
             <Col xs={24} md={12}>
               <Form.Item
@@ -480,14 +558,13 @@ const navigate = useNavigate();
                 ]}
               >
                 <Input
-            prefix={<UserOutlined />}
-            placeholder="Enter full name"
-            onChange={(e) => {
-              // Allow only alphabets and spaces
-              const clean = e.target.value.replace(/[^A-Za-z\s]/g, "");
-              form.setFieldsValue({ fullName: clean });
-            }}
-          />
+                  prefix={<UserOutlined />}
+                  placeholder="Enter full name"
+                  onChange={(e) => {
+                    const clean = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                    form.setFieldsValue({ fullName: clean });
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -512,24 +589,23 @@ const navigate = useNavigate();
                 name="phone"
                 rules={[
                   { required: true, message: "Please enter your phone number" },
-            {
-              pattern: /^[6-9][0-9]{9}$/,
-              message: "Enter a valid 10-digit phone number starting with 6–9",
-            },
+                  {
+                    pattern: /^[6-9][0-9]{9}$/,
+                    message: "Enter a valid 10-digit phone number starting with 6–9",
+                  },
                 ]}
               >
-                 <Input
-            prefix={<PhoneOutlined />}
-            placeholder="9876543210"
-            maxLength={10}
-            inputMode="numeric"
-            onChange={(e) => {
-              // ✅ Block invalid typing immediately
-              const onlyNums = e.target.value.replace(/[^0-9]/g, "");
-              if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
-              form.setFieldsValue({ phone: onlyNums });
-            }}
-          />
+                <Input
+                  prefix={<PhoneOutlined />}
+                  placeholder="9876543210"
+                  maxLength={10}
+                  inputMode="numeric"
+                  onChange={(e) => {
+                    const onlyNums = e.target.value.replace(/[^0-9]/g, "");
+                    if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
+                    form.setFieldsValue({ phone: onlyNums });
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -538,22 +614,21 @@ const navigate = useNavigate();
                 label="Email"
                 rules={[
                   { required: true, message: "Please enter email" },
-            {
-              pattern: /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
-              message: "Email cannot start with number or special character",
-            },
+                  {
+                    pattern: /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+                    message: "Email cannot start with number or special character",
+                  },
                 ]}
               >
-                 <Input
-            prefix={<MailOutlined />}
-            placeholder="Enter email address"
-            onChange={(e) => {
-              // ✅ Block invalid first character immediately
-              const val = e.target.value;
-              if (val.length === 1 && /[^A-Za-z]/.test(val)) return;
-              form.setFieldsValue({ email: val });
-            }}
-          />
+                <Input
+                  prefix={<MailOutlined />}
+                  placeholder="Enter email address"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val.length === 1 && /[^A-Za-z]/.test(val)) return;
+                    form.setFieldsValue({ email: val });
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col xs={24}>
@@ -561,43 +636,39 @@ const navigate = useNavigate();
                 label="Address"
                 name="address"
                 rules={[
-                   { required: true, message: "Please enter your address" },
-            {
-              validator: (_, value) => {
-                if (!value || value.trim() === "")
-                  return Promise.reject(new Error("Please enter your address"));
+                  { required: true, message: "Please enter your address" },
+                  {
+                    validator: (_, value) => {
+                      if (!value || value.trim() === "")
+                        return Promise.reject(new Error("Please enter your address"));
 
-                // Must include door/flat number (like 12, 5B, #10)
-                const hasDoorNumber = /\b\d+[A-Za-z]?\b/.test(value);
+                      const hasDoorNumber = /\b\d+[A-Za-z]?\b/.test(value);
+                      const hasPincode = /\b\d{6}\b/.test(value);
 
-                // Must include 6-digit pin code
-                const hasPincode = /\b\d{6}\b/.test(value);
+                      if (!hasDoorNumber)
+                        return Promise.reject(
+                          new Error("Address must include a door or flat number")
+                        );
+                      if (!hasPincode)
+                        return Promise.reject(
+                          new Error("Address must include a valid 6-digit pincode")
+                        );
 
-                if (!hasDoorNumber)
-                  return Promise.reject(
-                    new Error("Address must include a door or flat number")
-                  );
-                if (!hasPincode)
-                  return Promise.reject(
-                    new Error("Address must include a valid 6-digit pincode")
-                  );
-
-                return Promise.resolve();
-              },
-            },
+                      return Promise.resolve();
+                    },
+                  },
                 ]}
               >
                 <Input.TextArea
-            rows={3}
-            placeholder="Flat, street, landmark, city, postal code"
-            maxLength={200}
-            onChange={(e) => {
-              // Prevent emoji or non-text characters
-              const clean = e.target.value.replace(/[^\w\s,/#-]/g, "");
-              form.setFieldsValue({ address: clean });
-            }}
-          />
-            </Form.Item>
+                  rows={3}
+                  placeholder="Flat, street, landmark, city, postal code"
+                  maxLength={200}
+                  onChange={(e) => {
+                    const clean = e.target.value.replace(/[^\w\s,/#-]/g, "");
+                    form.setFieldsValue({ address: clean });
+                  }}
+                />
+              </Form.Item>
             </Col>
           </Row>
           <Row justify="end">
@@ -629,62 +700,57 @@ const navigate = useNavigate();
   );
 
   const CategoryRow: React.FC<{ section: SectionKey }> = ({ section }) => {
-  const state = serviceForm[section];
-  return (
-    <div>
-      <Row gutter={[8, 8]} align="middle">
-        <Col xs={24} md={12}>
-        <Text strong className="sv-block sv-mb-6">
-          Select Service Sub Category
-        </Text>
-        <Select
-          value={state.subService ?? undefined}
-          placeholder="Select sub category"
-          className="sv-w-full"
-          options={SUBSERVICES[section]}
-          allowClear
-          onChange={(v) => {
-            setSection(section, "subService", v as string);
-
-
-            setSection(section, "type", null);
-          }}
-        />
-      </Col>
-
-          <Col xs={24} md={12}>
+    const sectionState = serviceForm[section];
+    
+    return (
+      <div>
+        <Row gutter={[8, 8]} align="middle">
+          <Col xs={24}>
             <Text strong className="sv-block sv-mb-6">
-          Sub Category Type
-        </Text>
+              Select Service
+            </Text>
             <Select
-              value={state.type ?? undefined}
-              placeholder="Select cleaning type"
-              className="sv-w-full"
-              disabled={!state.subService} 
-          onChange={(v) => setSection(section, "type", v as CleanType)}
-              allowClear
-              options={[
-                {
-                  label: (
-                    <Space size={6}>
-                      <span>Normal</span>
-                       <Tag className="sv-accent-tag">
-                    +{`$${PRICING.typeDelta.Normal}`}
-                  </Tag>
-                    </Space>
-                  ),
-                  value: "Normal",
-                },
-                {
-                  label: (
-                    <Space size={6}>
-                      <span>Deep Cleaning</span>
-                      <Tag className="sv-accent-tag">+{`$${PRICING.typeDelta.Deep}`}</Tag>
-                    </Space>
-                  ),
-                  value: "Deep",
-                },
-              ]}
+              placeholder="Select Service"
+              style={{ width: "100%" }}
+              disabled={!selectedDepartment}
+              value={sectionState.serviceId}
+              onChange={(value) => {
+                setServiceForm((prev) => ({
+                  ...prev,
+                  [section]: {
+                    ...prev[section],
+                    serviceId: value,
+                  },
+                }));
+              }}
+              options={
+                selectedDepartment?.services.map((srv) => ({
+                  label: srv.serviceName,
+                  value: srv.serviceID,
+                })) || []
+              }
+            />
+          </Col>
+          
+          <Col xs={24}>
+            <Text strong className="sv-block sv-mb-6">
+              Room Size (sq ft)
+            </Text>
+            <InputNumber
+              style={{ width: "100%" }}
+              placeholder="Enter room size"
+              min={0}
+              value={sectionState.roomSize ? Number(sectionState.roomSize) : undefined}
+              onChange={(value) => {
+                setServiceForm((prev) => ({
+                  ...prev,
+                  [section]: {
+                    ...prev[section],
+                    roomSize: value ? String(value) : null,
+                  },
+                }));
+              }}
+              controls={false}
             />
           </Col>
         </Row>
@@ -705,11 +771,18 @@ const navigate = useNavigate();
         title={
           <Space size="small">
             {meta.icon}
-            <Text strong className="sv-title-16">{meta.title}</Text>
+            <Text strong className="sv-title-16">
+              {meta.title}
+            </Text>
           </Space>
         }
         extra={
-          <Button size="small" type="text" onClick={() => resetSection(section)} icon={<ReloadOutlined />}>
+          <Button
+            size="small"
+            type="text"
+            onClick={() => resetSection(section)}
+            icon={<ReloadOutlined />}
+          >
             Clear
           </Button>
         }
@@ -776,45 +849,68 @@ const navigate = useNavigate();
         </ConfigProvider>
       </div>
 
- <Row align="middle" justify="space-between" className="sv-toolbar allign_category" style={{ width: '100%' }}>
-  <Col>
-    <Button icon={<ArrowLeftOutlined />} onClick={() => setCurrentStep(0)}>Back</Button>
-  </Col>
+      <Row
+        align="middle"
+        justify="space-between"
+        className="sv-toolbar allign_category"
+        style={{ width: "100%" }}
+      >
+        <Col>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => setCurrentStep(0)}>
+            Back
+          </Button>
+        </Col>
 
-  <Col flex="auto" className="sv-toolbar-end">
-    <div className="sv-inline-end">
-      <Title level={3} className="sv-m-0 sv-ellipsis">Select Service Category </Title>
-      <Select
-        className="sv-master-select"
-        value={master || undefined}
-        options={MASTER_OPTIONS}
-        placeholder="Select Service"
-        suffixIcon={<AppstoreAddOutlined />}
-        style={{ width: 220 }}
-        onChange={(v) => {
-          if (!customerData) { message.warning('Please fill customer details first.'); return; }
-          setMaster(v as SectionKey);
-        }}
-      />
-    </div>
-  </Col>
-</Row>
+        <Col flex="auto" className="sv-toolbar-end">
+          <div className="sv-inline-end">
+            <Title level={3} className="sv-m-0 sv-ellipsis">
+              Select Service Category
+            </Title>
+            <Select
+              className="sv-master-select"
+              value={master || undefined}
+              options={departments.map((dept) => ({
+                label: dept.departmentName,
+                value: dept.departmentId,
+              }))}
+              placeholder="Select Service"
+              suffixIcon={<AppstoreAddOutlined />}
+              style={{ width: 220 }}
+              onChange={(v) => {
+                if (!customerData) {
+                  message.warning("Please fill customer details first.");
+                  return;
+                }
 
-
+                const selectedDept = departments.find((d) => d.departmentId === Number(v));
+                setSelectedDepartment(selectedDept || null);
+                setSelectedService(null);
+                setSelectedServiceType(null);
+                setMaster(v);
+              }}
+            />
+          </div>
+        </Col>
+      </Row>
 
       <Row gutter={[16, 16]} className="sv-content-row">
         <Col xs={24} lg={16} className="sv-left-pane">
-          {sectionsToShow.includes("bedroom") && <SectionCard section="bedroom" />}
-          {sectionsToShow.includes("bathroom") && <SectionCard section="bathroom" />}
-          {sectionsToShow.includes("kitchen") && <SectionCard section="kitchen" />}
-          {sectionsToShow.includes("living") && <SectionCard section="living" />}
+          {sectionsToShow.map((section) => (
+            <SectionCard key={section} section={section} />
+          ))}
         </Col>
 
         <Col xs={24} lg={8} className="sv-right-pane">
           <Card
             bordered
             className="sv-right-card"
-            bodyStyle={{ padding: 0, display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}
+            bodyStyle={{
+              padding: 0,
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              minHeight: 0,
+            }}
             title={<Text strong>Selection Summary</Text>}
             extra={
               <Button
@@ -823,11 +919,16 @@ const navigate = useNavigate();
                 ghost
                 icon={<ReloadOutlined />}
                 onClick={() => {
-                  (["bedroom","bathroom","kitchen","living"] as SectionKey[]).forEach((k) => resetSection(k));
-                  setAddonsOpen({ bedroom:false, bathroom:false, kitchen:false, living:false });
+                  (["bedroom", "bathroom", "kitchen", "living"] as SectionKey[]).forEach((k) =>
+                    resetSection(k)
+                  );
+                  setAddonsOpen({ bedroom: false, bathroom: false, kitchen: false, living: false });
                   setCustomerRequest(0);
-                  setMaster("bedroom" as SectionKey);
-
+                  setSelectedService(null);
+                  setSelectedServiceType(null);
+                  setSelectedDepartment(null);
+                  setMaster(null);
+                  setGlobalServiceType(null);
                   message.success("Selections cleared");
                 }}
                 className="sv-reset-btn"
@@ -837,16 +938,74 @@ const navigate = useNavigate();
             }
           >
             <div className="sv-summary-items">
+              {/* Global Service Type Selection */}
+              <div style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  <div>
+                    <Text strong className="sv-block sv-mb-6">
+                      Service Type (applies to all services)
+                    </Text>
+                    <Select
+                      placeholder="Select Service Type"
+                      style={{ width: "100%" }}
+                      value={globalServiceType}
+                      onChange={(value) => {
+                        setGlobalServiceType(value);
+                        // Update all sections with selected service types with the global type
+                        const allServiceTypes = departments
+                          .flatMap(d => d.services.flatMap(s => s.serviceTypes))
+                          .find(st => st.serviceTypeID === value);
+                        
+                        if (allServiceTypes) {
+                          setServiceForm((prev) => {
+                            const updated = { ...prev };
+                            (Object.keys(updated) as SectionKey[]).forEach((key) => {
+                              if (updated[key].serviceId) {
+                                updated[key] = {
+                                  ...updated[key],
+                                  serviceTypeId: value,
+                                  type: allServiceTypes.serviceType as CleanType,
+                                  actualPrice: allServiceTypes.price,
+                                };
+                              }
+                            });
+                            return updated;
+                          });
+                        }
+                      }}
+                      options={
+                        departments.length > 0 && departments[0].services.length > 0
+                          ? departments[0].services[0].serviceTypes.map((stype) => ({
+                              label: `${stype.serviceType} - ₹${stype.price}`,
+                              value: stype.serviceTypeID,
+                            }))
+                          : []
+                      }
+                    />
+                     <div style={{ marginTop: 12 }}>
+  <Checkbox
+    checked={withBasement}
+    onChange={(e) => setWithBasement(e.target.checked)}
+  >
+    With Basement
+  </Checkbox>
+</div>
+
+                  </div>
+                </Space>
+              </div>
+
+              {/* Service Selection Summary */}
               {(Object.keys(serviceForm) as SectionKey[])
                 .map((k) => ({ section: k, plan: serviceForm[k] }))
-                .filter(({ plan }) => plan.type || plan.subService || plan.addOnHours.length > 0)
+                .filter(({ plan }) => plan.serviceId)
                 .map(({ section, plan }) => {
                   const title = SECTION_META[section].title;
                   const total = calcSectionTotal(section, plan);
-                  const subLabel =
-                    plan.subService
-                      ? SUBSERVICES[section].find((s) => s.value === plan.subService)?.label ?? plan.subService
-                      : null;
+                  const subLabel = plan.subService
+                    ? SUBSERVICES[section].find((s) => s.value === plan.subService)?.label ??
+                      plan.subService
+                    : null;
 
                   return (
                     <div key={section} className="sv-item-card">
@@ -863,7 +1022,9 @@ const navigate = useNavigate();
                         {plan.addOnHours.length > 0 && (
                           <span>
                             {plan.addOnHours.map((h) => (
-                              <Tag key={h} className="sv-accent-tag">+{h}h</Tag>
+                              <Tag key={h} className="sv-accent-tag">
+                                +{h}h
+                              </Tag>
                             ))}
                           </span>
                         )}
@@ -876,10 +1037,19 @@ const navigate = useNavigate();
                               shape="circle"
                               icon={<EditOutlined />}
                               onClick={() => {
-                                setMaster(section);
-                                setTimeout(() => {
-                                  anchors[section].current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-                                }, 0);
+                                // Find the department ID that matches this section
+                                const dept = departments.find(d => 
+                                  d.departmentName.toLowerCase().includes(section)
+                                );
+                                if (dept) {
+                                  setMaster(dept.departmentId);
+                                  setTimeout(() => {
+                                    anchors[section].current?.scrollIntoView({
+                                      behavior: "smooth",
+                                      block: "nearest",
+                                    });
+                                  }, 0);
+                                }
                               }}
                             />
                           </Tooltip>
@@ -910,51 +1080,55 @@ const navigate = useNavigate();
 
                 <div className="sv-req-wrap">
                   <div className="sv-flex-between sv-mb-6">
-                    <Text strong>Customer Requested</Text>
-               <InputNumber
-      className="sv-money-input"
-      min={0}
-      value={customerRequest}
-      onChange={(v) => setCustomerRequest(v ?? 0)}
-      // ✅ Show "$" symbol but allow only numbers
-      formatter={(value) => `$ ${value ?? 0}`}
-      parser={(value) => {
-        // remove all non-digit characters
-        const numericValue = value?.replace(/[^\d]/g, "") || "0";
-        return Number(numericValue);
-      }}
-      controls={false}
-      inputMode="numeric"
-      onKeyPress={(e) => {
-        // block non-numeric key presses
-        if (!/[0-9]/.test(e.key)) {
-          e.preventDefault();
-        }
-      }}
-      onPaste={(e) => {
-        // block pasting of non-numeric text
-        const paste = e.clipboardData.getData("text");
-        if (!/^\d+$/.test(paste)) {
-          e.preventDefault();
-        }
-      }}
-      placeholder="$ 0"
-    />                
-    </div>
-</div>
-
-
-                <div className="sv-flex-between sv-mt-8">
-                  <Text strong>Discount</Text>
-                  <Text strong>{hasService ? usdFormatter(discountAmount) : "$ 0"}</Text>
+                    <Text strong>Customer Requested Amount</Text>
+                    <InputNumber
+                      className="sv-money-input"
+                      min={0}
+                      value={customerRequest}
+                      onChange={(v) => setCustomerRequest(v ?? 0)}
+                      formatter={(value) => `$ ${value ?? 0}`}
+                      parser={(value) => {
+                        const numericValue = value?.replace(/[^\d]/g, "") || "0";
+                        return Number(numericValue);
+                      }}
+                      controls={false}
+                      inputMode="numeric"
+                      onKeyPress={(e) => {
+                        if (!/[0-9]/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      onPaste={(e) => {
+                        const paste = e.clipboardData.getData("text");
+                        if (!/^\d+$/.test(paste)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      placeholder="$ 0"
+                    />
+                  </div>
                 </div>
-                <div className="sv-flex-between">
-                  <Text strong>Discount %</Text>
-                  <Text strong>{hasService ? `${discountPct}%` : "0%"}</Text>
-                </div>
-                <div className="sv-flex-between">
-                  <Text strong>Discounted Total</Text>
-                  <Text strong>{hasService ? usdFormatter(discountedTotal) : "$ 0"}</Text>
+
+                {discountAmount > 0 && (
+                  <>
+                    <div className="sv-flex-between sv-mt-8">
+                      <Text strong>Discount Amount</Text>
+                      <Text strong style={{ color: '#52c41a' }}>{usdFormatter(discountAmount)}</Text>
+                    </div>
+                    <div className="sv-flex-between">
+                      <Text strong>Discount %</Text>
+                      <Text strong style={{ color: '#52c41a' }}>{discountPct}%</Text>
+                    </div>
+                  </>
+                )}
+                
+                <Divider style={{ margin: '12px 0' }} />
+                
+                <div className="sv-flex-between" style={{ marginTop: 8 }}>
+                  <Text strong style={{ fontSize: 16 }}>Final Total</Text>
+                  <Text strong style={{ fontSize: 18, color: '#14B8A6' }}>
+                    {hasService ? usdFormatter(discountedTotal) : "$ 0"}
+                  </Text>
                 </div>
               </div>
             </div>
@@ -992,4 +1166,3 @@ const navigate = useNavigate();
 };
 
 export default Services;
-
