@@ -23,12 +23,10 @@ import {
   EnvironmentFilled,
   PlusOutlined,
   DeleteOutlined,
-  // ArrowRightOutlined,
-   EditOutlined,
-  MailOutlined
+  EditOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
 import {
-  // createEmployee,
   getAllUsers,
   getAllLocations,
   getAllDepartments,
@@ -41,697 +39,307 @@ const { Title, Text, Paragraph } = Typography;
 
 interface Employee {
   id: number;
-  code?: string; // Add employee code if available
+  code?: string;
   name: string;
   email: string;
-  services: string[];
+  services?: string[];
   status: "Available" | "Assigned";
   phone: string;
   location: string;
-  depts: string[];
+  location_id?: number;
+  depts?: string[];
+  role_id?: number;
 }
 
-const EmployeeCard: React.FC<{
+interface EmployeeCardProps {
   employee: Employee;
   onDelete: (id: number) => void;
-}> = ({ employee, onDelete }) => (
-  <Card
-    hoverable
-    style={{
-      borderRadius: "10px",
-      border: "1px solid #dcfce7",
-      height: "220px",
-      transition: "all 0.3s ease",
-    }}
-  >
+  onEdit: (emp: Employee) => void;
+}
+
+const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit }) => (
+  <Card hoverable className="employee-card">
     <Popconfirm
       title="Are you sure you want to delete this employee?"
       onConfirm={() => onDelete(employee.id)}
       okText="Yes"
       cancelText="No"
     >
-      <Button
-        type="text"
-        danger
-        icon={<DeleteOutlined />}
-        style={{
-          position: "absolute",
-          top: 8,
-          right: 8,
-          borderRadius: "8px",
-        }}
-      />
+      <Button type="text" danger icon={<DeleteOutlined />} className="delete-button" />
     </Popconfirm>
 
-    <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 16 }}>
-      <Avatar
-        size={30}
-        style={{
-          backgroundColor: "#14b8a6",
-          fontSize: 24,
-          color: "#fff",
-        }}
-      >
+    <div className="employee-header">
+      <Avatar size={30} className="employee-avatar">
         {employee.name.charAt(0)}
       </Avatar>
-      <div style={{ overflow: "hidden" }}>
-        <Title
-          level={5}
-          style={{
-            margin: 0,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            maxWidth: 120,
-          }}
-        >
-          {employee.name}
-        </Title>
-        <Tag
-          color={employee.status === "Available" ? "success" : "warning"}
-          style={{ marginTop: 4 }}
-        >
+      <div className="employee-info">
+        <Title level={5} className="employee-name">{employee.name}</Title>
+        <Tag className="employee-status" color={employee.status === "Available" ? "success" : "warning"}>
           {employee.status}
         </Tag>
       </div>
     </div>
-    <Divider style={{ margin: "12px 0" }} />
-    <div style={{ marginBottom: 12 }}>
+
+    <Divider className="employee-divider" />
+
+    <div className="employee-departments">
       <Text strong>Departments:</Text>
-      <div style={{ marginTop: 4 }}>
-        {employee.depts?.length ? (
-          employee.depts.map((dept: string) => (
-            <Tag key={dept} color="#0d9488" style={{ marginBottom: 4 }}>
-              {dept}
-            </Tag>
-          ))
+      <div className="department-tags">
+        {employee.depts && employee.depts.length ? (
+          employee.depts.map((dept) => <Tag key={dept} className="dept-tag">{dept}</Tag>)
         ) : (
           <Text type="secondary">No departments assigned</Text>
         )}
       </div>
     </div>
-    <div
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "8px",
-      }}
-    >
-      <Paragraph
-        style={{
-          margin: 0,
-          color: "#6b7280",
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-        }}
-      >
-        <EnvironmentFilled style={{ color: "#ef4444" }} />{" "}
-        {employee.location || "Unknown"}
+
+    <div className="employee-footer">
+      <Paragraph className="employee-location">
+        <EnvironmentFilled className="icon" /> {employee.location || "Unknown"}
       </Paragraph>
-      <Paragraph
-        style={{
-          margin: 0,
-          color: "#6b7280",
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-        }}
-      >
-        <PhoneFilled style={{ color: "#ef4444" }} />
-        {employee.phone || "+1 999-9999-99"}
+      <Paragraph className="employee-phone">
+        <PhoneFilled className="icon" /> {employee.phone || "+1 999-9999-99"}
       </Paragraph>
+      <Button type="text" icon={<EditOutlined />} onClick={() => onEdit(employee)} />
     </div>
   </Card>
 );
 
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [locationFilter, setLocationFilter] = useState<string>("All Locations");
-  const [locationsData, setLocationsData] = useState<any>([]);
-  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(true);
-  const [departmentsdata, setdepartmentsdata] = useState<any>([]);
+  const [locationsData, setLocationsData] = useState<SelectProps["options"]>([]);
+  const [departmentsdata, setdepartmentsdata] = useState<SelectProps["options"]>([]);
   const [rolesData, setRolesData] = useState<SelectProps["options"]>([]);
-  const [viewType, setViewType] = useState<'grid' | 'card'>('grid'); // <-- VIEW MODE state
-  
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
+  const [locationFilter, setLocationFilter] = useState<string>("All Locations");
+  const [loading, setLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+
+  const [form] = Form.useForm();
+  const [viewType, setViewType] = useState<'grid' | 'card'>('grid');
 
   const locationOptions = [
     { label: "All Locations", value: "All Locations" },
-    ...locationsData.map((loc: any) => ({
-      label: loc.label,
-      value: loc.label,
-    })),
+    ...locationsData,
   ];
-
-  const getAllUsersApi = async () => {
-    try {
-      const res = await getAllUsers();
-      const usersWithFullName = res.map((user: any) => ({
-        ...user,
-        id: user.id, // ensure id
-        code: user.code || `EMP${user.id}`, // add Employee Code if present, otherwise generate
-        name: `${user.first_name} ${user.last_name}`,
-        status: user.is_assigned ? "Assigned" : "Available",
-        phone: user.mobile || "N/A",
-        email: user.email || "N/A",
-        depts: user.depts || [],
-        location_id: user.location_id,
-      }));
-      setEmployees(usersWithFullName);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
-
-  const getAllLocationsApi = async () => {
-    try {
-      const res = await getAllLocations();
-      if (res && Array.isArray(res)) {
-        const locationNames = res.map((loc: any) => ({
-          label: loc.locationName,
-          value: loc.locationId,
-        }));
-        setLocationsData(locationNames);
-      }
-    } catch (error) {
-      console.error("Error fetching locations:", error);
-    }
-  };
-
-  const getAllDepartmentsApi = async () => {
-    try {
-      const res = await getAllDepartments();
-      if (res && Array.isArray(res)) {
-        const uniqueDepartmentsMap = new Map();
-        res.forEach((item) => {
-          if (!uniqueDepartmentsMap.has(item.departmentId)) {
-            uniqueDepartmentsMap.set(item.departmentId, {
-              label: item.departmentName,
-              value: item.departmentId,
-            });
-          }
-        });
-        setdepartmentsdata(Array.from(uniqueDepartmentsMap.values()));
-      }
-    } catch (error) {
-      console.error("Error fetching departments:", error);
-    }
-  };
-
-  const getAllRolesApi = async () => {
-    try {
-      const roles = await getAllRoles();
-      if (Array.isArray(roles)) {
-        setRolesData(
-          roles.map((r: any) => ({
-            label: r.roleName,
-            value: r.roleId,
-          }))
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching roles:", error);
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
-      await Promise.all([
-        getAllUsersApi(),
-        getAllLocationsApi(),
-        getAllDepartmentsApi(),
-        getAllRolesApi(),
-      ]);
-      setLoading(false);
+      try {
+        const [users, locations, departments, roles] = await Promise.all([
+          getAllUsers(),
+          getAllLocations(),
+          getAllDepartments(),
+          getAllRoles(),
+        ]);
+
+        setLocationsData(locations.map((l: any) => ({ label: l.locationName, value: l.locationId })));
+        setdepartmentsdata(Array.from(new Map(departments.map((d: any) => [d.departmentId, { label: d.departmentName, value: d.departmentId }])).values()));
+        setRolesData(roles.map((r: any) => ({ label: r.roleName, value: r.roleId })));
+
+        const mappedUsers = users.map((u: any) => ({
+          ...u,
+          id: u.id,
+          code: u.code || `EMP${u.id}`,
+          name: `${u.first_name} ${u.last_name}`,
+          status: u.is_assigned ? "Assigned" : "Available",
+          phone: u.mobile || "N/A",
+          email: u.email || "N/A",
+          depts: u.depts || [],
+          location_id: u.location_id,
+        }));
+
+        setEmployees(mappedUsers);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
 
   useEffect(() => {
-    if (!employees.length || !locationsData.length) return;
-    // Map location_id → readable name
-    const mappedEmployees = employees.map((emp: any) => {
-      const locationObj = locationsData.find(
-        (loc: any) => Number(loc.value) === Number(emp.location_id)
-      );
-      return {
-        ...emp,
-        location: locationObj ? locationObj.label : emp.location || "Unknown",
-      };
+    const mappedEmployees = employees.map(emp => {
+      const loc = locationsData.find(l => Number(l.value) === Number(emp.location_id));
+      return { ...emp, location: loc?.label || emp.location || "Unknown" };
     });
-    // Apply location filter
-    const employeesToShow =
-      locationFilter === "All Locations"
-        ? mappedEmployees
-        : mappedEmployees.filter((emp: any) => emp.location === locationFilter);
-    setFilteredEmployees(employeesToShow);
+    setFilteredEmployees(locationFilter === "All Locations" ? mappedEmployees : mappedEmployees.filter(emp => emp.location === locationFilter));
   }, [employees, locationsData, locationFilter]);
 
-  const showModal = () => setIsModalVisible(true);
   const handleCancel = () => {
     setIsModalVisible(false);
+    setEditingEmployee(null);
     form.resetFields();
   };
 
-  const handleAddEmployee = async (values: any) => {
-    try {
-      setLoading(true);
-      const [firstName, ...rest] = values.name.trim().split(" ");
-      const lastName = rest.join(" ") || firstName;
-      const payload = {
-        first_name: firstName,
-        last_name: lastName,
+  const handleSubmitEmployee = (values: any) => {
+    if (editingEmployee) {
+      // Edit employee
+      const updatedEmp: Employee = {
+        ...editingEmployee,
+        name: values.name,
         email: values.email,
-        mobile: values.phone,
+        phone: values.phone,
+        location: locationsData.find(l => l.value === values.location)?.label || "Unknown",
         location_id: values.location,
-        dept_id: values.services,
+        depts: values.services.map((v: any) => departmentsdata.find(d => d.value === v)?.label || ""),
         role_id: values.role_id,
       };
-      // const res = await createEmployee(payload);
+      setEmployees(prev => prev.map(emp => emp.id === editingEmployee.id ? updatedEmp : emp));
+      message.success("Employee updated successfully!");
+    } else {
+      // Add new employee
+      const newEmp: Employee = {
+        id: Date.now(),
+        code: `EMP${Date.now()}`,
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        location: locationsData.find(l => l.value === values.location)?.label || "Unknown",
+        location_id: values.location,
+        depts: values.services.map((v: any) => departmentsdata.find(d => d.value === v)?.label || ""),
+        status: "Available",
+        services: [],
+        role_id: values.role_id,
+      };
+      setEmployees(prev => [newEmp, ...prev]);
       message.success("Employee added successfully!");
-      setEmployees((prev: any) => [
-        {
-          ...payload,
-          id: Date.now(),
-          code: `EMP${Date.now()}`,
-          name: values.name,
-          status: "Available",
-          location:
-            locationsData.find(
-              (loc: any) => Number(loc.value) === Number(values.location)
-            )?.label || "Unknown",
-          depts: [
-            departmentsdata.find(
-              (d: any) => Number(d.value) === Number(values.services)
-            )?.label || "",
-          ],
-          phone: values.phone,
-        },
-        ...prev,
-      ]);
-      handleCancel();
-    } catch (error) {
-      message.error("Failed to create employee");
-    } finally {
-      setLoading(false);
     }
+    handleCancel();
   };
 
   const handleDeleteEmployee = async (id: number) => {
     try {
       await deleteEmployeeById(id);
-      setEmployees((prev: any) => prev.filter((emp: any) => emp.id !== id));
+      setEmployees(prev => prev.filter(emp => emp.id !== id));
       message.success("Employee deleted successfully!");
-    } catch (error) {
+    } catch (err) {
       message.error("Failed to delete employee!");
     }
   };
 
-  // Table columns for Grid view
-  const columns = [
-    {
-  title: "S.NO",
-   className: "hover-column",
-  key: "sno",
-  render: (_: any, __: any, index: number) =>  <span>  {index + 1}</span>,
-  width: 60,
-},
-
-    {
-      title: (
-        <span>
-          Emp No 
-        </span>
-      ),
-      dataIndex: "code",
-         className: "hover-column",
-      key: "code",
-      render: (code: string) => (
-        <span style={{ fontWeight: "bold", color: "#0d9488" }}>
-          {code}
-        </span>
-      ),
-      width: 150,
-    },
-    {
-      title: " Emp Name",
-         className: "hover-column",
-      dataIndex: "name",
-      key: "name",
-      render: (text: string) => (
-        <span style={{ fontWeight: 500 }}>{text}</span>
-      ),
-      width: 200,
-    },
-      {
-      title: "Mobile",
-         className: "hover-column",
-      dataIndex: "phone",
-      key: "phone",
-      render: (phone: string) => (
-        <span>
-          <PhoneFilled style={{ color: "#ef4444" }} /> {phone}
-        </span>
-      ),
-      width: 140,
-    },
-      {
-      title: "Location",
-         className: "hover-column",
-      dataIndex: "location",
-      key: "location",
-      render: (loc: string) => (
-        <span>
-          <EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}
-        </span>
-      ),
-      width: 120,
-    },
-        {
-      title: "Email ID",
-         className: "hover-column",
-      dataIndex: "email",
-      key: "email",
-      render: (email: string) => (
-        <span>
-          <MailOutlined style={{ color: "#ef4444" }} /> {email}
-        </span>
-      ),
-      width: 140,
-    },
-    {
-      title: "Status",
-         className: "hover-column",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <Tag color={status === "Available" ? "success" : "warning"}>
-          {status}
-        </Tag>
-      ),
-      width: 120,
-    },
-  {
-  title: "Action",
-     className: "hover-column",
-  key: "action",
-  render: (_: any, record: Employee) => (
-    <Space>
-      <Button
-        type="text"
-        icon={<EditOutlined />}
-        onClick={() => {
-          // Handle edit logic here (open modal, set record data)
-          // Example:
-          // setEditingEmployee(record);
-          // setEditModalVisible(true);
-          // For edit modal, use a separate form and modal as shown in previous responses
-        }}
-      />
-      <Popconfirm
-        title="Are you sure you want to delete this employee?"
-        onConfirm={() => handleDeleteEmployee(record.id)}
-        okText="Yes"
-        cancelText="No"
-      >
-        <Button type="text" danger icon={<DeleteOutlined />} />
-      </Popconfirm>
-    </Space>
-  ),
-  width: 100,
-},
-
-  ];
+  const handleEditEmployee = (emp: Employee) => {
+    setEditingEmployee(emp);
+    form.setFieldsValue({
+      name: emp.name,
+      email: emp.email,
+      phone: emp.phone,
+      location: emp.location_id,
+      services: emp.depts.map(d => departmentsdata.find(dep => dep.label === d)?.value),
+      role_id: emp.role_id,
+    });
+    setIsModalVisible(true);
+  };
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "80vh",
-        }}
-      >
-        <img src={LoaderGif} alt="Loading..." style={{ width: "150px" }} />
+      <div className="loader-container">
+        <img src={LoaderGif} alt="Loading..." className="loader-image" />
       </div>
     );
   }
 
+  const columns = [
+    { title: "S.NO", key: "sno", render: (_: any, __: any, idx: number) => idx + 1, width: 60 },
+    { title: "Emp No", dataIndex: "code", key: "code", width: 150, render: code => <span style={{ fontWeight: "bold", color: "#0d9488" }}>{code}</span> },
+    { title: "Emp Name", dataIndex: "name", key: "name", width: 200 },
+    { title: "Mobile", dataIndex: "phone", key: "phone", render: phone => <><PhoneFilled style={{ color: "#ef4444" }} /> {phone}</> },
+    { title: "Location", dataIndex: "location", key: "location", render: loc => <><EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}</> },
+    { title: "Email ID", dataIndex: "email", key: "email", render: email => <><MailOutlined style={{ color: "#ef4444" }} /> {email}</> },
+    { title: "Status", dataIndex: "status", key: "status", render: status => <Tag color={status === "Available" ? "success" : "warning"}>{status}</Tag> },
+    { title: "Action", key: "action", render: (_: any, record: Employee) => (
+      <Space>
+        <Button type="text" icon={<EditOutlined />} onClick={() => handleEditEmployee(record)} />
+        <Popconfirm title="Delete?" onConfirm={() => handleDeleteEmployee(record.id)} okText="Yes" cancelText="No">
+          <Button type="text" danger icon={<DeleteOutlined />} />
+        </Popconfirm>
+      </Space>
+    ) }
+  ];
+
   return (
-    <div
-      className="employees-container"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "calc(100vh - 150px)",
-        animation: "fadeIn 0.5s",
-      }}
-    >
-      <Row
-        justify="space-between"
-        align="middle"
-        style={{ paddingBottom: 24, flexWrap: "wrap", gap: 16 }}
-      >
-        <Col>
-          <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff", margin: 0 }}>
-            EMPLOYEES
-          </Title>
-        </Col>
+    <div className="employees-container">
+      <Row justify="space-between" align="middle" className="employees-header">
+        <Col><Title level={2} className="employees-title">EMPLOYEES</Title></Col>
         <Col>
           <Space wrap>
             <Button
               onClick={() => setViewType(viewType === "grid" ? "card" : "grid")}
               type={viewType === "grid" ? "primary" : "default"}
-              style={{ marginLeft: 4, marginRight: 330, backgroundColor: "#14B8A6", borderColor: "#14B8A6", color: "white" }}
+              style={{ backgroundColor: "#14B8A6", borderColor: "#14B8A6", color: "white" }}
             >
-             {viewType == "grid" ? "Grid View" : "Card View"}
+              {viewType === "grid" ? "Grid View" : "Card View"}
             </Button>
-            <Select
-              value={locationFilter}
-              style={{ width: 180 }}
-              onChange={setLocationFilter}
-              options={locationOptions}
-            />
-            <Button
-              className="color"
-              icon={<PlusOutlined />}
-              onClick={showModal}
-            >
-              Add User
-            </Button>
-            {/* View Switch */}
-          
-            {/* <Button
-              onClick={() => setViewType("card")}
-              type={viewType === "card" ? "primary" : "default"}
-            >
-              Card View
-            </Button> */}
+            <Select value={locationFilter} style={{ width: 180 }} onChange={setLocationFilter} options={locationOptions} />
+            <Button icon={<PlusOutlined />} onClick={() => { setEditingEmployee(null); setIsModalVisible(true); }}>Add User</Button>
           </Space>
         </Col>
       </Row>
-      {/* Content */}
-      <div className="scrollable-grid" style={{ flex: 1, overflowY: "auto" }}>
-        {viewType === "grid" ? (
-          <Table
-            dataSource={filteredEmployees}
-            columns={columns}
-            pagination={false}
-            rowKey="id"
-             onRow={( index) => ({
-                  onMouseEnter: () => {
-                    const el = document.getElementById(`row-${index}`);
-                    el?.classList.add("row-hover");
-                  },
-                  onMouseLeave: () => {
-                    const el = document.getElementById(`row-${index}`);
-                    el?.classList.remove("row-hover");
-                  },})}
-            style={{ background: "#fff" }}
 
-          />
+      <div className="scrollable-grid">
+        {viewType === "grid" ? (
+          <Table dataSource={filteredEmployees} columns={columns} pagination={false} rowKey="id" />
         ) : (
-          <Row gutter={[24, 24]}>
-            {filteredEmployees.map((employee) => (
-              <Col xs={24} sm={12} lg={8} xl={6} key={employee.id}>
-                <EmployeeCard
-                  employee={employee}
-                  onDelete={handleDeleteEmployee}
-                />
+          <Row gutter={[24, 24]} className="content-grid">
+            {filteredEmployees.map(emp => (
+              <Col xs={24} sm={12} lg={8} xl={6} key={emp.id}>
+                <EmployeeCard employee={emp} onDelete={handleDeleteEmployee} onEdit={handleEditEmployee} />
               </Col>
             ))}
           </Row>
         )}
       </div>
-      {/* Modal */}
+
       <Modal
-        title="Add New User"
+        title={editingEmployee ? "Edit User" : "Add New User"}
         open={isModalVisible}
         width={1000}
         onCancel={handleCancel}
-        style={{
-          height: "90vh",
-          bottom: 80,
-        }}
+        className="employee-modal"
         footer={[
-          <Button
-            key="back"
-            style={{ borderColor: "#14B8A6", color: "black" }}
-            onClick={handleCancel}
-          >
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            style={{
-              backgroundColor: "#14B8A6",
-              color: "#ffffff",
-              borderColor: "#14B8A6",
-            }}
-            onClick={() => form.submit()}
-          >
-            Add User
-          </Button>,
+          <Button key="back" className="cancel-btn" onClick={handleCancel}>Cancel</Button>,
+          <Button key="submit" className="submit-btn" onClick={() => form.submit()}>
+            {editingEmployee ? "Update User" : "Add User"}
+          </Button>
         ]}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleAddEmployee}
-          style={{ marginTop: 28 }}
-        >
-         <Row gutter={24}>
-            {/* Full Name */}
+        <Form form={form} layout="vertical" onFinish={handleSubmitEmployee} className="employee-form">
+          <Row gutter={24}>
             <Col xs={24} sm={12}>
-              <Form.Item
-                name="name"
-                label="Full Name"
-                rules={[
-                  { required: true, message: "Please enter full name" },
-                  {
-                    pattern: /^[A-Za-z]{2,}(?:\s[A-Za-z]{1,})+$/,
-                    message: "Enter valid full name ",
-                  },
-                ]}
-                getValueFromEvent={(e) => e.target.value.trimStart()}
-              >
+              <Form.Item name="name" label="Full Name" rules={[{ required: true, message: "Please enter full name" }]}>
                 <Input placeholder="Enter full name" />
               </Form.Item>
             </Col>
-
-
-            {/* Email */}
             <Col xs={24} sm={12}>
-              <Form.Item
-                name="email"
-                label="Email"
-                normalize={(value) => value?.trim()}
-                rules={[
-                  { required: true, message: "Please enter email" },
-                  { type: "email", message: "Please enter a valid email" },
-                ]}
-              >
-                <Input placeholder="Enter email address" />
+              <Form.Item name="email" label="Email" rules={[{ required: true, type: "email", message: "Enter valid email" }]}>
+                <Input placeholder="Enter email" />
               </Form.Item>
             </Col>
-
-
-            {/* Phone Number */}
             <Col xs={24} sm={12}>
-              <Form.Item
-                name="phone"
-                label="Phone Number"
-                rules={[
-                  { required: true, message: "Phone number is required" },
-                  {
-                    pattern: /^\d{10}$/,
-                    message: "Phone number must be exactly 10 digits",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Enter 10-digit phone number"
-                  maxLength={10}
-                  onKeyPress={(e) => {
-                    if (!/[0-9]/.test(e.key)) {
-                      e.preventDefault();
-                    }
-                  }}
-                />
+              <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: "Enter phone number" }]}>
+                <Input placeholder="Enter phone" />
               </Form.Item>
             </Col>
-
-
-            {/* Location */}
             <Col xs={24} sm={12}>
-              <Form.Item
-                name="location"
-                label="Location"
-                rules={[
-                  { required: true, message: "Please select a location" },
-                ]}
-              >
-                <Select
-                  options={locationsData}
-                  placeholder="Select location"
-                  showSearch={false}
-                  optionFilterProp="label"
-                />
+              <Form.Item name="location" label="Location" rules={[{ required: true, message: "Select location" }]}>
+                <Select options={locationsData} placeholder="Select location" />
               </Form.Item>
             </Col>
-
-
-            {/* Services */}
             <Col xs={24} sm={12}>
-              <Form.Item
-                name="services"
-                label="Departments"
-                rules={[
-                  { required: true, message: "Please select a department" },
-                ]}
-              >
-                <Select
-                  mode="multiple"
-                  allowClear
-                  options={departmentsdata}
-                  placeholder="Select department"
-                  showSearch={false} // <-- Re-applying this fix
-                />
+              <Form.Item name="services" label="Departments">
+                <Select mode="multiple" options={departmentsdata} placeholder="Select departments" />
               </Form.Item>
             </Col>
-
-
-            {/* Role */}
             <Col xs={24} sm={12}>
-              <Form.Item
-                name="role_id"
-                label="Role"
-                rules={[{ required: true, message: "Please select a role" }]}
-              >
-                <Select
-                  allowClear
-                  placeholder="Select role"
-                  options={rolesData}
-                  showSearch
-                />
+              <Form.Item name="role_id" label="Role">
+                <Select options={rolesData} placeholder="Select role" />
               </Form.Item>
             </Col>
           </Row>
         </Form>
       </Modal>
-      {/* Styles */}
-      <style>
-        {`
-        .even-row { background-color: #f9fafb !important; }
-        .odd-row { background-color: #ffffff !important; }
-        `}
-      </style>
     </div>
   );
 };
