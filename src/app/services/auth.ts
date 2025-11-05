@@ -467,6 +467,82 @@ export const getallBookings = async() => {
         throw error;
     }
 }
+export const getallBookingsinBookings = async (limit = 20, offset = 0) => {
+  try {
+    const response = await fetch(`${baseUrl}/Booking/getall`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ limit, offset }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch bookings: ${response.status}`);
+    }
+
+    const bookings = await response.json();
+
+    if (!Array.isArray(bookings)) {
+      console.warn("Bookings API did not return an array:", bookings);
+      return [];
+    }
+
+    const [allDepartments] = await Promise.all([
+      getAllDepartments(),
+      // getAllServices()
+    ]);
+
+    const enrichedBookings = await Promise.all(
+      bookings.map(async (booking: any) => {
+        try {
+          if (!booking.department && booking.dept_id) {
+            const dept = allDepartments?.find((d: any) => d.id === booking.dept_id);
+            if (dept) booking.department = dept;
+          }
+
+          if (Array.isArray(booking.services)) {
+            booking.services = booking.services.map((s: any) => {
+              const dept = allDepartments?.find((d: any) => d.id === s.dept_id);
+              return {
+                ...s,
+                department_name: s.department_name || dept?.department_name || null,
+              };
+            });
+          }
+
+          if (!booking.assigned_employee && booking.employee_id) {
+            try {
+              const employee = await getAllUsersById(booking.employee_id);
+              if (employee) {
+                booking.assigned_employee = {
+                  id: employee.id,
+                  first_name: employee.first_name,
+                  last_name: employee.last_name,
+                  email: employee.email,
+                  mobile: employee.mobile,
+                };
+              }
+            } catch (err) {
+              console.warn(`Could not fetch employee ${booking.employee_id}:`, err);
+            }
+          }
+
+          return booking;
+        } catch (err) {
+          console.error("Error enriching booking:", err);
+          return booking;
+        }
+      })
+    );
+
+    return enrichedBookings;
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    throw error;
+  }
+};
+
 
 /**
  * Get bookings filtered by status
