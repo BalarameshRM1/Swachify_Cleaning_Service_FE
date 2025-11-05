@@ -1,7 +1,29 @@
+/* Common Loader Centering — applies to all screens */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  text-align: center;
+}
+
+.loader-image {
+  width: 180px;
+  margin-bottom: 10px;
+}
+
+.loader-text {
+  font-size: 14px;
+  color: #1cc5c0;
+  margin-top: 8px;
+}
+
 /* Small Mobile: 320px to 374px */
 @media screen and (min-width: 320px) and (max-width: 374px) {
   .loader-image {
-    width: 90px;
+    width: 180px;
   }
   .loader-text {
     font-size: 12px;
@@ -16,6 +38,18 @@
   }
   .filter-buttons {
     flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .filter-buttons .ant-btn,
+  .filter-buttons .ant-space {
+    width: 100%;
+  }
+  /* Stack export buttons vertically in mobile */
+  .filter-buttons .ant-space {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 6px;
   }
   .summary-card {
@@ -32,7 +66,7 @@
 /* Medium Mobile: 375px to 424px */
 @media screen and (min-width: 375px) and (max-width: 424px) {
   .loader-image {
-    width: 110px;
+    width: 180px;
   }
   .loader-text {
     font-size: 13px;
@@ -47,6 +81,18 @@
   }
   .filter-buttons {
     flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .filter-buttons .ant-btn,
+  .filter-buttons .ant-space {
+    width: 100%;
+  }
+  /* Stack export buttons vertically in mobile */
+  .filter-buttons .ant-space {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
   }
   .summary-card {
@@ -63,7 +109,7 @@
 /* Large Mobile: 425px to 767px */
 @media screen and (min-width: 425px) and (max-width: 767px) {
   .loader-image {
-    width: 130px;
+    width: 180px;
   }
   .loader-text {
     font-size: 14px;
@@ -78,7 +124,15 @@
   }
   .filter-buttons {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  /* Stack export buttons vertically in mobile */
+  .filter-buttons .ant-space {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 10px;
   }
   .summary-row {
@@ -99,7 +153,7 @@
 /* Tablet: 768px to 1024px */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
   .loader-image {
-    width: 150px;
+    width: 180px;
   }
   .loader-text {
     font-size: 15px;
@@ -112,24 +166,102 @@
     margin-left: 0;
     text-align: center;
   }
+
   .filter-buttons {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 12px;
   }
-  .summary-row {
-    flex-direction: column;
+
+  .filter-buttons .ant-space {
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
+
+  .summary-row {
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+    width: 100% !important;
+  }
+
   .summary-card {
-    width: 90%;
+    width: 100% !important;
+    max-width: 95% !important;
   }
+
+  .summary-card .ant-card-body {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    gap: 8px !important; /* ← adds space between texts */
+  }
+
+  .summary-card strong {
+    white-space: nowrap !important;
+  }
+
   .empty-text p:first-child {
     font-size: 15px;
   }
+
   .empty-text p:last-child {
     font-size: 13px;
   }
+}
+
+
+/* Laptop and Desktop: ≥1025px */
+@media screen and (min-width: 1025px) {
+  .loader-image {
+    width: 180px;
+    margin-bottom: 10px;
+  }
+
+  .loader-text {
+    font-size: 14px;
+    color: #1cc5c0;
+    text-align: center;
+  }
+
+  .filter-buttons {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+
+  /* Export buttons side-by-side for large screens */
+  .filter-buttons .ant-space {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filter-buttons .ant-btn {
+    margin-bottom: 8px !important;
+  }
+
+  .summary-row {
+    margin-bottom: 10px !important;
+  }
+}
+
+/* Common Export Buttons Fix */
+.ant-btn .anticon-download {
+  margin-bottom: 8px;
+}
+
+.ant-btn:has(.anticon-download) {
+  margin-bottom: 8px !important;
 }
