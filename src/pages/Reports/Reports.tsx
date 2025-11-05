@@ -556,7 +556,7 @@ const Reports: React.FC = () => {
               <Select
                 placeholder="Select Status"
                 allowClear
-                style={{ width: "100%" }}
+                style={{ width: "100%", marginBottom: "5%" }}
                 value={selectedStatus}
                 onChange={setSelectedStatus}
               >
