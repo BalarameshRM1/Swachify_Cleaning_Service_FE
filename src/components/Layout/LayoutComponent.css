@@ -1,8 +1,4 @@
-.layout-main {
-  min-height: 100vh; 
-  overflow-x: hidden;
-  overflow-y: auto;  
-}
+
 
 
 .layout-sider {
@@ -26,11 +22,7 @@
 
 
 
-.layout-main {
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
+
 
 
 .layout-content-wrapper {
@@ -39,12 +31,21 @@
   flex-direction: column;
   overflow: auto;
 }
+.layout-main {
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto; 
+}
+.layout-content {
+  flex: 1;
+  overflow: auto;   
+}
 
 
 .layout-content {
   flex: 1;
   overflow-y: auto; 
-  padding: 24px;
+  padding: 10px;
   margin: 0;
   background-color: #fff;
   display: flex;

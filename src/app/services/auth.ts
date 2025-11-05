@@ -353,7 +353,22 @@ export const serviceForm = async(bookingId:any ,deptId:any ,serviceId:any,slotId
 
 export const getallBookings = async() => {
     try {
-        const response = await fetch(`${baseUrl}/Booking/getall`);
+        const response = await fetch(`${baseUrl}/Booking/getall`
+          ,{
+            method:"POST",
+            headers:{
+              "Content-Type": "application/json",
+            },
+            body:JSON.stringify(
+              {
+  "limit": 300,
+  "offset": 0
+}
+            ),
+            
+            
+          }
+        );
         if (!response.ok) {
             throw new Error(`Failed to fetch bookings: ${response.status}`);
         }
