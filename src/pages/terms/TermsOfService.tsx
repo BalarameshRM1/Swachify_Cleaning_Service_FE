@@ -32,7 +32,7 @@ const TermsOfService: React.FC = () => {
         }}
       />
 
-      <Title level={2} style={{ textAlign: "center", marginBottom: 40 }}>
+      <Title level={2} style={{ textAlign: "center", marginTop: 40 }}>
         Terms and Conditions
       </Title>
     
