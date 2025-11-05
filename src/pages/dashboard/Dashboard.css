@@ -385,6 +385,12 @@ div::-webkit-scrollbar-thumb:hover {
   padding: 20px 24px 60px;
   background: #fafafa;
 }
+.dashboard-padding-26,
+.dashboard-padding-41 {
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
+}
+
 .dashboard-layout-27 {
   display: flex;
   flex-direction: column;
