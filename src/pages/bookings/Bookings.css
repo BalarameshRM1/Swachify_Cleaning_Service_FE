@@ -28,11 +28,15 @@
   transition: all 0.3s ease;
   border: 1px solid #e5e7eb;
   cursor: default;
-  padding: 20px 24px;
+  padding: 48px 24px 20px 24px;
   box-sizing: border-box;
   background: #fff;
   margin-bottom: 12px;
   position: relative;
+   overflow: visible;
+   min-height: 160px;
+
+  
 }
 
 .booking-card:hover {
@@ -116,9 +120,9 @@
   font-size: 12px;
   display: inline-block;
   position: absolute;
-  top: 16px;
-  right: 20px;
-  z-index: 1;
+  top: 8px;
+  right: 16px;
+  z-index: 2;
 }
 
 
@@ -171,7 +175,7 @@
   font-size: 15px;
   border-radius: 8px;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   text-align: center;
 }
@@ -256,11 +260,62 @@
   font-size: 16px;
   color: #0d9488;
 }
+.assign-modal .ant-modal-close,
+.delete-modal .ant-modal-close {
+  display: none !important;
+}
 
 
 .assign-modal .ant-modal-content {
   border-radius: 12px;
 }
+.assign-modal .ant-modal-footer {
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  gap: 12px; 
+  padding: 16px;
+}
+
+/*  Equal-size buttons */
+.assign-modal .ant-modal-footer .ant-btn {
+  flex: 1;
+  min-width: 120px;
+  height: 44px;
+  font-weight: 600;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.assign-modal .ant-modal-footer .ant-btn-primary {
+  background-color: #0d9488;
+  border-color: #0d9488;
+  color: #fff;
+  transition: all 0.2s ease-in-out;
+}
+
+.assign-modal .ant-modal-footer .ant-btn-primary:hover {
+  background-color: #0b7c73;
+  border-color: #0b7c73;
+}
+
+
+.assign-modal .ant-modal-footer .ant-btn-default {
+  background-color: #fff;
+  border: 1px solid #0d9488;
+  color: #0d9488;
+  transition: all 0.2s ease-in-out;
+}
+
+.assign-modal .ant-modal-footer .ant-btn-default:hover {
+  background-color: #e6fffa;
+  border-color: #0b7c73;
+  color: #0b7c73;
+}
+
 
 .modal-title {
   margin: 0;
@@ -419,6 +474,23 @@
   border-radius: 12px;
   padding: 24px;
 }
+.delete-modal .ant-modal-footer {
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  gap: 12px; 
+  padding: 16px;
+}
+.delete-modal .ant-modal-footer .ant-btn {
+  flex: 1; 
+  min-width: 120px; 
+  height: 44px;
+  font-weight: 600;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .delete-modal-title {
   color: #dd4947;
@@ -464,7 +536,7 @@
 /* Tablet (≤992px) */
 @media (max-width: 992px) {
   .booking-card {
-    padding: 16px;
+    padding: 44px 16px 20px 16px;
   }
   .bookings-title {
     margin-left: 0;
@@ -510,6 +582,9 @@
     flex-direction: column;
     gap: 12px;
   }
+  .booking-card {
+    padding: 40px 16px 20px 16px;
+  }
   .status-badge {
     top: 8px;
     right: 12px;
@@ -537,6 +612,7 @@
   .availability-badge {
     align-self: flex-end;
   }
+  
  
 }
 
