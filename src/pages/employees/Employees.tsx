@@ -23,7 +23,7 @@ import {
   EnvironmentFilled,
   PlusOutlined,
   DeleteOutlined,
-  ArrowRightOutlined,
+  // ArrowRightOutlined,
   MailOutlined
 } from "@ant-design/icons";
 import {
