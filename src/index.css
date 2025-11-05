@@ -137,3 +137,22 @@
     height: 25px;
     border-radius: 50%;
 }
+
+.anticon {
+    display: inline-flex;
+    align-items: center;
+    color: black;
+    font-style: normal;
+    line-height: 0;
+    text-align: center;
+    text-transform: none;
+    vertical-align: -0.125em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.ant-btn.ant-btn-icon-only {
+    width: 32px;
+    height: 40px;
+    border-radius: 8px;
+}

@@ -345,220 +345,89 @@ const handleLogin = async (values: any) => {
       </Drawer>
 
       {/* Hero Section */}
-      <section style={{
-        position: 'relative',
-        overflow: 'hidden',
-        background: 'linear-gradient(135deg, #f0fdfa 0%, #ecfeff 50%, #fff 100%)',
-        padding: '64px 24px'
-      }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: window.innerWidth > 1024 ? '1fr 1fr' : '1fr',
-            gap: 48,
-            alignItems: 'center'
-          }}>
-            <div style={{ textAlign: window.innerWidth > 1024 ? 'left' : 'center' }}>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '8px 16px',
-                borderRadius: 24,
-                background: '#ccfbf1',
-                border: '1px solid #5eead4',
-                color: '#0f766e',
-                fontSize: 14,
-                fontWeight: 600,
-                marginBottom: 24
-              }}>
-                <span>✨</span>
-                <span>Trusted by 5,000+ Happy Customers</span>
+      <section className="hero">
+      <div className="hero-wrap">
+        <div className="hero-grid">
+          <div className="hero-left">
+            <div className="hero-badge nowrap-ellipsis">
+              <span>✨</span>
+              <span>Trusted by 5,000+ Happy Customers</span>
+            </div>
+
+            <h1 className="hero-title">
+              Sparkling Clean Homes <span className="gradient">Delivered</span>
+            </h1>
+
+            <p className="hero-subtitle wrap">
+              Professional cleaning services at your doorstep. From deep cleaning to regular maintenance, we make your space shine like new.
+            </p>
+
+            <div className="hero-ctas">
+              <Button
+                className="cta-gradient"
+                type="primary"
+                size="large"
+                onClick={() => setAuthModalOpen(true)}
+              >
+                Book a Cleaning
+              </Button>
+              <Button
+                size="large"
+                onClick={() => scrollToSection("services")}
+                className="cta-outline"
+              >
+                Our Services
+              </Button>
+            </div>
+
+            <div className="hero-stats">
+              <div className="stat">
+                <div className="stat-number">5,000+</div>
+                <div className="stat-label">Happy Clients</div>
               </div>
-
-              <h1 style={{
-                fontSize: window.innerWidth > 640 ? 56 : 36,
-                fontWeight: 800,
-                lineHeight: 1.2,
-                marginBottom: 24
-              }}>
-                Sparkling Clean Homes, <span style={{
-                  background: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}>Delivered</span>
-              </h1>
-
-              <p style={{
-                fontSize: window.innerWidth > 640 ? 20 : 18,
-                color: '#475569',
-                lineHeight: 1.6,
-                marginBottom: 32
-              }}>
-                Professional cleaning services at your doorstep. From deep cleaning to regular maintenance, we make your space shine like new.
-              </p>
-
-              <div style={{
-                display: 'flex',
-                flexDirection: window.innerWidth > 640 ? 'row' : 'column',
-                gap: 16,
-                marginBottom: 32,
-                justifyContent: window.innerWidth > 1024 ? 'flex-start' : 'center'
-              }}>
-                <Button
-                  type="primary"
-                  size="large"
-                  onClick={() => setAuthModalOpen(true)}
-                  style={{
-                    background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                    border: 'none',
-                    borderRadius: 12,
-                    height: 56,
-                    fontSize: 16,
-                    fontWeight: 600,
-                    padding: '0 32px',
-                    boxShadow: '0 8px 24px rgba(20, 184, 166, 0.3)'
-                  }}
-                >
-                  Book a Cleaning
-                </Button>
-                <Button
-                  size="large"
-                  onClick={() => scrollToSection('services')}
-                  style={{
-                    borderRadius: 12,
-                    height: 56,
-                    fontSize: 16,
-                    fontWeight: 600,
-                    padding: '0 32px',
-                    borderWidth: 2
-                  }}
-                >
-                  Our Services
-                </Button>
+              <div className="stat">
+                <div className="stat-number">15K+</div>
+                <div className="stat-label">Cleanings Done</div>
               </div>
+              <div className="stat">
+                <div className="stat-number">4.9★</div>
+                <div className="stat-label">Avg Rating</div>
+              </div>
+            </div>
+          </div>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 24,
-                paddingTop: 32,
-                borderTop: '1px solid #e2e8f0'
-              }}>
-                <div style={{ textAlign: window.innerWidth > 1024 ? 'left' : 'center' }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#14b8a6' }}>5,000+</div>
-                  <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Happy Clients</div>
-                </div>
-                <div style={{ textAlign: window.innerWidth > 1024 ? 'left' : 'center' }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#14b8a6' }}>15K+</div>
-                  <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Cleanings Done</div>
-                </div>
-                <div style={{ textAlign: window.innerWidth > 1024 ? 'left' : 'center' }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#14b8a6' }}>4.9★</div>
-                  <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Avg Rating</div>
+          <div className="hero-visual">
+            <div className="hero-visual-frame">
+              <div className="hero-visual-inner">
+                <img src={ServicesImg} alt="Swachify" className="hero-img" />
+              </div>
+            </div>
+
+            <div className="hero-float top-right">
+              <div className="float-row">
+                <div className="icon">✓</div>
+                <div>
+                  <div className="title">Quick Booking</div>
+                  <div className="caption">In 60 seconds</div>
                 </div>
               </div>
             </div>
 
-            <div style={{ position: 'relative', maxWidth: 512, margin: '0 auto' }}>
-              <div style={{
-                aspectRatio: '1',
-                width: '100%',
-                borderRadius: 24,
-                background: 'linear-gradient(135deg, #ccfbf1 0%, #cffafe 100%)',
-                padding: 32
-              }}>
-                <div style={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: 16,
-                  background: '#fff',
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 120
-                }}>
-                   <img
-      src={ServicesImg}
-      alt="Swachify Logo"
-      style={{
-        width: '100%',  
-        height: '100%',
-        objectFit: 'cover',
-        borderRadius:10
-      }}
-    />
-                </div>
-              </div>
-
-              <div style={{
-                position: 'absolute',
-                top: -16,
-                right: -16,
-                background: '#ffffffff',
-                borderRadius: 16,
-                boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-                padding: 16,
-                border: '2px solid #5eead4',
-                animation: 'float 3s ease-in-out infinite'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 24,
-                    background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    fontSize: 20
-                  }}>
-                    ✓
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>Quick Booking</div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>In 60 seconds</div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{
-                position: 'absolute',
-                bottom: -16,
-                left: -16,
-                background: '#fff',
-                borderRadius: 16,
-                boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-                padding: 16,
-                border: '2px solid #67e8f9',
-                animation: 'float 3s ease-in-out infinite 1.5s'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 24,
-                    background: 'linear-gradient(135deg, #06b6d4 0%, #14b8a6 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 20
-                  }}>
-                    🧹
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>Eco-Friendly</div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>Safe products</div>
-                  </div>
+            <div className="hero-float bottom-left">
+              <div className="float-row">
+                <div className="icon">🧹</div>
+                <div>
+                  <div className="title">Eco-Friendly</div>
+                  <div className="caption">Safe products</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+
+
 
       {/* Services Section */}
       <section id="services" style={{ maxWidth: 1280, margin: '0 auto', padding: '96px 24px' }}>
@@ -706,7 +575,7 @@ const handleLogin = async (values: any) => {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" style={{ maxWidth: 1280, margin: '0 auto', padding: '96px 24px' }}>
+      <section id="pricing" style={{ maxWidth: 1280, margin: '0 auto', padding: '1px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
           <h2 style={{ fontSize: window.innerWidth > 768 ? 40 : 32, fontWeight: 700, marginBottom: 16 }}>
             Transparent Pricing
