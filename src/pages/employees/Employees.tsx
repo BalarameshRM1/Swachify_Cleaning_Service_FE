@@ -26,7 +26,7 @@ import {
   ArrowRightOutlined,
 } from "@ant-design/icons";
 import {
-  createEmployee,
+  // createEmployee,
   getAllUsers,
   getAllLocations,
   getAllDepartments,
@@ -308,7 +308,7 @@ const Employees: React.FC = () => {
         dept_id: values.services,
         role_id: values.role_id,
       };
-      const res = await createEmployee(payload);
+      // const res = await createEmployee(payload);
       message.success("Employee added successfully!");
       setEmployees((prev: any) => [
         {
