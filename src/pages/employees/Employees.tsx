@@ -24,6 +24,7 @@ import {
   PlusOutlined,
   DeleteOutlined,
   // ArrowRightOutlined,
+   EditOutlined,
   MailOutlined
 } from "@ant-design/icons";
 import {
@@ -355,8 +356,9 @@ const Employees: React.FC = () => {
   const columns = [
     {
   title: "S.NO",
+   className: "hover-column",
   key: "sno",
-  render: (_: any, __: any, index: number) => <span>{index + 1}</span>,
+  render: (_: any, __: any, index: number) =>  <span>  {index + 1}</span>,
   width: 60,
 },
 
@@ -367,6 +369,7 @@ const Employees: React.FC = () => {
         </span>
       ),
       dataIndex: "code",
+         className: "hover-column",
       key: "code",
       render: (code: string) => (
         <span style={{ fontWeight: "bold", color: "#0d9488" }}>
@@ -377,6 +380,7 @@ const Employees: React.FC = () => {
     },
     {
       title: " Emp Name",
+         className: "hover-column",
       dataIndex: "name",
       key: "name",
       render: (text: string) => (
@@ -384,44 +388,9 @@ const Employees: React.FC = () => {
       ),
       width: 200,
     },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <Tag color={status === "Available" ? "success" : "warning"}>
-          {status}
-        </Tag>
-      ),
-      width: 120,
-    },
-    {
-      title: "Departments",
-      dataIndex: "depts",
-      key: "depts",
-      render: (depts: string[]) =>
-        depts?.length
-          ? depts.map((dept: string) => (
-              <Tag key={dept} color="#0d9488">
-                {dept}
-              </Tag>
-            ))
-          : <Text type="secondary">No departments assigned</Text>,
-      width: 200,
-    },
-    {
-      title: "Location",
-      dataIndex: "location",
-      key: "location",
-      render: (loc: string) => (
-        <span>
-          <EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}
-        </span>
-      ),
-      width: 120,
-    },
-    {
+      {
       title: "Mobile",
+         className: "hover-column",
       dataIndex: "phone",
       key: "phone",
       render: (phone: string) => (
@@ -432,7 +401,20 @@ const Employees: React.FC = () => {
       width: 140,
     },
       {
+      title: "Location",
+         className: "hover-column",
+      dataIndex: "location",
+      key: "location",
+      render: (loc: string) => (
+        <span>
+          <EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}
+        </span>
+      ),
+      width: 120,
+    },
+        {
       title: "Email ID",
+         className: "hover-column",
       dataIndex: "email",
       key: "email",
       render: (email: string) => (
@@ -443,23 +425,47 @@ const Employees: React.FC = () => {
       width: 140,
     },
     {
-      title: "Action",
-      key: "action",
-      render: (_: any, record: Employee) => (
-        <Space>
-        
-          <Popconfirm
-            title="Are you sure you want to delete this employee?"
-            onConfirm={() => handleDeleteEmployee(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="text" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
+      title: "Status",
+         className: "hover-column",
+      dataIndex: "status",
+      key: "status",
+      render: (status: string) => (
+        <Tag color={status === "Available" ? "success" : "warning"}>
+          {status}
+        </Tag>
       ),
-      width: 100,
+      width: 120,
     },
+  {
+  title: "Action",
+     className: "hover-column",
+  key: "action",
+  render: (_: any, record: Employee) => (
+    <Space>
+      <Button
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => {
+          // Handle edit logic here (open modal, set record data)
+          // Example:
+          // setEditingEmployee(record);
+          // setEditModalVisible(true);
+          // For edit modal, use a separate form and modal as shown in previous responses
+        }}
+      />
+      <Popconfirm
+        title="Are you sure you want to delete this employee?"
+        onConfirm={() => handleDeleteEmployee(record.id)}
+        okText="Yes"
+        cancelText="No"
+      >
+        <Button type="text" danger icon={<DeleteOutlined />} />
+      </Popconfirm>
+    </Space>
+  ),
+  width: 100,
+},
+
   ];
 
   if (loading) {
@@ -538,10 +544,17 @@ const Employees: React.FC = () => {
             columns={columns}
             pagination={false}
             rowKey="id"
-            rowClassName={(_, idx) =>
-              idx % 2 === 0 ? "even-row" : "odd-row"
-            }
+             onRow={( index) => ({
+                  onMouseEnter: () => {
+                    const el = document.getElementById(`row-${index}`);
+                    el?.classList.add("row-hover");
+                  },
+                  onMouseLeave: () => {
+                    const el = document.getElementById(`row-${index}`);
+                    el?.classList.remove("row-hover");
+                  },})}
             style={{ background: "#fff" }}
+
           />
         ) : (
           <Row gutter={[24, 24]}>

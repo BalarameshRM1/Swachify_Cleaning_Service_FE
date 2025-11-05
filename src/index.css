@@ -137,22 +137,13 @@
     height: 25px;
     border-radius: 50%;
 }
-
-.anticon {
-    display: inline-flex;
-    align-items: center;
-    color: black;
-    font-style: normal;
-    line-height: 0;
-    text-align: center;
-    text-transform: none;
-    vertical-align: -0.125em;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+.ant-table-tbody > tr:hover > td {
+  background-color: #acdad3 !important;
+  /* transition: background-color 0.2s; */
 }
-.ant-btn.ant-btn-icon-only {
-    width: 32px;
-    height: 40px;
-    border-radius: 8px;
+.ant-table-thead > tr > th {
+  font-weight: 700 !important;
+  background-color: #14b8a6 !important;
+  padding: 10px !important;
+  border-bottom: 2px solid #c5d3d1 !important;
 }
