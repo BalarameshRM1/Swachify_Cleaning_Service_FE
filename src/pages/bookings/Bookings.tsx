@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Pagination } from "antd";
+
 import {
   Card,
   Typography,
@@ -26,7 +28,7 @@ import {
 import moment from "moment";
 import {
   assignEmployeeToBooking,
-  getallBookings,
+  getallBookingsinBookings,
   getAllUsers,
   deleteBookingById,
 } from "../../app/services/auth";
@@ -98,6 +100,9 @@ const Bookings: React.FC = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+const [pageSize, setPageSize] = useState(20);
+const [totalBookings, setTotalBookings] = useState(0);
   // const [assigningEmployee, setAssigningEmployee] = useState(false);
 
   const normalize = (b: any) => {
@@ -133,33 +138,42 @@ const Bookings: React.FC = () => {
       slotText: slotText,
     };
   };
+   const fetchBookings = async (page = 1, limit = 20) => {
+  try {
+    setLoadingBookings(true);
+    const offset = (page - 1) * limit;
+
+    const raw = await getallBookingsinBookings(limit, offset);
+
+    if (raw && Array.isArray(raw)) {
+      const normalized = raw.map(normalize).sort((a: any, b: any) => b.id - a.id);
+      setBookings(normalized);
+
+      
+      const estimatedTotal =
+        raw.length < limit
+          ? (page - 1) * limit + raw.length
+          : page * limit + 1;
+
+      setTotalBookings(estimatedTotal);
+    } else {
+      setBookings([]);
+      setTotalBookings(0);
+    }
+  } catch (error) {
+    console.error("Failed to fetch bookings:", error);
+    message.error("Failed to load bookings. Please try again.");
+  } finally {
+    setLoadingBookings(false);
+  }
+};
+
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        setLoadingBookings(true);
-        const initialFilter = (location as any).state?.initialFilter;
+  fetchBookings(currentPage, pageSize);
+}, [currentPage, pageSize, location.state]);
 
-        const raw = await getallBookings();
-        if (raw) {
-          const normalized = raw.map(normalize).sort((a: any, b: any) => b.id - a.id);
-
-          if (initialFilter) {
-            const filtered = normalized.filter((b: any) => b.status === initialFilter);
-            setBookings(filtered);
-            window.history.replaceState({}, document.title);
-          } else {
-            setBookings(normalized);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch bookings:", error);
-      } finally {
-        setLoadingBookings(false);
-      }
-    };
-    fetchBookings();
-  }, [location.state]);
+  
 
   if (loadingBookings) {
     return (
@@ -304,7 +318,7 @@ const Bookings: React.FC = () => {
       } else {
         message.success("Employee assigned and booking updated.");
       }
-      const refreshed = await getallBookings();
+      const refreshed = await getallBookingsinBookings();
       if (refreshed) {
         const normalized = refreshed
           .map(normalize)
@@ -635,6 +649,21 @@ const Bookings: React.FC = () => {
           This action cannot be undone.
         </Text>
       </Modal>
+      <div style={{ textAlign: "center", marginTop: 20 }}>
+  <Pagination
+    current={currentPage}
+    pageSize={pageSize}
+    total={totalBookings}
+    showSizeChanger
+    showQuickJumper
+    onChange={(page, size) => {
+      setCurrentPage(page);
+      setPageSize(size);
+    }}
+  />
+</div>
+
+
     </div>
   );
 };
