@@ -11,6 +11,7 @@ import {
   Button,
   Modal,
   Form,
+  Input,
   message,
   Space,
   Divider,
@@ -25,6 +26,7 @@ import {
   ArrowRightOutlined,
 } from "@ant-design/icons";
 import {
+  // createEmployee,
   getAllUsers,
   getAllLocations,
   getAllDepartments,
@@ -420,8 +422,8 @@ const Employees: React.FC = () => {
       width: 140,
     },
     {
-      title: "Access",
-      key: "access",
+      title: "Action",
+      key: "action",
       render: (_: any, record: Employee) => (
         <Space>
         
@@ -569,22 +571,124 @@ const Employees: React.FC = () => {
           onFinish={handleAddEmployee}
           style={{ marginTop: 28 }}
         >
-          {/* Form Items unchanged, keep from your code */}
-          {/* ... */}
-        </Form>
-        <Form.Item
-  name="role_id"
-  label="Role"
-  rules={[{ required: true, message: "Please select a role" }]}
->
-  <Select
-    allowClear
-    placeholder="Select role"
-    options={rolesData}
-    showSearch
-  />
-</Form.Item>
+         <Row gutter={24}>
+            {/* Full Name */}
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="name"
+                label="Full Name"
+                rules={[
+                  { required: true, message: "Please enter full name" },
+                  {
+                    pattern: /^[A-Za-z]{2,}(?:\s[A-Za-z]{1,})+$/,
+                    message: "Enter valid full name ",
+                  },
+                ]}
+                getValueFromEvent={(e) => e.target.value.trimStart()}
+              >
+                <Input placeholder="Enter full name" />
+              </Form.Item>
+            </Col>
 
+
+            {/* Email */}
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="email"
+                label="Email"
+                normalize={(value) => value?.trim()}
+                rules={[
+                  { required: true, message: "Please enter email" },
+                  { type: "email", message: "Please enter a valid email" },
+                ]}
+              >
+                <Input placeholder="Enter email address" />
+              </Form.Item>
+            </Col>
+
+
+            {/* Phone Number */}
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="phone"
+                label="Phone Number"
+                rules={[
+                  { required: true, message: "Phone number is required" },
+                  {
+                    pattern: /^\d{10}$/,
+                    message: "Phone number must be exactly 10 digits",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Enter 10-digit phone number"
+                  maxLength={10}
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </Form.Item>
+            </Col>
+
+
+            {/* Location */}
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="location"
+                label="Location"
+                rules={[
+                  { required: true, message: "Please select a location" },
+                ]}
+              >
+                <Select
+                  options={locationsData}
+                  placeholder="Select location"
+                  showSearch={false}
+                  optionFilterProp="label"
+                />
+              </Form.Item>
+            </Col>
+
+
+            {/* Services */}
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="services"
+                label="Departments"
+                rules={[
+                  { required: true, message: "Please select a department" },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  allowClear
+                  options={departmentsdata}
+                  placeholder="Select department"
+                  showSearch={false} // <-- Re-applying this fix
+                />
+              </Form.Item>
+            </Col>
+
+
+            {/* Role */}
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="role_id"
+                label="Role"
+                rules={[{ required: true, message: "Please select a role" }]}
+              >
+                <Select
+                  allowClear
+                  placeholder="Select role"
+                  options={rolesData}
+                  showSearch
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
       </Modal>
       {/* Styles */}
       <style>
