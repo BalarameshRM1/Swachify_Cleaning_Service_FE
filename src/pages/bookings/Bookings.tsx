@@ -360,7 +360,7 @@ const Bookings: React.FC = () => {
   const selectedBooking = bookings.find((b: any) => b.id === selectedBookingId);
   return (
     <div className="bookings-root">
-      <Title className="bookings-title">BOOKINGS MANAGEMENT</Title>
+      <Title className="bookings-title">BOOKING MANAGEMENT</Title>
 
       <div className="scrollable-content">
         <Row gutter={[20, 20]}>

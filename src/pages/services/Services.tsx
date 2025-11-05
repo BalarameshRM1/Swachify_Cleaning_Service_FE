@@ -73,6 +73,7 @@ const PRICING = {
   addOnPerHour: 120,
   minHours: 3,
 };
+// const MAX_LEN = 10;
 
 const SUBSERVICES: Record<SectionKey, { label: string; value: string }[]> = {
   bedroom: [
@@ -346,6 +347,14 @@ const Services: React.FC = () => {
         }
       }
 
+      
+if (willingToPay > subtotal) {
+  message.warning('Please enter amount less than total');
+  setLoading(false);
+  return;
+}
+
+
       const { fullName, phone, email, address, date } = customerInfo;
       if (!fullName || !phone || !email || !address || !date) {
         message.error("Missing customer details. Please go back to Step 1.");
@@ -353,6 +362,13 @@ const Services: React.FC = () => {
         setLoading(false);
         return;
       }
+
+      const discountedTotal = useMemo(() => {
+  if (!hasService || subtotal <= 0) return 0;
+  const capped = Math.min(willingToPay || 0, subtotal);
+  return capped > 0 ? capped : subtotal;
+}, [hasService, subtotal, willingToPay]);
+
 
       if (!hasService) {
         message.warning("Please select at least one service before submitting.");
@@ -736,6 +752,8 @@ const Services: React.FC = () => {
             <Text strong className="sv-block sv-mb-6">
               Room Size (sq ft)
             </Text>
+
+               
             <InputNumber
               style={{ width: "100%" }}
               placeholder="Enter room size"
@@ -752,6 +770,11 @@ const Services: React.FC = () => {
               }}
               controls={false}
             />
+
+
+
+
+
           </Col>
         </Row>
       </div>
@@ -1082,30 +1105,37 @@ const Services: React.FC = () => {
                   <div className="sv-flex-between sv-mb-6">
                     <Text strong>Customer Requested Amount</Text>
                     <InputNumber
-                      className="sv-money-input"
-                      min={0}
-                      value={customerRequest}
-                      onChange={(v) => setCustomerRequest(v ?? 0)}
-                      formatter={(value) => `$ ${value ?? 0}`}
-                      parser={(value) => {
-                        const numericValue = value?.replace(/[^\d]/g, "") || "0";
-                        return Number(numericValue);
-                      }}
-                      controls={false}
-                      inputMode="numeric"
-                      onKeyPress={(e) => {
-                        if (!/[0-9]/.test(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      onPaste={(e) => {
-                        const paste = e.clipboardData.getData("text");
-                        if (!/^\d+$/.test(paste)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      placeholder="$ 0"
-                    />
+  className="sv-money-input"
+  min={0}
+  value={customerRequest}
+  onChange={(v) => {
+    const next = v ?? 0;
+    if (next > subtotal) {
+      message.warning('Please enter amount less than total');
+
+      setCustomerRequest(subtotal);
+     
+    } else {
+      setCustomerRequest(next);
+    }
+  }}
+  formatter={(value) => `$ ${value ?? 0}`}
+  parser={(value) => {
+    const numericValue = value?.replace(/[^\d]/g, '') || '0';
+    return Number(numericValue);
+  }}
+  controls={false}
+  inputMode="numeric"
+  onKeyPress={(e) => {
+    if (!/[0-9]/.test(e.key)) e.preventDefault();
+  }}
+  onPaste={(e) => {
+    const paste = e.clipboardData.getData('text');
+    if (!/^\d+$/.test(paste)) e.preventDefault();
+  }}
+  placeholder="$ 0"
+/>
+
                   </div>
                 </div>
 
