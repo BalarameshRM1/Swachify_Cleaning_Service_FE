@@ -34,7 +34,7 @@
 
 .tab-btn {
   background-color: #e5e7eb;
-  color: #1f2937;
+  color:white !important;
   border: none;
   font-weight: 500;
   min-width: 100px;
@@ -50,7 +50,7 @@
 }
 
 .tab-btn:hover {
-  background-color: #1f6951 !important;
+  background-color: #11d1c1 !important;
   color: white;
 }
 
