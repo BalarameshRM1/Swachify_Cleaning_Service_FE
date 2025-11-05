@@ -23,7 +23,9 @@ import {
   EnvironmentFilled,
   PlusOutlined,
   DeleteOutlined,
-  ArrowRightOutlined,
+  // ArrowRightOutlined,
+   EditOutlined,
+  MailOutlined
 } from "@ant-design/icons";
 import {
   // createEmployee,
@@ -176,6 +178,7 @@ const Employees: React.FC = () => {
   const [departmentsdata, setdepartmentsdata] = useState<any>([]);
   const [rolesData, setRolesData] = useState<SelectProps["options"]>([]);
   const [viewType, setViewType] = useState<'grid' | 'card'>('grid'); // <-- VIEW MODE state
+  
 
   const locationOptions = [
     { label: "All Locations", value: "All Locations" },
@@ -195,6 +198,7 @@ const Employees: React.FC = () => {
         name: `${user.first_name} ${user.last_name}`,
         status: user.is_assigned ? "Assigned" : "Available",
         phone: user.mobile || "N/A",
+        email: user.email || "N/A",
         depts: user.depts || [],
         location_id: user.location_id,
       }));
@@ -351,12 +355,21 @@ const Employees: React.FC = () => {
   // Table columns for Grid view
   const columns = [
     {
+  title: "S.NO",
+   className: "hover-column",
+  key: "sno",
+  render: (_: any, __: any, index: number) =>  <span>  {index + 1}</span>,
+  width: 60,
+},
+
+    {
       title: (
         <span>
-          Employee Code <ArrowRightOutlined style={{ color: "#14b8a6" }} />
+          Emp No 
         </span>
       ),
       dataIndex: "code",
+         className: "hover-column",
       key: "code",
       render: (code: string) => (
         <span style={{ fontWeight: "bold", color: "#0d9488" }}>
@@ -366,7 +379,8 @@ const Employees: React.FC = () => {
       width: 150,
     },
     {
-      title: "Name",
+      title: " Emp Name",
+         className: "hover-column",
       dataIndex: "name",
       key: "name",
       render: (text: string) => (
@@ -374,44 +388,9 @@ const Employees: React.FC = () => {
       ),
       width: 200,
     },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <Tag color={status === "Available" ? "success" : "warning"}>
-          {status}
-        </Tag>
-      ),
-      width: 120,
-    },
-    {
-      title: "Departments",
-      dataIndex: "depts",
-      key: "depts",
-      render: (depts: string[]) =>
-        depts?.length
-          ? depts.map((dept: string) => (
-              <Tag key={dept} color="#0d9488">
-                {dept}
-              </Tag>
-            ))
-          : <Text type="secondary">No departments assigned</Text>,
-      width: 200,
-    },
-    {
-      title: "Location",
-      dataIndex: "location",
-      key: "location",
-      render: (loc: string) => (
-        <span>
-          <EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}
-        </span>
-      ),
-      width: 120,
-    },
-    {
-      title: "Phone",
+      {
+      title: "Mobile",
+         className: "hover-column",
       dataIndex: "phone",
       key: "phone",
       render: (phone: string) => (
@@ -421,24 +400,72 @@ const Employees: React.FC = () => {
       ),
       width: 140,
     },
-    {
-      title: "Action",
-      key: "action",
-      render: (_: any, record: Employee) => (
-        <Space>
-        
-          <Popconfirm
-            title="Are you sure you want to delete this employee?"
-            onConfirm={() => handleDeleteEmployee(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="text" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
+      {
+      title: "Location",
+         className: "hover-column",
+      dataIndex: "location",
+      key: "location",
+      render: (loc: string) => (
+        <span>
+          <EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}
+        </span>
       ),
-      width: 100,
+      width: 120,
     },
+        {
+      title: "Email ID",
+         className: "hover-column",
+      dataIndex: "email",
+      key: "email",
+      render: (email: string) => (
+        <span>
+          <MailOutlined style={{ color: "#ef4444" }} /> {email}
+        </span>
+      ),
+      width: 140,
+    },
+    {
+      title: "Status",
+         className: "hover-column",
+      dataIndex: "status",
+      key: "status",
+      render: (status: string) => (
+        <Tag color={status === "Available" ? "success" : "warning"}>
+          {status}
+        </Tag>
+      ),
+      width: 120,
+    },
+  {
+  title: "Action",
+     className: "hover-column",
+  key: "action",
+  render: (_: any, record: Employee) => (
+    <Space>
+      <Button
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => {
+          // Handle edit logic here (open modal, set record data)
+          // Example:
+          // setEditingEmployee(record);
+          // setEditModalVisible(true);
+          // For edit modal, use a separate form and modal as shown in previous responses
+        }}
+      />
+      <Popconfirm
+        title="Are you sure you want to delete this employee?"
+        onConfirm={() => handleDeleteEmployee(record.id)}
+        okText="Yes"
+        cancelText="No"
+      >
+        <Button type="text" danger icon={<DeleteOutlined />} />
+      </Popconfirm>
+    </Space>
+  ),
+  width: 100,
+},
+
   ];
 
   if (loading) {
@@ -478,6 +505,13 @@ const Employees: React.FC = () => {
         </Col>
         <Col>
           <Space wrap>
+            <Button
+              onClick={() => setViewType(viewType === "grid" ? "card" : "grid")}
+              type={viewType === "grid" ? "primary" : "default"}
+              style={{ marginLeft: 4, marginRight: 330, backgroundColor: "#14B8A6", borderColor: "#14B8A6", color: "white" }}
+            >
+             {viewType == "grid" ? "Grid View" : "Card View"}
+            </Button>
             <Select
               value={locationFilter}
               style={{ width: 180 }}
@@ -492,19 +526,13 @@ const Employees: React.FC = () => {
               Add User
             </Button>
             {/* View Switch */}
-            <Button
-              onClick={() => setViewType("grid")}
-              type={viewType === "grid" ? "primary" : "default"}
-              style={{ marginLeft: 4 }}
-            >
-              Grid View
-            </Button>
-            <Button
+          
+            {/* <Button
               onClick={() => setViewType("card")}
               type={viewType === "card" ? "primary" : "default"}
             >
               Card View
-            </Button>
+            </Button> */}
           </Space>
         </Col>
       </Row>
@@ -516,10 +544,17 @@ const Employees: React.FC = () => {
             columns={columns}
             pagination={false}
             rowKey="id"
-            rowClassName={(_, idx) =>
-              idx % 2 === 0 ? "even-row" : "odd-row"
-            }
+             onRow={( index) => ({
+                  onMouseEnter: () => {
+                    const el = document.getElementById(`row-${index}`);
+                    el?.classList.add("row-hover");
+                  },
+                  onMouseLeave: () => {
+                    const el = document.getElementById(`row-${index}`);
+                    el?.classList.remove("row-hover");
+                  },})}
             style={{ background: "#fff" }}
+
           />
         ) : (
           <Row gutter={[24, 24]}>

@@ -1,4 +1,3 @@
-/* 🌈 Background layout */
 .refund-layout {
   min-height: 100vh;
   width: 100%;
@@ -12,7 +11,6 @@
   font-family: "Poppins", "Inter", sans-serif;
 }
 
-/* 💎 Animated background accent */
 .refund-layout::before {
   content: "";
   position: absolute;
@@ -26,34 +24,86 @@
   z-index: 0;
 }
 
-/* ❌ Close button */
 .refund-close-btn {
   position: absolute !important;
-  top: 20px;
-  right: 20px;
+  top: 12px;
+  right: 12px;
   z-index: 1000;
   background: linear-gradient(135deg, #14b8a6, #0ea5e9);
   border: none;
-  border-radius: 50%;
-  width: 46px;
-  height: 46px;
-  display: flex !important;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex !important;
   justify-content: center;
   align-items: center;
-  color: white !important;
-  font-size: 18px;
+  color: #fff !important;
+  font-size: 16px;
+  line-height: 1;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(14, 165, 233, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .refund-close-btn:hover {
-  transform: rotate(90deg) scale(1.08);
+  transform: scale(1.05);
   background: linear-gradient(135deg, #0ea5e9, #14b8a6);
-  box-shadow: 0 8px 24px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35);
 }
 
-/* 📦 Content Container */
+.refund-close-btn:active {
+  transform: scale(0.97);
+}
+@media (max-width: 320px) {
+  .refund-close-btn {
+    top: 8px;
+    right: 8px;
+    width: 34px;          /* compact but ≥36dp visual target with shadow */
+    height: 34px;
+    font-size: 14px;      /* keeps the “×” readable */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.24);
+  }
+
+  /* if the header/top bar has extra padding, allow a bit more inset */
+  .refund-header {       /* optional: apply to the container if exists */
+    padding-top: 10px;
+  }
+}
+/* Small phones */
+@media (max-width: 360px) {
+  .refund-close-btn {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(14, 165, 233, 0.26);
+  }
+}
+
+/* Large phones / small tablets */
+@media (min-width: 361px) and (max-width: 480px) {
+  .refund-close-btn {
+    top: 12px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+  }
+}
+
+/* Respect safe areas (iOS notch) if your page enables viewport-fit=cover */
+@supports (padding: max(0px)) {
+  .refund-close-btn {
+    top: max(10px, env(safe-area-inset-top));
+    right: max(10px, env(safe-area-inset-right));
+  }
+}
+
+
 .refund-content {
   position: relative;
   z-index: 2;
@@ -64,7 +114,6 @@
   animation: fadeUp 0.8s ease forwards;
 }
 
-/* 🧊 Glass Card */
 .refund-box {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
@@ -81,7 +130,6 @@
   box-shadow: 0 16px 50px rgba(20, 184, 166, 0.15);
 }
 
-/* 🏷️ Title */
 .refund-title {
   text-align: center;
   font-size: 32px;
@@ -95,14 +143,13 @@
 .refund-title::after {
   content: "";
   display: block;
-  width: 80px;
+  width: 120px;
   height: 3px;
   background: linear-gradient(90deg, #14b8a6, #0ea5e9);
   margin: 10px auto 0;
   border-radius: 2px;
 }
 
-/* ✍️ Text styling */
 .refund-box p {
   font-size: 16px;
   color: #334155;
@@ -118,7 +165,6 @@
   line-height: 1.7;
 }
 
-/* 🔗 Links */
 .refund-box a {
   color: #0ea5e9;
   font-weight: 500;
@@ -131,7 +177,6 @@
   text-decoration: underline;
 }
 
-/* 🌀 Animation */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -143,7 +188,6 @@
   }
 }
 
-/* 📱 Mobile View */
 @media (max-width: 768px) {
   .refund-box {
     padding: 30px 22px;

@@ -137,3 +137,13 @@
     height: 25px;
     border-radius: 50%;
 }
+.ant-table-tbody > tr:hover > td {
+  background-color: #acdad3 !important;
+  /* transition: background-color 0.2s; */
+}
+.ant-table-thead > tr > th {
+  font-weight: 700 !important;
+  background-color: #14b8a6 !important;
+  padding: 10px !important;
+  border-bottom: 2px solid #c5d3d1 !important;
+}
