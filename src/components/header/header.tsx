@@ -7,7 +7,6 @@ import {
   Space,
   AutoComplete,
   Avatar,
-  Grid,
   message,
   Menu,
   Modal,
@@ -25,11 +24,9 @@ import "./HeaderBar.css";
 
 const { Header } = Layout;
 const { Text } = Typography;
-const { useBreakpoint } = Grid;
 const { confirm } = Modal;
 
 const HeaderBar: React.FC = () => {
-  const screens = useBreakpoint();
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState<any>(null);
@@ -101,33 +98,32 @@ const HeaderBar: React.FC = () => {
     }
   };
 
- const handleLogout = () => {
-  confirm({
-    title: "Are you sure do you want to log out?",
-    icon: <ExclamationCircleOutlined />,
-    okText: "Yes",
-    cancelText: "No",
-    okButtonProps: {
-      className: "logout-modal-button logout-modal-button-ok", 
-    },
-    cancelButtonProps: {
-      className: "logout-modal-button logout-modal-button-cancel", 
-    },
-    onOk() {
-      localStorage.removeItem("user");
-      message.success("Logged out successfully!");
-      navigate("/landing");
-    },
-    onCancel() {
-      message.open({
-        type: "info",
-        content: "Logout cancelled",
-        icon: <InfoCircleOutlined style={{ color: "rgb(20, 184, 166)" }} />,
-      });
-    },
-  });
-};
-
+  const handleLogout = () => {
+    confirm({
+      title: "Are you sure do you want to log out?",
+      icon: <ExclamationCircleOutlined />,
+      okText: "Yes",
+      cancelText: "No",
+      okButtonProps: {
+        className: "logout-modal-button logout-modal-button-ok",
+      },
+      cancelButtonProps: {
+        className: "logout-modal-button logout-modal-button-cancel",
+      },
+      onOk() {
+        localStorage.removeItem("user");
+        message.success("Logged out successfully!");
+        navigate("/landing");
+      },
+      onCancel() {
+        message.open({
+          type: "info",
+          content: "Logout cancelled",
+          icon: <InfoCircleOutlined style={{ color: "rgb(20, 184, 166)" }} />,
+        });
+      },
+    });
+  };
 
   const userMenu = (
     <Menu
@@ -144,10 +140,10 @@ const HeaderBar: React.FC = () => {
 
   return (
     <Header className="header-bar">
-      <Space align="center" className="header-logo">
+      <div className="header-logo">
         <img src={BrandLogo} alt="Logo" className="header-logo-img" />
-        {!screens.xs && <Text className="header-logo-text">SWACHIFY</Text>}
-      </Space>
+        <Text className="header-logo-text">SWACHIFY</Text>
+      </div>
 
       <Space size="middle" align="center" className="header-search">
         <AutoComplete
@@ -156,6 +152,7 @@ const HeaderBar: React.FC = () => {
           onSearch={handleSearch}
           onSelect={handleSelect}
           filterOption={false}
+          style={{ width: "100%" }}
         >
           <Input
             prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
@@ -174,13 +171,6 @@ const HeaderBar: React.FC = () => {
             <div className="header-avatar-info">
               <Text className="header-user-name">
                 {userData?.first_name || "Admin User"}
-              </Text>
-              <Text className="header-user-role">
-                {userData?.role_id === 1
-                  ? "Super Admin"
-                  : userData?.role_id === 2
-                  ? "Admin"
-                  : "Employee"}
               </Text>
             </div>
             <Avatar className="header-avatar-circle">
