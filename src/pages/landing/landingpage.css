@@ -1014,7 +1014,12 @@
 
 .forgot-password-link {
   padding: 0;
-  color: rgb(20, 184, 166);
+  color: rgb(20, 184, 166) !important;
+}
+.forgot-password-link:hover,
+.forgot-password-link:focus {
+  color: #16998e !important; 
+ /* text-decoration: underline !important; optional hover underline */
 }
 
 .auth-submit-button {
