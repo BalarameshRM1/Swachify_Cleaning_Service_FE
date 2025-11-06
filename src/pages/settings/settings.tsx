@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Card,
@@ -39,6 +38,7 @@ const CustomSwitch: React.FC<{
 }> = ({ checked, onChange, defaultChecked }) => {
   return (
     <Switch
+      size="small" // <-- This makes the switch smaller
       checked={checked}
       defaultChecked={defaultChecked}
       onChange={onChange}
@@ -73,6 +73,7 @@ const NotificationSettings: React.FC = () => {
     checked: boolean
   ) => (
     <div
+      className="notification-row" // <-- ADDED CLASS
       style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -83,6 +84,7 @@ const NotificationSettings: React.FC = () => {
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <div
+          className="notification-icon" // <-- ADDED CLASS
           style={{
             width: 40,
             height: 40,
@@ -98,8 +100,8 @@ const NotificationSettings: React.FC = () => {
           {icon}
         </div>
         <div>
-          <div style={{ fontWeight: 600, fontSize: 15, color: '#1f2937' }}>{label}</div>
-          <div style={{ color: '#6b7280', fontSize: 13, marginTop: 2 }}>{description}</div>
+          <div className="notification-label" style={{ fontWeight: 600, fontSize: 15, color: '#1f2937' }}>{label}</div> {/* <-- ADDED CLASS */}
+          <div className="notification-description" style={{ color: '#6b7280', fontSize: 13, marginTop: 2 }}>{description}</div> {/* <-- ADDED CLASS */}
         </div>
       </div>
       <CustomSwitch
@@ -111,16 +113,18 @@ const NotificationSettings: React.FC = () => {
 
   return (
     <Card
+      className="settings-card" // <-- ADDED CLASS
       style={{
         marginBottom: 24,
         borderRadius: 12,
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid #e5e7eb',
       }}
-      bodyStyle={{ padding: '24px' }}
+      bodyStyle={{ padding: '24px' }} // This will be overridden by CSS
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+      <div className="settings-card-header" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}> {/* <-- ADDED CLASS */}
         <div
+          className="settings-card-icon" // <-- ADDED CLASS
           style={{
             width: 48,
             height: 48,
@@ -134,10 +138,10 @@ const NotificationSettings: React.FC = () => {
           <BellOutlined style={{ fontSize: 24, color: 'white' }} />
         </div>
         <div>
-          <Title level={4} style={{ margin: 0, fontSize: 18, color: '#1f2937' }}>
+          <Title level={4} className="settings-card-title" style={{ margin: 0, fontSize: 18, color: '#1f2937' }}> {/* <-- ADDED CLASS */}
             Notification Preferences
           </Title>
-          <Text style={{ color: '#6b7280', fontSize: 13 }}>
+          <Text className="settings-card-description" style={{ color: '#6b7280', fontSize: 13 }}> {/* <-- ADDED CLASS */}
             Manage how you receive notifications
           </Text>
         </div>
@@ -228,16 +232,18 @@ const BusinessProfile: React.FC = () => {
 
   return (
     <Card
+      className="settings-card" // <-- ADDED CLASS
       style={{
         marginBottom: 24,
         borderRadius: 12,
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid #e5e7eb',
       }}
-      bodyStyle={{ padding: '24px' }}
+      bodyStyle={{ padding: '24px' }} // This will be overridden by CSS
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+      <div className="settings-card-header" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}> {/* <-- ADDED CLASS */}
         <div
+          className="settings-card-icon" // <-- ADDED CLASS
           style={{
             width: 48,
             height: 48,
@@ -251,10 +257,10 @@ const BusinessProfile: React.FC = () => {
           <ShopOutlined style={{ fontSize: 24, color: 'white' }} />
         </div>
         <div>
-          <Title level={4} style={{ margin: 0, fontSize: 18, color: '#1f2937' }}>
+          <Title level={4} className="settings-card-title" style={{ margin: 0, fontSize: 18, color: '#1f2937' }}> {/* <-- ADDED CLASS */}
             Business Information
           </Title>
-          <Text style={{ color: '#6b7280', fontSize: 13 }}>
+          <Text className="settings-card-description" style={{ color: '#6b7280', fontSize: 13 }}> {/* <-- ADDED CLASS */}
             Update your business details and branding
           </Text>
         </div>
@@ -463,16 +469,18 @@ const AccountSecurity: React.FC = () => {
 
   return (
     <Card
+      className="settings-card" // <-- ADDED CLASS
       style={{
         marginBottom: 24,
         borderRadius: 12,
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
         border: '1px solid #e5e7eb',
       }}
-      bodyStyle={{ padding: '24px' }}
+      bodyStyle={{ padding: '24px' }} // This will be overridden by CSS
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+      <div className="settings-card-header" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}> {/* <-- ADDED CLASS */}
         <div
+          className="settings-card-icon" // <-- ADDED CLASS
           style={{
             width: 48,
             height: 48,
@@ -486,10 +494,10 @@ const AccountSecurity: React.FC = () => {
           <LockOutlined style={{ fontSize: 24, color: 'white' }} />
         </div>
         <div>
-          <Title level={4} style={{ margin: 0, fontSize: 18, color: '#1f2937' }}>
+          <Title level={4} className="settings-card-title" style={{ margin: 0, fontSize: 18, color: '#1f2937' }}> {/* <-- ADDED CLASS */}
             Account Security
           </Title>
-          <Text style={{ color: '#6b7280', fontSize: 13 }}>
+          <Text className="settings-card-description" style={{ color: '#6b7280', fontSize: 13 }}> {/* <-- ADDED CLASS */}
             Update your password and security settings
           </Text>
         </div>
@@ -600,6 +608,7 @@ const AccountSecurity: React.FC = () => {
 const Settings: React.FC = () => {
   return (
     <div
+      className="settings-page-container" // <-- ADDED CLASS
       style={{
         height: 'calc(100vh - 64px)', 
         overflow: 'auto',
@@ -608,6 +617,7 @@ const Settings: React.FC = () => {
       }}
     >
       <div
+        className="settings-content-wrapper" // <-- ADDED CLASS
         style={{
           maxWidth: 1000,
           margin: '0 auto',
@@ -615,6 +625,7 @@ const Settings: React.FC = () => {
       >
         {/* Header */}
         <div
+          className="settings-header" // <-- ADDED CLASS
           style={{
             background: 'white',
             borderRadius: 12,
@@ -624,7 +635,7 @@ const Settings: React.FC = () => {
             border: '1px solid #e5e7eb',
           }}
         >
-          <Title level={2} style={{ fontWeight: "bold", color: "#0a0b0bff",margin: 0, fontSize: 28,  }}>
+          <Title level={2} className="settings-page-title" style={{ fontWeight: "bold", color: "#0a0b0bff",margin: 0, fontSize: 28,  }}> {/* <-- ADDED CLASS */}
             SETTINGS
           </Title>
           <Text style={{ color: '#6b7280', fontSize: 14 }}>
@@ -694,6 +705,107 @@ const Settings: React.FC = () => {
 
         div::-webkit-scrollbar-thumb:hover {
           background: #0d9488;
+        }
+        
+        /* =================================
+         * RESPONSIVE STYLES (Mobile First)
+         * ================================= */
+
+        /* Small mobile (320px) */
+        @media (max-width: 480px) {
+          .settings-page-container {
+            padding: 8px !important;
+            height: auto !important; /* Allow page to grow */
+          }
+          
+          .settings-header {
+            padding: 16px !important;
+            margin-bottom: 16px !important;
+          }
+
+          .settings-page-title {
+            font-size: 22px !important; /* Smaller main title */
+          }
+
+          .settings-card .ant-card-body {
+            padding: 16px !important; /* Smaller card padding */
+          }
+
+          .settings-card-header {
+            gap: 8px !important;
+            margin-bottom: 16px !important;
+            align-items: flex-start !important;
+          }
+          
+          .settings-card-icon {
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 18px !important;
+          }
+          
+          .settings-card-icon .anticon {
+             font-size: 18px !important;
+          }
+
+          .settings-card-title {
+            font-size: 16px !important; /* Smaller card titles */
+          }
+
+          .settings-card-description {
+            font-size: 12px !important;
+          }
+          
+          .notification-row {
+            flex-direction: column; /* Stack notification row */
+            align-items: flex-start !important;
+            gap: 12px;
+            padding: 12px 0 !important;
+          }
+          
+          .notification-icon {
+             width: 32px !important;
+             height: 32px !important;
+          }
+          
+          .notification-icon .anticon {
+             font-size: 16px !important;
+          }
+          
+          .notification-label {
+             font-size: 14px !important;
+          }
+          
+          .notification-description {
+             font-size: 12px !important;
+          }
+          
+          .notification-row .ant-switch {
+            margin-left: auto; /* Push switch to the right */
+          }
+
+          .ant-form-item-label > label {
+            font-size: 13px !important; /* Smaller form labels */
+          }
+          
+          /* Target large inputs/selects */
+          .ant-input-lg,
+          .ant-input-affix-wrapper-lg,
+          .ant-select-lg .ant-select-selector,
+          .ant-input-password-lg {
+            height: 40px !important;
+            font-size: 14px !important;
+            padding: 4px 11px !important;
+          }
+          
+          .ant-btn-lg {
+             height: 44px !important;
+             font-size: 15px !important;
+          }
+          
+          /* Fix for input prefix icons */
+          .ant-input-affix-wrapper-lg .ant-input-prefix {
+            font-size: 14px !important;
+          }
         }
       `}</style>
     </div>
