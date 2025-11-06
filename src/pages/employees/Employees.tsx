@@ -25,6 +25,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   MailOutlined,
+  PhoneOutlined,
 } from "@ant-design/icons";
 import {
   getAllUsers,
@@ -433,8 +434,28 @@ const Employees: React.FC = () => {
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: "Enter phone number" }]}>
-                <Input placeholder="Enter phone" />
+              <Form.Item
+                label="Phone"
+                name="phone"
+                rules={[
+                  { required: true, message: "Please enter your phone number" },
+                  {
+                    pattern: /^[6-9][0-9]{9}$/,
+                    message: "Enter a valid 10-digit phone number starting with 6–9",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<PhoneOutlined />}
+                  placeholder="9876543210"
+                  maxLength={10}
+                  inputMode="numeric"
+                  onChange={(e) => {
+                    const onlyNums = e.target.value.replace(/[^0-9]/g, "");
+                    if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
+                    form.setFieldsValue({ phone: onlyNums });
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
