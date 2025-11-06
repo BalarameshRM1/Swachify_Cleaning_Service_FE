@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { Pagination } from "antd";
+
 import {
   Card,
   Row,
@@ -18,7 +20,7 @@ import {
   EnvironmentOutlined,
 } from "@ant-design/icons";
 import {
-  getallBookings,
+  getallBookingsinBookings,
   getallBookingsByUserId,
   otpSend,
   otpSendAPi,
@@ -60,6 +62,11 @@ const Tickets: React.FC = () => {
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
+const [totalTickets, setTotalTickets] = useState(0);
+
+  
 
   const tabButton = (tab: typeof filter, label: string) => (
     <Button
@@ -70,22 +77,48 @@ const Tickets: React.FC = () => {
       {label}
     </Button>
   );
-
-  const getallBookingsApi = async () => {
-    try {
-      const response = await getallBookings();
-      if (!response) return;
-      response.sort((a: any, b: any) => b.id - a.id);
-      const normalized = response.map((b: any) => ({
-        ...b,
-        normalizedStatus:
-          typeof b.status === "string" ? b.status : b.status?.status || "Unknown",
-      }));
-      setAllTickets(normalized.filter((b: any) => b.normalizedStatus !== "Open"));
-    } catch (err) {
-      console.error("Error fetching bookings:", err);
-    }
+  const handlePageChange = (page: number, size?: number) => {
+  setCurrentPage(page);
+  if (size) setPageSize(size);
+};
+useEffect(() => {
+  const loadPagedData = async () => {
+    setLoading(true);
+    await getallBookingsApi();
+    setLoading(false);
   };
+  loadPagedData();
+}, [currentPage, pageSize]);
+
+
+ const getallBookingsApi = async () => {
+  try {
+    // still call your API the same way
+    const res = await getallBookingsinBookings(pageSize, (currentPage - 1) * pageSize);
+
+    // ✅ backend returns an array (not object)
+    const response = Array.isArray(res) ? res : [];
+
+    response.sort((a: any, b: any) => b.id - a.id);
+
+    const normalized = response.map((b: any) => ({
+      ...b,
+      normalizedStatus:
+        typeof b.status === "string" ? b.status : b.status?.status || "Unknown",
+    }));
+
+    const finalTickets = normalized.filter((b: any) => b.normalizedStatus !== "Open");
+    setAllTickets(finalTickets);
+
+    // ✅ temporary: use response.length until backend provides total
+    setTotalTickets(1000);
+  } catch (err) {
+    console.error("Error fetching bookings:", err);
+  }
+};
+
+
+
 
   const getallBookingsByUserApi = async (id: any) => {
     try {
@@ -227,16 +260,13 @@ const Tickets: React.FC = () => {
               </Row>
 
               <div className="ticket-services">
-                {ticket.services.map((s: any, i: number) => (
-                  <div className="service-item" key={i}>
-                    <Text className="service-text">
-                      {s.department_name} - {s.service_name}
-                    </Text>
-                    <Tag className="service-tag">
-                      {s.service_type || "Standard Plan"}
-                    </Tag>
-                  </div>
-                ))}
+                {ticket.services.map((s: any, index: number) => (
+                
+                  <Text className="service-title">
+                    {s.service_name}-{s.department_name} {index === ticket.services.length - 1? "-" : "/"}
+                  </Text>
+              ))}
+                  <Tag className="service-tag">{ticket.services[0].service_type || "Standard Plan"}</Tag>
               </div>
 
               <Text>
@@ -302,6 +332,17 @@ const Tickets: React.FC = () => {
           ))
         )}
       </div>
+      <div style={{ textAlign: "center", marginTop: 20 }}>
+  <Pagination
+    current={currentPage}
+    pageSize={pageSize}
+    total={totalTickets}
+    showSizeChanger
+    onChange={handlePageChange}
+   // showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} tickets`}
+  />
+</div>
+
 
       <Modal
         title={<b>Verify Start OTP</b>}
