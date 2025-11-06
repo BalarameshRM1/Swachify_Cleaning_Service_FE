@@ -150,12 +150,9 @@ const [totalBookings, setTotalBookings] = useState(0);
       setBookings(normalized);
 
       
-      const estimatedTotal =
-        raw.length < limit
-          ? (page - 1) * limit + raw.length
-          : page * limit + 1;
+      
 
-      setTotalBookings(estimatedTotal);
+      setTotalBookings(1000);
     } else {
       setBookings([]);
       setTotalBookings(0);
@@ -654,8 +651,8 @@ const [totalBookings, setTotalBookings] = useState(0);
     current={currentPage}
     pageSize={pageSize}
     total={totalBookings}
-    showSizeChanger
-    showQuickJumper
+    
+    
     onChange={(page, size) => {
       setCurrentPage(page);
       setPageSize(size);
