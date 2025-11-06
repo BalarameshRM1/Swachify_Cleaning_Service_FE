@@ -487,14 +487,8 @@ const Reports: React.FC = () => {
         const color = STATUS_COLOR_MAP[statusText] || "default";
         return <Tag color={color}>{statusText}</Tag>;
       },
-      filters: [
-        { text: "Pending", value: "Pending" },
-        { text: "Confirmed", value: "Confirmed" },
-        { text: "Completed", value: "Completed" },
-        { text: "Cancelled", value: "Cancelled" },
-        { text: "In-Progress", value: "In-Progress" },
-      ],
-      onFilter: (value, record) => record.status?.status === value,
+      
+      
     },
   ];
 
