@@ -94,7 +94,7 @@ useEffect(() => {
  const getallBookingsApi = async () => {
   try {
     // still call your API the same way
-    const res = await getallBookingsinBookings(pageSize, (currentPage - 1) * pageSize);
+    const res = await getallBookingsinBookings(pageSize, (currentPage - 1));
 
     // ✅ backend returns an array (not object)
     const response = Array.isArray(res) ? res : [];
@@ -332,7 +332,7 @@ useEffect(() => {
           ))
         )}
       </div>
-      <div style={{ textAlign: "center", marginTop: 20 }}>
+     <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
   <Pagination
     current={currentPage}
     pageSize={pageSize}
