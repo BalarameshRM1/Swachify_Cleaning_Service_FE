@@ -1,6 +1,6 @@
 
 .bookings-root {
-  padding: 24px;
+  /* padding: 24px; */
   background: #ffffff;
   min-height: 100vh;
   box-sizing: border-box;
@@ -28,7 +28,7 @@
   transition: all 0.3s ease;
   border: 1px solid #e5e7eb;
   cursor: default;
-  padding: 48px 24px 20px 24px;
+  padding:   15px 24px 8px 24px;;
   box-sizing: border-box;
   background: #fff;
   margin-bottom: 12px;
@@ -47,7 +47,7 @@
 
 
 .booking-space {
-  width: 100%;
+  width: 103%;
   justify-content: space-between;
   align-items: center;
   display: flex;
@@ -89,7 +89,7 @@
   color: #0284c7;
   border-color: #bfdbfe;
   font-weight: 500;
-  margin-right: 0;
+  margin-right: 50px;
 }
 
 
@@ -120,8 +120,8 @@
   font-size: 12px;
   display: inline-block;
   position: absolute;
-  top: 8px;
-  right: 16px;
+  top: 25px;
+  right: 25px;
   z-index: 2;
 }
 
@@ -586,8 +586,8 @@
     padding: 40px 16px 20px 16px;
   }
   .status-badge {
-    top: 8px;
-    right: 12px;
+    top: 2px;
+    right: 3px;
   }
   .booking-right {
     width: 100%;

@@ -12,7 +12,7 @@
   top: 0;
   background: #f9fafb;
   z-index: 10;
-  padding: 24px;
+  /* padding: 24px; */
 }
 
 .tickets-title {
@@ -71,7 +71,7 @@
   border-radius: 12px;
   background: white;
   transition: all 0.3s ease;
-  padding: 20px;
+  /* padding: 20px; */
   box-sizing: border-box;
 }
 
