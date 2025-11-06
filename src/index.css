@@ -152,3 +152,18 @@
         width: 97% !important;
     }
 }
+
+.booking-card {
+    border-radius: 16px;
+    transition: all 0.3s 
+ease;
+    border: 1px solid #e5e7eb;
+    cursor: default;
+    padding: 8px 24px 20px 24px;
+    box-sizing: border-box;
+    background: #fff;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: visible;
+    min-height: 160px;
+}
