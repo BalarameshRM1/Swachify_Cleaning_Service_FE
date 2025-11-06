@@ -391,15 +391,17 @@ const [totalBookings, setTotalBookings] = useState(0);
                     <Space direction="horizontal" className="booking-space">
                       <Space direction="vertical" size={4} className="booking-left">
                         <div className="services-list">
+                            {/* // <div className="service-row" key={index}> */}
                           {item.services.map((s: any, index: number) => (
-                            <div className="service-row" key={index}>
-                              <Text className="service-title">
-                                {s.department_name} - {s.service_name}
-                              </Text>
 
-                              <Tag className="service-tag">{s.service_type || "Standard Plan"}</Tag>
-                            </div>
+                              <Text className="service-title">
+                                {s.service_name}-{s.department_name} {index === item.services.length - 1? "-" : "/"}
+                              </Text>
                           ))}
+                              <Tag className="service-tag">{item.services[0].service_type || "Standard Plan"}</Tag>
+
+                          
+
                         </div>
 
                         <Space direction="vertical" size={2} className="booking-info">

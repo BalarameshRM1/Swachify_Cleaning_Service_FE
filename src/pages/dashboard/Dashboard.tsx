@@ -269,7 +269,7 @@ const Dashboard: React.FC = () => {
                         <Text strong className="dashboard-color-30">
                           {booking.department?.department_name
                             || (Array.isArray(booking.services) && booking.services.length > 0
-                              ? booking.services.map((s: any) => `${s.department_name} - ${s.service_name}`).join(", ")
+                              ? booking.services.map((s: any) => `${s.service_name}-${s.department_name}`).join("/ ") +" - "+booking.services[0].service_type
                               : `Booking #${String(booking.id ?? "").toString().slice(-6)}`)}
                         </Text>
 
@@ -358,7 +358,7 @@ const Dashboard: React.FC = () => {
                           {/* {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`} */}
                           {booking.department?.department_name
                             || (Array.isArray(booking.services) && booking.services.length > 0
-                              ? booking.services.map((s: any) => `${s.department_name} - ${s.service_name}`).join(", ")
+                              ? booking.services.map((s: any) => `${s.service_name}-${s.department_name}`).join("/ ") +" - "+booking.services[0].service_type
                               : `Booking #${String(booking.id ?? "").toString().slice(-6)}`)}
                         </Text>
                         <div className="dashboard-layout-46">

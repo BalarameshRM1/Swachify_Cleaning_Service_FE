@@ -312,6 +312,29 @@ export const createEmployee = async (empData:any) => {
     throw error;
   }
 };
+
+export const editEmployee = async (empData:any) => {
+  try {
+    const response = await fetch(`${baseUrl}/User/updateuser/${empData.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(empData)
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      console.error("❌ Server validation error:", err);
+      throw new Error("Failed to createEmployee");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error createEmployee:", error);
+    throw error;
+  }
+};
+
 export const deleteEmployeeById = async (id: number) => {
   try {
     const response = await fetch(

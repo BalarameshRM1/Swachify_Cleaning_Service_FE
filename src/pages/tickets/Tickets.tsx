@@ -258,16 +258,13 @@ useEffect(() => {
               </Row>
 
               <div className="ticket-services">
-                {ticket.services.map((s: any, i: number) => (
-                  <div className="service-item" key={i}>
-                    <Text className="service-text">
-                      {s.department_name} - {s.service_name}
-                    </Text>
-                    <Tag className="service-tag">
-                      {s.service_type || "Standard Plan"}
-                    </Tag>
-                  </div>
-                ))}
+                {ticket.services.map((s: any, index: number) => (
+                
+                  <Text className="service-title">
+                    {s.service_name}-{s.department_name} {index === ticket.services.length - 1? "-" : "/"}
+                  </Text>
+              ))}
+                  <Tag className="service-tag">{ticket.services[0].service_type || "Standard Plan"}</Tag>
               </div>
 
               <Text>

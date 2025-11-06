@@ -8,22 +8,40 @@
 }
 
 .row-hover {
-  background-color: #f5f7ff !important; /* light blue, change as needed */
+  background-color: #f5f7ff !important;
   transition: background-color 0.2s;
 }
 
-.delete-button,
-:where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
+.delete-button {
   position: absolute !important;
   top: 8px !important;
   right: 8px !important;
   border-radius: 8px !important;
   z-index: 20 !important;
-  transform: none !important;
-  margin: 0 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+.edit-button {
+  position: absolute !important;
+  top: 8px !important;
+  right: 50px !important; /* space from delete button */
+  border-radius: 8px !important;
+  z-index: 20 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #3b82f6;
+  color: #fff !important;
+  border: none !important;
+  padding: 4px 8px !important;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-button:hover {
+  background-color: #2563eb;
 }
 
 .employee-header {
@@ -164,123 +182,135 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ========================== */
-/* 📱 Mobile Small (320px–375px) */
-/* ========================== */
+/* Responsive adjustments */
+/* Mobile Small */
 @media (max-width: 375px) {
-  .employees-container { padding: 8px; }
+  .employees-container {
+    padding: 8px;
+  }
   .employee-card {
     width: 100%;
     height: auto;
     padding: 10px;
     margin-bottom: 12px;
-    position: relative;
   }
-  .delete-button,
-  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
-    position: absolute !important;
+  .delete-button {
     top: 4px !important;
     right: 6px !important;
     z-index: 999 !important;
-    transform: none !important;
+  }
+  .edit-button {
+    top: 4px !important;
+    right: 40px !important;
   }
   .employee-header {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
-  .employee-avatar { font-size: 18px !important; }
-  .employee-name { font-size: 14px !important; max-width: 150px; }
-  .dept-tag { font-size: 11px; }
-  .employee-footer { flex-direction: column; align-items: center; gap: 5px; }
-  .employee-location, .employee-phone { font-size: 12px; }
-  .employees-title { font-size: 16px !important; }
-  .loader-image { width: 90px; }
+  .employee-avatar {
+    font-size: 18px !important;
+  }
+  .employee-name {
+    font-size: 14px !important;
+    max-width: 150px;
+  }
+  .dept-tag {
+    font-size: 11px;
+  }
+  .employee-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .employee-location,
+  .employee-phone {
+    font-size: 12px;
+  }
+  .employees-title {
+    font-size: 16px !important;
+  }
+  .loader-image {
+    width: 90px;
+  }
 }
 
-/* ========================== */
-/* 📱 Mobile Medium (376px–425px) */
-/* ========================== */
+/* Mobile Medium */
 @media (min-width: 376px) and (max-width: 425px) {
-  .employees-container { padding: 10px; }
+  .employees-container {
+    padding: 10px;
+  }
   .employee-card {
     width: 100%;
     height: auto;
     padding: 12px;
-    position: relative;
   }
-  .delete-button,
-  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
-    position: absolute !important;
+  .delete-button {
     top: 6px !important;
     right: 8px !important;
-    transform: none !important;
-    z-index: 999 !important;
   }
-  .employee-avatar { font-size: 20px !important; }
-  .employee-name { font-size: 15px !important; }
-  .dept-tag { font-size: 12px; }
-  .employee-footer { flex-direction: column; align-items: center; }
+  .edit-button {
+    top: 6px !important;
+    right: 45px !important;
+  }
+  .employee-avatar {
+    font-size: 20px !important;
+  }
+  .employee-name {
+    font-size: 15px !important;
+  }
+  .dept-tag {
+    font-size: 12px;
+  }
 }
 
-/* ========================== */
-/* 💻 Tablet (426px–768px) */
-/* ========================== */
+/* Tablet */
 @media (min-width: 426px) and (max-width: 768px) {
-  .employees-container { padding: 14px; }
+  .employees-container {
+    padding: 14px;
+  }
   .content-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
     gap: 16px;
   }
-  .employee-card { width: 100%; height: auto; position: relative; }
-  .delete-button,
-  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
-    top: 8px !important;
-    right: 8px !important;
-    transform: none !important;
+  .employee-card {
+    width: 100%;
+    height: auto;
   }
-  .employee-name { font-size: 16px; }
-  .employees-title { font-size: 20px !important; }
+  .delete-button,
+  .edit-button {
+    top: 8px !important;
+  }
 }
 
-/* ========================== */
-/* 💻 Laptop (769px–1024px) */
-/* ========================== */
+/* Laptop */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .employees-container { padding: 20px; }
+  .employees-container {
+    padding: 20px;
+  }
   .content-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(48%, 1fr));
     gap: 18px;
   }
-  .employee-card { width: 100%; height: auto; position: relative; }
-  .delete-button,
-  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
-    top: 8px !important;
-    right: 8px !important;
-  }
-  .employee-name { font-size: 17px; }
-  .employees-title { font-size: 22px !important; }
 }
 
-/* ========================== */
-/* 🖥️ Desktop (>1024px) */
-/* ========================== */
+/* Desktop */
 @media (min-width: 1025px) {
   .content-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 18px;
-  }
-  .employee-card { width: 100%; position: relative; }
-  .delete-button,
-  :where(.css-dev-only-do-not-override-ac2jek).ant-btn-color-dangerous.ant-btn-variant-text {
-    top: 8px !important;
-    right: 8px !important;
   }
 }
