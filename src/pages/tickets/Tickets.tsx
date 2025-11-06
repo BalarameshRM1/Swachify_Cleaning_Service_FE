@@ -187,12 +187,14 @@ const Tickets: React.FC = () => {
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="tickets-loading">
-        <img src={LoaderGif} alt="Loading..." width={220} />
+      <div className="loader-container">
+        <img src={LoaderGif} alt="Loading..." className="loader-image" />
+         <Text className="loader-text">Loading tickets...</Text>
       </div>
     );
+  }
 
   return (
     <div className="tickets-container">
