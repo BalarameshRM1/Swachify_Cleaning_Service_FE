@@ -192,6 +192,7 @@ const Services: React.FC = () => {
 
   const [customerRequest, setCustomerRequest] = useState<number>(0);
   const [customerData, setCustomerData] = useState<any>(null);
+  const [customerError, setCustomerError] = useState<string | null>(null);
   
 
   const navigate = useNavigate();
@@ -1126,17 +1127,17 @@ useEffect(() => {
   className="sv-money-input"
   min={0}
   value={customerRequest}
-  onChange={(v) => {
-    const next = v ?? 0;
-    if (next > subtotal) {
-      message.warning('Please enter amount less than total');
+ onChange={(v) => {
+  const next = v ?? 0;
+  if (next > subtotal) {
+    setCustomerError('Please enter amount less than total'); 
+    setCustomerRequest(subtotal);
+  } else {
+    setCustomerError(null); // clear error when valid
+    setCustomerRequest(next);
+  }
+}}
 
-      setCustomerRequest(subtotal);
-     
-    } else {
-      setCustomerRequest(next);
-    }
-  }}
   formatter={(value) => `$ ${value ?? 0}`}
   parser={(value) => {
     const numericValue = value?.replace(/[^\d]/g, '') || '0';
@@ -1153,6 +1154,12 @@ useEffect(() => {
   }}
   placeholder="$ 0"
 />
+{customerError && (
+  <Text type="danger" style={{ fontSize: 12, marginTop: 6 }}>
+    {customerError}
+  </Text>
+)}
+
 
                   </div>
                 </div>

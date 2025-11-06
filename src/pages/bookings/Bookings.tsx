@@ -101,7 +101,7 @@ const Bookings: React.FC = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-const [pageSize, setPageSize] = useState(20);
+const [pageSize, setPageSize] = useState(10);
 const [totalBookings, setTotalBookings] = useState(0);
    const [assigningEmployee, setAssigningEmployee] = useState(false);
 
@@ -138,10 +138,10 @@ const [totalBookings, setTotalBookings] = useState(0);
       slotText: slotText,
     };
   };
-   const fetchBookings = async (page = 1, limit = 20) => {
+   const fetchBookings = async (page = 1, limit = 10) => {
   try {
     setLoadingBookings(true);
-    const offset = (page - 1) * limit;
+    const offset = (page - 1);
 
     const raw = await getallBookingsinBookings(limit, offset);
 
@@ -653,7 +653,7 @@ const [totalBookings, setTotalBookings] = useState(0);
           This action cannot be undone.
         </Text>
       </Modal>
-      <div style={{ textAlign: "center", marginTop: 20 }}>
+  <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
   <Pagination
     current={currentPage}
     pageSize={pageSize}
