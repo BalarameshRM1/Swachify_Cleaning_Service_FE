@@ -149,3 +149,36 @@
 .logout-modal-button-ok {
   margin-right: 120px !important;
 }
+
+@media (max-width: 992px) {
+  .ant-modal-confirm-btns {
+    display: flex !important;
+    justify-content: center !important; 
+    align-items: center !important;
+    gap: 16px !important; 
+    width: 100% !important;
+    margin-top: 16px !important;
+    margin-left: 40px;
+  }
+
+  .logout-modal-button,
+  .logout-modal-button-ok {
+    margin-right: 0 !important;
+    width: 110px !important;
+    height: 38px !important;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .ant-modal-confirm-btns {
+    gap: 12px !important;
+    margin-left: 60px;
+  }
+
+  .logout-modal-button,
+  .logout-modal-button-ok {
+    width: 100px !important;
+    height: 36px !important;
+  }
+}
