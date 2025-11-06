@@ -1,5 +1,5 @@
 import './landingpage.css';
-import { useState,useEffect } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Button, Modal, Form, Input, Checkbox, message, Menu, Drawer } from 'antd';
 import { 
   PhoneOutlined, 
@@ -219,103 +219,48 @@ const handleLogin = async (values: any) => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fff' }}>
+    <div className="landing-page">
       {/* Navigation */}
-      <header style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid #e2e8f0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-      }}>
-        <div style={{
-          maxWidth: 1280,
-          margin: '0 auto',
-          padding: '16px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-  <div
-    style={{
-      width: 70,
-      height: 70,
-      borderRadius: 12,
-    //   background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      overflow: 'hidden', 
-    }}
-  >
+      <header className="landing-header">
+        <div className="header-container">
+         <div className="header-logo-section">
+  <div className="logo-wrapper">
     <img
       src={BrandLogo}
       alt="Swachify Logo"
-      style={{
-        width: '100%',  
-        height: '100%',
-        objectFit: 'contain',
-      }}
     />
   </div>
 
   <div>
-    <div
-      style={{
-        fontSize: 24,
-        fontWeight: 700,
-        background: 'linear-gradient(135deg, #0d9488 0%, #0891b2 100%)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-      }}
-    >
+    <div className="brand-name">
       SWACHIFY
     </div>
 
-    <div
-      style={{
-        fontSize: 11,
-        color: '#64748b',
-        display: window.innerWidth > 640 ? 'block' : 'none',
-      }}
-    >
+    <div className="brand-tagline">
       Professional Cleaning Services
     </div>
   </div>
 </div>
 
 
-          <div style={{ display: window.innerWidth > 1024 ? 'flex' : 'none', gap: 32, fontSize: 14, fontWeight: 500 }}>
+          <div className="header-nav">
             {menuItems.map(item => (
               <a
                 key={item.key}
                 onClick={() => scrollToSection(item.key)}
-                style={{ color: '#1e293b', cursor: 'pointer', transition: 'color 0.2s' }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#14b8a6'}
-                onMouseLeave={(e) => e.currentTarget.style.color = '#1e293b'}
+                className="nav-link"
               >
                 {item.label}
               </a>
             ))}
           </div>
 
-          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <div className="header-actions">
             <Button
               type="primary"
               size="large"
               onClick={() => setAuthModalOpen(true)}
-               className="book-now-btn"
-              style={{
-                background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                border: 'none',
-                borderRadius: 12,
-                fontWeight: 600,
-                boxShadow: '0 4px 12px rgba(20, 184, 166, 0.3)'
-              }}
+              className="book-now-btn"
             >
               Book Now
             </Button>
@@ -323,7 +268,7 @@ const handleLogin = async (values: any) => {
             <Button
               icon={<MenuOutlined />}
               onClick={() => setMobileMenuOpen(true)}
-              style={{ display: window.innerWidth > 1024 ? 'none' : 'flex' }}
+              className="mobile-menu-btn"
             />
           </div>
         </div>
@@ -335,7 +280,7 @@ const handleLogin = async (values: any) => {
         onClose={() => setMobileMenuOpen(false)}
         placement="right"
       >
-        <Menu mode="vertical" style={{ border: 'none' }}>
+        <Menu mode="vertical">
           {menuItems.map(item => (
             <Menu.Item key={item.key} onClick={() => scrollToSection(item.key)}>
               {item.label}
@@ -430,68 +375,39 @@ const handleLogin = async (values: any) => {
 
 
       {/* Services Section */}
-      <section id="services" style={{ maxWidth: 1280, margin: '0 auto', padding: '96px 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <h2 style={{ fontSize: window.innerWidth > 768 ? 40 : 32, fontWeight: 700, marginBottom: 16 }}>
+      <section id="services" className="services-section">
+        <div className="section-header">
+          <h2 className="section-title">
             Our Cleaning Services
           </h2>
-          <p style={{ fontSize: 18, color: '#64748b', maxWidth: 640, margin: '0 auto' }}>
+          <p className="section-description">
             Comprehensive cleaning solutions tailored to your needs. Choose from our wide range of professional services.
           </p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${window.innerWidth > 1024 ? 3 : window.innerWidth > 640 ? 2 : 1}, 1fr)`,
-          gap: 32
-        }}>
+        <div className="services-grid">
           {services.map((service, idx) => (
             <div
               key={idx}
-              style={{
-                padding: 24,
-                borderRadius: 16,
-                border: '2px solid #e2e8f0',
-                background: '#fff',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(13, 148, 136, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+              className="service-card"
             >
-              <div style={{
-                width: 64,
-                height: 64,
-                borderRadius: 16,
-                background: service.gradient,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 32,
-                marginBottom: 16
-              }}>
+              <div className="service-icon-wrapper" style={{ background: service.gradient }}>
                 {service.icon}
               </div>
-              <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>{service.title}</h3>
-              <p style={{ color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>{service.description}</p>
-              <div style={{ marginBottom: 16 }}>
+              <h3 className="service-card-title">{service.title}</h3>
+              <p className="service-card-description">{service.description}</p>
+              <div className="service-features">
                 {service.features.map((feature, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                    <span style={{ color: '#14b8a6' }}>✓</span>
-                    <span style={{ fontSize: 14 }}>{feature}</span>
+                  <div key={i} className="service-feature-item">
+                    <span className="service-feature-check">✓</span>
+                    <span className="service-feature-text">{feature}</span>
                   </div>
                 ))}
               </div>
               <Button
                 type="link"
                 onClick={() => setAuthModalOpen(true)}
-                style={{ color: '#14b8a6', fontWeight: 600, padding: 0 }}
+                className="service-link"
               >
                 Book Now →
               </Button>
@@ -501,73 +417,42 @@ const handleLogin = async (values: any) => {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" style={{
-        background: 'linear-gradient(135deg, #f8fafc 0%, #f0fdfa 100%)',
-        padding: '96px 24px'
-      }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <h2 style={{ fontSize: window.innerWidth > 768 ? 40 : 32, fontWeight: 700, marginBottom: 16 }}>
+      <section id="how-it-works" className="how-it-works-section">
+        <div className="how-it-works-container">
+          <div className="section-header">
+            <h2 className="section-title">
               How Swachify Works
             </h2>
-            <p style={{ fontSize: 18, color: '#64748b' }}>Book your cleaning service in just 3 simple steps</p>
+            <p className="section-description">Book your cleaning service in just 3 simple steps</p>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${window.innerWidth > 768 ? 3 : 1}, 1fr)`,
-            gap: window.innerWidth > 1024 ? 48 : 32
-          }}>
+          <div className="steps-grid">
             {[
               { num: 1, title: 'Choose Your Service', desc: 'Select from our range of cleaning services. Pick the date and time that works best for you.' },
               { num: 2, title: 'We Send Our Team', desc: 'Our verified, trained professionals arrive on time with all necessary equipment and eco-friendly supplies.' },
               { num: 3, title: 'Enjoy Your Clean Space', desc: 'Relax while we work our magic. Pay securely online and enjoy your sparkling clean home or office!' }
             ].map((step) => (
-              <div key={step.num} style={{ textAlign: 'center' }}>
-                <div style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 40,
-                  background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 32,
-                  fontWeight: 700,
-                  margin: '0 auto 24px',
-                  boxShadow: '0 10px 30px rgba(20, 184, 166, 0.3)'
-                }}>
+              <div key={step.num} className="step-card">
+                <div className="step-number-circle">
                   {step.num}
                 </div>
-                <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>{step.title}</h3>
-                <p style={{ color: '#64748b', lineHeight: 1.6 }}>{step.desc}</p>
+                <h3 className="step-title">{step.title}</h3>
+                <p className="step-description">{step.desc}</p>
               </div>
             ))}
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${window.innerWidth > 1024 ? 4 : window.innerWidth > 640 ? 2 : 1}, 1fr)`,
-            gap: 24,
-            marginTop: 64
-          }}>
+          <div className="features-grid">
             {[
               { icon: '🔒', title: 'Verified Professionals', desc: 'Background-checked cleaning experts' },
               { icon: '🌿', title: 'Eco-Friendly Products', desc: 'Safe for family, pets, and planet' },
               { icon: '💳', title: 'Secure Payment', desc: 'Multiple payment options available' },
               { icon: '⭐', title: 'Quality Guarantee', desc: '100% satisfaction or money back' }
             ].map((feature, idx) => (
-              <div key={idx} style={{
-                background: '#fff',
-                borderRadius: 12,
-                padding: 24,
-                textAlign: 'center',
-                border: '2px solid #ccfbf1'
-              }}>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>{feature.icon}</div>
-                <h4 style={{ fontWeight: 700, marginBottom: 8 }}>{feature.title}</h4>
-                <p style={{ fontSize: 14, color: '#64748b' }}>{feature.desc}</p>
+              <div key={idx} className="feature-card">
+                <div className="feature-icon">{feature.icon}</div>
+                <h4 className="feature-card-title">{feature.title}</h4>
+                <p className="feature-card-description">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -575,71 +460,37 @@ const handleLogin = async (values: any) => {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" style={{ maxWidth: 1280, margin: '0 auto', padding: '1px 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <h2 style={{ fontSize: window.innerWidth > 768 ? 40 : 32, fontWeight: 700, marginBottom: 16 }}>
+      <section id="pricing" className="pricing-section">
+        <div className="section-header">
+          <h2 className="section-title">
             Transparent Pricing
           </h2>
-          <p style={{ fontSize: 18, color: '#64748b' }}>No hidden charges. Pay only for what you need.</p>
+          <p className="section-description">No hidden charges. Pay only for what you need.</p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${window.innerWidth > 768 ? 3 : 1}, 1fr)`,
-          gap: 32
-        }}>
+        <div className="pricing-grid">
           {pricingPlans.map((plan, idx) => (
-  <div
-    key={idx}
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between", // keeps button at bottom
-      padding: 32,
-      borderRadius: 16,
-      border: plan.popular ? "2px solid #14b8a6" : "2px solid #e2e8f0",
-      background: plan.popular
-        ? "linear-gradient(135deg, #f0fdfa 0%, #ecfeff 100%)"
-        : "#fff",
-      position: "relative",
-      transition: "all 0.3s ease",
-      minHeight: 520, // ensures all cards have same height
-    }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+            <div
+              key={idx}
+              className={`pricing-card ${plan.popular ? 'popular' : ''}`}
             >
               {plan.popular && (
-                <div style={{
-                  position: 'absolute',
-                  top: -16,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  padding: '4px 16px',
-                  borderRadius: 24,
-                  background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                  color: '#fff',
-                  fontSize: 12,
-                  fontWeight: 700
-                }}>
+                <div className="popular-badge">
                   MOST POPULAR
                 </div>
               )}
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#14b8a6', marginBottom: 8 }}>
+              <div className="pricing-plan-name">
                 {plan.name}
               </div>
-              <div style={{ fontSize: 40, fontWeight: 700, marginBottom: 8 }}>
-                {plan.price}<span style={{ fontSize: 18, color: '#64748b' }}>{plan.period}</span>
+              <div className="pricing-amount">
+                {plan.price}<span className="pricing-period">{plan.period}</span>
               </div>
-              <div style={{ color: '#64748b', marginBottom: 24 }}>{plan.description}</div>
-              <div style={{ marginBottom: 32 }}>
+              <div className="pricing-description">{plan.description}</div>
+              <div className="pricing-features">
                 {plan.features.map((feature, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
-                    <span style={{ color: '#14b8a6', marginTop: 4 }}>✓</span>
-                    <span style={{ fontSize: 14 }}>{feature}</span>
+                  <div key={i} className="pricing-feature-item">
+                    <span className="pricing-feature-check">✓</span>
+                    <span className="pricing-feature-text">{feature}</span>
                   </div>
                 ))}
               </div>
@@ -648,17 +499,7 @@ const handleLogin = async (values: any) => {
                 size="large"
                 block
                 onClick={() => setAuthModalOpen(true)}
-                style={{
-                  borderRadius: 12,
-                  height: 48,
-                  fontWeight: 600,
-                  ...(plan.popular ? {
-                    background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                    border: 'none'
-                  } : {
-                    borderWidth: 2
-                  })
-                }}
+                className={`pricing-button ${plan.popular ? 'popular' : 'default'}`}
               >
                 Book Now
               </Button>
@@ -666,11 +507,11 @@ const handleLogin = async (values: any) => {
           ))}
         </div>
 
-        <div style={{ marginTop: 48, textAlign: 'center' }}>
-          <p style={{ color: '#64748b', marginBottom: 16 }}>Need a custom quote for commercial spaces?</p>
+        <div className="custom-quote-section">
+          <p className="custom-quote-text">Need a custom quote for commercial spaces?</p>
           <a
             onClick={() => scrollToSection('contact')}
-            style={{ color: '#14b8a6', fontWeight: 600, cursor: 'pointer' }}
+            className="custom-quote-link"
           >
             Contact us for enterprise pricing →
           </a>
@@ -678,35 +519,21 @@ const handleLogin = async (values: any) => {
       </section>
 
       {/* About Us */}
-      <section id="about" style={{
-        background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-        color: '#fff',
-        padding: '96px 24px'
-      }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: window.innerWidth > 768 ? '1fr 1fr' : '1fr',
-            gap: 48,
-            alignItems: 'center'
-          }}>
+      <section id="about" className="about-section">
+        <div className="about-container">
+          <div className="about-grid">
             <div>
-              <h2 style={{ fontSize: window.innerWidth > 768 ? 40 : 32, fontWeight: 700, marginBottom: 24, color: '#fff' }}>
+              <h2 className="about-title">
                 About Swachify
               </h2>
-              <p style={{ fontSize: 18, color: '#ccfbf1', lineHeight: 1.6, marginBottom: 24 }}>
+              <p className="about-text">
                 Founded in 2020, Swachify has been transforming homes and offices across the city with our professional cleaning services. We believe everyone deserves a clean, healthy living space.
               </p>
-              <p style={{ color: '#ccfbf1', marginBottom: 24, lineHeight: 1.6 }}>
+              <p className="about-text">
                 Our team of trained professionals uses eco-friendly products and modern equipment to deliver exceptional results. We're not just cleaning - we're creating healthier, happier spaces for our customers.
               </p>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: 24,
-                marginBottom: 32
-              }}>
+              <div className="about-stats-grid">
                 {[
                   { value: '5 Years', label: 'In Business' },
                   { value: '100+', label: 'Cleaning Experts' },
@@ -714,8 +541,8 @@ const handleLogin = async (values: any) => {
                   { value: '98%', label: 'Customer Satisfaction' }
                 ].map((stat, idx) => (
                   <div key={idx}>
-                    <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 4 }}>{stat.value}</div>
-                    <div style={{ fontSize: 14, color: '#ccfbf1' }}>{stat.label}</div>
+                    <div className="about-stat-value">{stat.value}</div>
+                    <div className="about-stat-label">{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -723,59 +550,34 @@ const handleLogin = async (values: any) => {
               <Button
                 size="large"
                 onClick={() => setAuthModalOpen(true)}
-                  className="join-customers-btn"
-                style={{
-                  background: '#fff',
-                  color: '#14b8a6',
-                  borderRadius: 12,
-                  height: 48,
-                  fontWeight: 600,
-                  padding: '0 32px',
-                  border: 'none'
-                }}
+                className="join-customers-btn"
               >
                 Join Our Happy Customers
               </Button>
             </div>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: 16
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="about-features-grid">
+              <div className="about-features-column">
                 {[
                   { icon: '🏆', title: 'Award Winning', desc: 'Best Cleaning Service 2023' },
                   { icon: '⚡', title: 'Same Day Service', desc: 'Quick response time' }
                 ].map((item, idx) => (
-                  <div key={idx} style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                    borderRadius: 16,
-                    padding: 24,
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
-                  }}>
-                    <div style={{ fontSize: 32, marginBottom: 12 }}>{item.icon}</div>
-                    <h4 style={{ fontWeight: 700, marginBottom: 8 }}>{item.title}</h4>
-                    <p style={{ fontSize: 14, color: '#ccfbf1' }}>{item.desc}</p>
+                  <div key={idx} className="about-feature-card">
+                    <div className="about-feature-icon">{item.icon}</div>
+                    <h4 className="about-feature-title">{item.title}</h4>
+                    <p className="about-feature-description">{item.desc}</p>
                   </div>
                 ))}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 32 }}>
+              <div className="about-features-column margin-top">
                 {[
                   { icon: '🌟', title: 'Trained Staff', desc: 'Certified professionals' },
                   { icon: '💯', title: 'Money Back', desc: '100% guarantee' }
                 ].map((item, idx) => (
-                  <div key={idx} style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                    borderRadius: 16,
-                    padding: 24,
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
-                  }}>
-                    <div style={{ fontSize: 32, marginBottom: 12 }}>{item.icon}</div>
-                    <h4 style={{ fontWeight: 700, marginBottom: 8 }}>{item.title}</h4>
-                    <p style={{ fontSize: 14, color: '#ccfbf1' }}>{item.desc}</p>
+                  <div key={idx} className="about-feature-card">
+                    <div className="about-feature-icon">{item.icon}</div>
+                    <h4 className="about-feature-title">{item.title}</h4>
+                    <p className="about-feature-description">{item.desc}</p>
                   </div>
                 ))}
               </div>
@@ -785,121 +587,68 @@ const handleLogin = async (values: any) => {
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" style={{ maxWidth: 1280, margin: '0 auto', padding: '96px 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <h2 style={{ fontSize: window.innerWidth > 768 ? 40 : 32, fontWeight: 700, marginBottom: 16 }}>
+      <section id="testimonials" className="testimonials-section">
+        <div className="section-header">
+          <h2 className="section-title">
             What Our Customers Say
           </h2>
-          <p style={{ fontSize: 18, color: '#64748b' }}>Real reviews from real customers</p>
+          <p className="section-description">Real reviews from real customers</p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${window.innerWidth > 768 ? 3 : 1}, 1fr)`,
-          gap: 32
-        }}>
+        <div className="testimonials-grid">
           {testimonials.map((testimonial, idx) => (
             <div
               key={idx}
-              style={{
-                padding: 24,
-                borderRadius: 16,
-                border: '2px solid #e2e8f0',
-                background: '#fff',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+              className="testimonial-card"
             >
-              <div style={{ color: '#fbbf24', marginBottom: 16, fontSize: 18 }}>
+              <div className="testimonial-rating">
                 {'★'.repeat(testimonial.rating)}
               </div>
-              <p style={{ color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>
+              <p className="testimonial-text">
                 {testimonial.text}
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 24,
-                  background: testimonial.color,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: 18
-                }}>
+              <div className="testimonial-author">
+                <div className="testimonial-avatar" style={{ background: testimonial.color }}>
                   {testimonial.initial}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600 }}>{testimonial.name}</div>
-                  <div style={{ fontSize: 14, color: '#94a3b8' }}>{testimonial.role}</div>
+                  <div className="testimonial-name">{testimonial.name}</div>
+                  <div className="testimonial-role">{testimonial.role}</div>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div style={{
-          marginTop: 64,
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 32,
-          opacity: 0.6
-        }}>
+        <div className="platforms-section">
           {[
             { name: 'Google', rating: '4.9' },
             { name: 'Facebook', rating: '4.8' },
             { name: 'Trustpilot', rating: '4.9' }
           ].map((platform, idx) => (
-            <div key={idx} style={{ textAlign: 'center' }}>
-              <div style={{ fontWeight: 700, fontSize: 24, color: '#334155' }}>{platform.name}</div>
-              <div style={{ color: '#fbbf24', fontSize: 18 }}>★★★★★ {platform.rating}</div>
+            <div key={idx} className="platform-item">
+              <div className="platform-name">{platform.name}</div>
+              <div className="platform-rating">★★★★★ {platform.rating}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Contact/CTA */}
-      <section id="contact" style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #115e59 100%)',
-        color: '#fff',
-        padding: '96px 24px'
-      }}>
-        <div style={{ maxWidth: 896, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: window.innerWidth > 768 ? 40 : 32, fontWeight: 700, marginBottom: 24 }}>
+      <section id="contact" className="contact-section">
+        <div className="contact-container">
+          <h2 className="contact-title">
             Ready for a Sparkling Clean Space?
           </h2>
-          <p style={{ fontSize: 18, color: '#cbd5e1', marginBottom: 32 }}>
+          <p className="contact-description">
             Book your cleaning service today and experience the Swachify difference. Professional, reliable, and eco-friendly.
           </p>
 
-          <div style={{
-            display: 'flex',
-            flexDirection: window.innerWidth > 640 ? 'row' : 'column',
-            gap: 16,
-            justifyContent: 'center',
-            marginBottom: 48
-          }}>
+          <div className="contact-buttons">
             <Button
               size="large"
               onClick={() => setAuthModalOpen(true)}
-              style={{
-                background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                color: '#fff',
-                borderRadius: 12,
-                height: 56,
-                fontWeight: 600,
-                padding: '0 32px',
-                border: 'none'
-              }}
+              className="contact-button-primary"
             >
               Book a Cleaning Now
             </Button>
@@ -907,43 +656,28 @@ const handleLogin = async (values: any) => {
               size="large"
               icon={<PhoneOutlined />}
               href="tel:+1(905)588-2122"
-              style={{
-                borderRadius: 12,
-                height: 56,
-                fontWeight: 600,
-                padding: '0 32px',
-                borderWidth: 2,
-                borderColor: '#fff',
-                color: '#fff',
-                background: 'transparent'
-              }}
+              className="contact-button-secondary"
             >
               Call +1(905) 588-2122
             </Button>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${window.innerWidth > 768 ? 3 : 1}, 1fr)`,
-            gap: 24,
-            paddingTop: 32,
-            borderTop: '1px solid #475569'
-          }}>
+          <div className="contact-info-grid">
             {[
               { value: '24/7', label: 'Customer Support' },
               { value: 'Same Day', label: 'Service Available' },
               { value: '100%', label: 'Satisfaction Guaranteed' }
             ].map((item, idx) => (
               <div key={idx}>
-                <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>{item.value}</div>
-                <div style={{ fontSize: 14, color: '#94a3b8' }}>{item.label}</div>
+                <div className="contact-info-value">{item.value}</div>
+                <div className="contact-info-label">{item.label}</div>
               </div>
             ))}
           </div>
 
-          <div style={{ marginTop: 48, color: '#cbd5e1', fontSize: 15, lineHeight: 2 }}>
+          <div className="contact-details">
             <p>
-              <MailOutlined /> Email: <a href="mailto:info@swachify.com" style={{ color: '#5eead4' }}>info@swachify.com</a>
+              <MailOutlined /> Email: <a href="mailto:info@swachify.com">info@swachify.com</a>
             </p>
             <p>
               <EnvironmentOutlined /> Address: 76 King St W, Oshawa, ON L1H 1A6, Canada
@@ -956,40 +690,26 @@ const handleLogin = async (values: any) => {
       </section>
 
       {/* Footer */}
-      <footer style={{ background: '#0f172a', color: '#cbd5e1', padding: '48px 24px', borderTop: '1px solid #1e293b' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${window.innerWidth > 768 ? 4 : 2}, 1fr)`,
-            gap: 32,
-            marginBottom: 32
-          }}>
+      <footer className="footer">
+        <div className="footer-container">
+          <div className="footer-grid">
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                <div style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  background: 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 16
-                }}>
+              <div className="footer-brand">
+                <div className="footer-logo">
                   🧹
                 </div>
-                <span style={{ fontWeight: 700, color: '#fff' }}>Swachify</span>
+                <span className="footer-brand-name">Swachify</span>
               </div>
-              <p style={{ fontSize: 14, color: '#94a3b8' }}>
+              <p className="footer-description">
                 Professional cleaning services for homes and offices.
               </p>
             </div>
 
             <div>
-              <h4 style={{ fontWeight: 600, color: '#fff', marginBottom: 12 }}>Services</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14 }}>
+              <h4 className="footer-section-title">Services</h4>
+              <div className="footer-links">
                 {['Home Cleaning', 'Office Cleaning', 'Deep Cleaning', 'Sofa Cleaning'].map((item, idx) => (
-                  <a key={idx} onClick={() => scrollToSection('services')} style={{ color: '#cbd5e1', cursor: 'pointer' }}>
+                  <a key={idx} onClick={() => scrollToSection('services')} className="footer-link">
                     {item}
                   </a>
                 ))}
@@ -997,8 +717,8 @@ const handleLogin = async (values: any) => {
             </div>
 
             <div>
-              <h4 style={{ fontWeight: 600, color: '#fff', marginBottom: 12 }}>Company</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14 }}>
+              <h4 className="footer-section-title">Company</h4>
+              <div className="footer-links">
                 {[
                   { label: 'About Us', section: 'about' },
                   { label: 'Reviews', section: 'testimonials' },
@@ -1008,7 +728,7 @@ const handleLogin = async (values: any) => {
                   <a
                     key={idx}
                     onClick={() => item.section && scrollToSection(item.section)}
-                    style={{ color: '#cbd5e1', cursor: 'pointer' }}
+                    className="footer-link"
                   >
                     {item.label}
                   </a>
@@ -1017,15 +737,8 @@ const handleLogin = async (values: any) => {
             </div>
 
            <div>
-  <h4 style={{ fontWeight: 600, color: '#fff', marginBottom: 12 }}>Support</h4>
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 8,
-      fontSize: 14,
-    }}
-  >
+  <h4 className="footer-section-title">Support</h4>
+  <div className="footer-links">
     {[
       //{ label: 'Help Center', href: 'mailto:info@swachify.com' },
       { label: 'Terms of Service', href: '/terms' },
@@ -1035,7 +748,7 @@ const handleLogin = async (values: any) => {
       <a
         key={idx}
         href={item.href}
-        style={{ color: '#cbd5e1' }}
+        className="footer-link"
         target={item.href.startsWith('http') || item.href.startsWith('mailto') ? '_blank' : '_self'}
         rel="noopener noreferrer"
       >
@@ -1047,18 +760,9 @@ const handleLogin = async (values: any) => {
 </div>
 
 
-          <div style={{
-            paddingTop: 32,
-            borderTop: '1px solid #1e293b',
-            display: 'flex',
-            flexDirection: window.innerWidth > 768 ? 'row' : 'column',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 16,
-            fontSize: 14
-          }}>
+          <div className="footer-bottom">
             <div>© {new Date().getFullYear()} Swachify. All rights reserved.</div>
-           <div style={{ display: 'flex', gap: 24 }}>
+           <div className="footer-social">
   {[
     { name: 'Facebook', link: 'https://www.facebook.com/swachify' },
     { name: 'Instagram', link: 'https://www.instagram.com/swachify' },
@@ -1070,13 +774,7 @@ const handleLogin = async (values: any) => {
       href={social.link}
       target="_blank"
       rel="noopener noreferrer"
-      style={{
-        color: '#cbd5e1',
-        textDecoration: 'none',
-        transition: 'color 0.3s ease'
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.color = '#14b8a6')}
-      onMouseLeave={(e) => (e.currentTarget.style.color = '#cbd5e1')}
+      className="footer-social-link"
     >
       {social.name}
     </a>
@@ -1095,20 +793,13 @@ const handleLogin = async (values: any) => {
       width={480}
       centered
     >
-      <div style={{ padding: '24px 0' }}>
-        <h3 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, textAlign: 'center' }}>
+      <div className="auth-modal-content">
+        <h3 className="auth-modal-title">
           Book Your Cleaning
         </h3>
 
         {/* ---------- Custom Button Tabs ---------- */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 12,
-            marginBottom: 32,
-          }}
-        >
+        <div className="auth-tabs-container">
           {/* <Button
             type="primary"
             onClick={() => setActiveTab('login')}
@@ -1208,26 +899,20 @@ const handleLogin = async (values: any) => {
       <Input.Password size="large" placeholder="Enter password" />
     </Form.Item>
 
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginBottom: 24,
-      }}
-    >
+    <div className="auth-form-actions">
       <Form.Item
         name="remember"
         valuePropName="checked"
         initialValue={false}
-        style={{ marginBottom: 0 }}
+        className="auth-form-item"
       >
-        <Checkbox style={{ marginTop: 8 }}>Remember me</Checkbox>
+        <Checkbox className="remember-checkbox">Remember me</Checkbox>
       </Form.Item>
 
       <Button
         type="link"
         onClick={handleForgotPassword}
-        style={{ padding: 0, color: 'rgb(20, 184, 166)' }}
+        className="forgot-password-link"
       >
         Forgot password?
       </Button>
@@ -1240,18 +925,7 @@ const handleLogin = async (values: any) => {
       loading={loading}
       block
       disabled={!formValid}
-      style={{
-        background: formValid
-          ? 'linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%)'
-          : '#d1d5db',
-        border: 'none',
-        height: 48,
-        fontSize: 16,
-        fontWeight: 600,
-        borderRadius: 12,
-        cursor: formValid ? 'pointer' : 'not-allowed',
-        transition: 'all 0.15s ease',
-      }}
+      className="auth-submit-button"
     >
       Sign In
     </Button>
@@ -1321,20 +995,12 @@ const handleLogin = async (values: any) => {
           </Form>
         )} */}
 
- <p
-  style={{
-    marginTop: 24,
-    textAlign: 'center',
-    fontSize: 12,
-    color: '#94a3b8',
-  }}
->
+ <p className="auth-footer-text">
   By continuing, you agree to our{' '}
   <a
     href="/terms"
     target="_blank"
     rel="noopener noreferrer"
-    style={{ color: '#14b8a6' }}
   >
     Terms of Service
   </a>{' '}
@@ -1343,7 +1009,6 @@ const handleLogin = async (values: any) => {
     href="/privacy"
     target="_blank"
     rel="noopener noreferrer"
-    style={{ color: '#14b8a6' }}
   >
     Privacy Policy
   </a>
@@ -1354,13 +1019,6 @@ const handleLogin = async (values: any) => {
       </div>
     </Modal>
 
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -30px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-      `}</style>
 
   
 
