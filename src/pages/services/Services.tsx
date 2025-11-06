@@ -192,6 +192,8 @@ const Services: React.FC = () => {
 
   const [customerRequest, setCustomerRequest] = useState<number>(0);
   const [customerData, setCustomerData] = useState<any>(null);
+  
+
   const navigate = useNavigate();
 
   // Update selected department when master changes
@@ -652,7 +654,7 @@ const Services: React.FC = () => {
                 label="Address"
                 name="address"
                 rules={[
-                  { required: true, message: "Please enter your address" },
+                 
                   {
                     validator: (_, value) => {
                       if (!value || value.trim() === "")
@@ -679,6 +681,7 @@ const Services: React.FC = () => {
                   rows={3}
                   placeholder="Flat, street, landmark, city, postal code"
                   maxLength={200}
+                  style={{ resize: "none" }}
                   onChange={(e) => {
                     const clean = e.target.value.replace(/[^\w\s,/#-]/g, "");
                     form.setFieldsValue({ address: clean });
@@ -717,6 +720,11 @@ const Services: React.FC = () => {
 
   const CategoryRow: React.FC<{ section: SectionKey }> = ({ section }) => {
     const sectionState = serviceForm[section];
+    const [tempRoomSize, setTempRoomSize] = useState(sectionState.roomSize || "");
+
+useEffect(() => {
+  setTempRoomSize(sectionState.roomSize || "");
+}, [sectionState.roomSize]);
     
     return (
       <div>
@@ -754,22 +762,28 @@ const Services: React.FC = () => {
             </Text>
 
                
-            <InputNumber
-              style={{ width: "100%" }}
-              placeholder="Enter room size"
-              min={0}
-              value={sectionState.roomSize ? Number(sectionState.roomSize) : undefined}
-              onChange={(value) => {
-                setServiceForm((prev) => ({
-                  ...prev,
-                  [section]: {
-                    ...prev[section],
-                    roomSize: value ? String(value) : null,
-                  },
-                }));
-              }}
-              controls={false}
-            />
+          <Input
+  style={{ width: "100%" }}
+  placeholder="Enter room size"
+  inputMode="numeric"
+  value={tempRoomSize}
+  onChange={(e) => {
+    const clean = e.target.value.replace(/[^\d]/g, "");
+    setTempRoomSize(clean); // ✅ update local state only
+  }}
+  onBlur={() => {
+    // ✅ commit to global state when user leaves input
+    setServiceForm((prev) => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        roomSize: tempRoomSize,
+      },
+    }));
+  }}
+  maxLength={6}
+/>
+
 
 
 
@@ -988,7 +1002,11 @@ const Services: React.FC = () => {
                                   ...updated[key],
                                   serviceTypeId: value,
                                   type: allServiceTypes.serviceType as CleanType,
-                                  actualPrice: allServiceTypes.price,
+                                 actualPrice:
+  (updated[key].actualPrice && updated[key].actualPrice > 0
+    ? updated[key].actualPrice
+    : PRICING.base[key]) + allServiceTypes.price,
+
                                 };
                               }
                             });
