@@ -348,11 +348,11 @@ const Services: React.FC = () => {
       }
 
       
-if (willingToPay > subtotal) {
-  message.warning('Please enter amount less than total');
-  setLoading(false);
-  return;
-}
+// if (willingToPay > subtotal) {
+//   message.warning('Please enter amount less than total');
+//   setLoading(false);
+//   return;
+// }
 
 
       const { fullName, phone, email, address, date } = customerInfo;
@@ -363,11 +363,11 @@ if (willingToPay > subtotal) {
         return;
       }
 
-      const discountedTotal = useMemo(() => {
-  if (!hasService || subtotal <= 0) return 0;
-  const capped = Math.min(willingToPay || 0, subtotal);
-  return capped > 0 ? capped : subtotal;
-}, [hasService, subtotal, willingToPay]);
+//       const discountedTotal = useMemo(() => {
+//   if (!hasService || subtotal <= 0) return 0;
+//   const capped = Math.min(willingToPay || 0, subtotal);
+//   return capped > 0 ? capped : subtotal;
+// }, [hasService, subtotal, willingToPay]);
 
 
       if (!hasService) {
