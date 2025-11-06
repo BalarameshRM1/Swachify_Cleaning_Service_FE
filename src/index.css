@@ -147,3 +147,8 @@
   padding: 10px !important;
   border-bottom: 2px solid #c5d3d1 !important;
 }
+@media (max-width: 425px) {
+    button, .ant-btn {
+        width: 97% !important;
+    }
+}
