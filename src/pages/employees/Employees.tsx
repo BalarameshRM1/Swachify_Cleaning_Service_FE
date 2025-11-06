@@ -25,6 +25,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   MailOutlined,
+  PhoneOutlined,
 } from "@ant-design/icons";
 import {
   getAllUsers,
@@ -60,49 +61,114 @@ interface EmployeeCardProps {
 }
 
 const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit }) => (
-  <Card hoverable className="employee-card">
-    <Popconfirm
-      title="Are you sure you want to delete this employee?"
-      onConfirm={() => onDelete(employee.id)}
-      okText="Yes"
-      cancelText="No"
-    >
-      <Button type="text" danger icon={<DeleteOutlined />} className="delete-button" />
-    </Popconfirm>
+ <Card
+    hoverable
+    style={{
+      borderRadius: '10px',
+      border: '1px solid #dcfce7',
+      // maxHeight: '280px',
+      transition: 'all 0.3s ease',
+      // position: 'relative', // <-- REMOVED
+    }}
+    bodyStyle={{ padding: '16px' }} // <-- UPDATED PADDING
+  >
+    {/* NEW FLEX HEADER WRAPPER */}
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
 
-    <div className="employee-header">
-      <Avatar size={30} className="employee-avatar">
-        {employee.name.charAt(0)}
-      </Avatar>
-      <div className="employee-info">
-        <Title level={5} className="employee-name">{employee.name}</Title>
-        <Tag className="employee-status" color={employee.status === "Available" ? "success" : "warning"}>
-          {employee.status}
-        </Tag>
+      {/* LEFT SIDE: Avatar, Name, Status */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, overflow: 'hidden' }}>
+        <Avatar
+          size={30}
+          style={{
+            backgroundColor: '#14b8a6',
+            fontSize: 24,
+            color: '#fff',
+            flexShrink: 0
+          }}
+        >
+          {employee.name.charAt(0)}
+        </Avatar>
+        <div style={{ overflow: 'hidden' }}>
+          <Title
+            level={5}
+            style={{
+              margin: 0,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: 120, // This matches your image's truncated names
+            }}
+          >
+            {employee.name}
+          </Title>
+          <Tag
+            color={employee.status === 'Available' ? 'success' : 'warning'}
+            style={{ marginTop: 4 }}
+          >
+            {employee.status}
+          </Tag>
+        </div>
+      </div>
+
+      {/* RIGHT SIDE: Icons (Moved from .card-actions) */}
+      <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+        <Button
+          type="text"
+          icon={<EditOutlined />}
+          aria-label="Edit employee"
+          onClick={() => onEdit(employee)}
+        />
+        <Popconfirm
+          title="Are you sure you want to delete this employee?"
+          onConfirm={() => onDelete(employee.id)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button
+            type="text"
+            danger
+            icon={<DeleteOutlined />}
+            aria-label="Delete employee"
+          />
+        </Popconfirm>
       </div>
     </div>
 
-    <Divider className="employee-divider" />
+    {/* The rest of the card content remains the same */}
+    <Divider style={{ margin: '12px 0' }} />
 
-    <div className="employee-departments">
+    <div style={{ marginBottom: 12 }}>
       <Text strong>Departments:</Text>
-      <div className="department-tags">
-        {employee.depts && employee.depts.length ? (
-          employee.depts.map((dept) => <Tag key={dept} className="dept-tag">{dept}</Tag>)
+      <div style={{ marginTop: 4 }}>
+        {employee.depts?.length ? (
+          employee.depts.map((dept: string) => (
+            <Tag key={dept} color="#0d9488" style={{ marginBottom: 4 }}>
+              {dept}
+            </Tag>
+          ))
         ) : (
           <Text type="secondary">No departments assigned</Text>
         )}
       </div>
     </div>
 
-    <div className="employee-footer">
-      <Paragraph className="employee-location">
-        <EnvironmentFilled className="icon" /> {employee.location || "Unknown"}
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "8px",
+      }}
+    >
+      <Paragraph style={{ margin: 0, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <EnvironmentFilled style={{ color: '#ef4444' }} /> {employee.location || 'Unknown'}
       </Paragraph>
-      <Paragraph className="employee-phone">
-        <PhoneFilled className="icon" /> {employee.phone || "+1 999-9999-99"}
+
+      <Paragraph style={{ margin: 0, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <PhoneFilled style={{ color: '#ef4444' }} />
+        {employee.phone || '+1 999-9999-99'}
       </Paragraph>
-      <Button type="text" icon={<EditOutlined />} onClick={() => onEdit(employee)} />
     </div>
   </Card>
 );
@@ -330,7 +396,7 @@ const Employees: React.FC = () => {
 
       <div className="scrollable-grid">
         {viewType === "grid" ? (
-          <Table dataSource={filteredEmployees} columns={columns} pagination={false} rowKey="id" />
+          <Table dataSource={filteredEmployees} columns={columns} pagination={false} rowKey="id" scroll={{ x: 800, y: 520 }} />
         ) : (
           <Row gutter={[24, 24]} className="content-grid">
             {filteredEmployees.map(emp => (
@@ -368,8 +434,28 @@ const Employees: React.FC = () => {
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: "Enter phone number" }]}>
-                <Input placeholder="Enter phone" />
+              <Form.Item
+                label="Phone"
+                name="phone"
+                rules={[
+                  { required: true, message: "Please enter your phone number" },
+                  {
+                    pattern: /^[6-9][0-9]{9}$/,
+                    message: "Enter a valid 10-digit phone number starting with 6–9",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<PhoneOutlined />}
+                  placeholder="9876543210"
+                  maxLength={10}
+                  inputMode="numeric"
+                  onChange={(e) => {
+                    const onlyNums = e.target.value.replace(/[^0-9]/g, "");
+                    if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
+                    form.setFieldsValue({ phone: onlyNums });
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
