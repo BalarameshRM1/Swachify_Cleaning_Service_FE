@@ -162,13 +162,22 @@ const Employees: React.FC = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const mappedEmployees = employees.map(emp => {
-      const loc = locationsData.find((l:any) => Number(l.value) === Number(emp.location_id));
-      return { ...emp, location: loc?.label || emp.location || "Unknown" };
-    });
-    setFilteredEmployees(locationFilter === "All Locations" ? mappedEmployees : mappedEmployees.filter(emp => emp.location === locationFilter));
-  }, [employees, locationsData, locationFilter]);
+ useEffect(() => {
+  const mappedEmployees = employees.map(emp => {
+    const loc = locationsData.find((l: any) => Number(l.value) === Number(emp.location_id));
+    return { ...emp, location: loc?.label || emp.location || "Unknown" };
+  });
+
+  if (locationFilter === "All Locations") {
+    setFilteredEmployees(mappedEmployees);
+  } else {
+    // compare by ID instead of label
+    setFilteredEmployees(
+      mappedEmployees.filter(emp => Number(emp.location_id) === Number(locationFilter))
+    );
+  }
+}, [employees, locationsData, locationFilter]);
+
 
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -277,6 +286,7 @@ const Employees: React.FC = () => {
     return (
       <div className="loader-container">
         <img src={LoaderGif} alt="Loading..." className="loader-image" />
+         <Text className="loader-text">Loading employees...</Text>
       </div>
     );
   }
