@@ -11,7 +11,7 @@ import {
   Modal,
   Avatar,
   message,
-  Spin,
+  //Spin,
   Badge,
   Tooltip,
   Tag,
@@ -103,7 +103,7 @@ const Bookings: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 const [pageSize, setPageSize] = useState(20);
 const [totalBookings, setTotalBookings] = useState(0);
-  // const [assigningEmployee, setAssigningEmployee] = useState(false);
+   const [assigningEmployee, setAssigningEmployee] = useState(false);
 
   const normalize = (b: any) => {
     const statusText = typeof b.status === "string" ? b.status : b.status?.status || "Unknown";
@@ -304,6 +304,7 @@ const [totalBookings, setTotalBookings] = useState(0);
       return;
     }
     try {
+       setAssigningEmployee(true);
       setEmployees((prev) =>
         prev.map((e) =>
           e.id === selectedEmployeeId ? { ...e, is_assigned: true, is_available: false } : e
@@ -331,6 +332,10 @@ const [totalBookings, setTotalBookings] = useState(0);
       );
       message.error(error?.message || "Failed to assign employee.");
     }
+     finally {
+  setAssigningEmployee(false);
+}
+
   };
 
   const openDeleteModal = (bookingId: number) => {
@@ -503,18 +508,18 @@ const [totalBookings, setTotalBookings] = useState(0);
         width={650}
         className="assign-modal"
       >
-        {/* {assigningEmployee && (
+         {assigningEmployee && (
   <div className="assigning-overlay">
-    <img src={LoaderGif} alt="Assigning..." className="assigning-gif" />
-    <Text className="assigning-text">Assigning employee...</Text>
+    <img src={LoaderGif} alt="Assigning..." className="loader-image1" />
+   {/* <Text className="assigning-text">Assigning employee...</Text> */}
   </div>
-)} */}
+)} 
 
         <div className="assign-modal-body">
           {loadingEmployees ? (
             <div className="employees-loading">
-              <Spin size="large" />
-              <Text className="loading-employees-text">Loading employees...</Text>
+               <img src={LoaderGif} alt="Loading..." className="loader-image" />
+              {/* <Text className="loading-employees-text">Loading employees...</Text> */}
             </div>
           ) : employees.length === 0 ? (
             <div className="no-employees">
