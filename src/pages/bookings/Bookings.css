@@ -431,11 +431,17 @@
   font-weight: 500;
 }
 
+.employee-name,
 .employee-email {
-  font-size: 13px;
-  color: #666;
-  margin-top: 4px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere; 
+  white-space: normal;     
+  display: block;
+  max-width: 100%;        
 }
+
+
+
 
 .employee-mobile {
   font-size: 12px;
