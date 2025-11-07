@@ -27,7 +27,7 @@ const TermsOfService: React.FC = () => {
         style={{
           position: "absolute",
           top: 20,
-          right: 20,
+          right: 4,
           zIndex: 1000,
         }}
       />

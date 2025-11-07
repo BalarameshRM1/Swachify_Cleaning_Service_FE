@@ -81,7 +81,7 @@
 
 .header-actions {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -330,7 +330,7 @@
 .services-section {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 96px 24px;
+  padding: 14px 24px;
 }
 
 .section-header {
@@ -501,7 +501,7 @@
 .pricing-section {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 96px 24px;
+  padding: 16px 24px;
 }
 
 .pricing-grid {

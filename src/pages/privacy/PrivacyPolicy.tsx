@@ -18,8 +18,8 @@ const PrivacyPolicy: React.FC = () => {
         onClick={() => navigate("/")}
         style={{
           position: "absolute",
-          top: 20,
-          right: 20,
+          top: 4,
+          right: 6,
           zIndex: 1000,
         }}
       />
