@@ -20,7 +20,7 @@ import {
   EnvironmentOutlined,
 } from "@ant-design/icons";
 import {
-  getallBookingsinBookings,
+  getallBookingsinTickets,
   getallBookingsByUserId,
   otpSend,
   otpSendAPi,
@@ -56,7 +56,7 @@ const Tickets: React.FC = () => {
   );
 
   const [allTickets, setAllTickets] = useState<any[]>([]);
-  const [filteredTickets, setFilteredTickets] = useState<any[]>([]);
+ // const [filteredTickets, setFilteredTickets] = useState<any[]>([]);
   const [otpModalVisible, setOtpModalVisible] = useState(false);
   const [otpValue, setOtpValue] = useState("");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
@@ -72,7 +72,10 @@ const [totalTickets, setTotalTickets] = useState(0);
     <Button
       type={filter === tab ? "primary" : "default"}
       className={`tab-btn ${filter === tab ? "active" : ""}`}
-      onClick={() => setFilter(tab)}
+       onClick={() => {
+      setFilter(tab);
+      setCurrentPage(1);
+    }}
     >
       {label}
     </Button>
@@ -88,34 +91,55 @@ useEffect(() => {
     setLoading(false);
   };
   loadPagedData();
-}, [currentPage, pageSize]);
+}, [currentPage, pageSize,filter]);
+// Maps filter values to backend status_id
+const STATUS_ID_MAP: Record<string, number> = {
+  all: -1,
+  Pending: 2,
+  "In-Progress": 3,
+  Completed: 4,
+};
+
 
 
  const getallBookingsApi = async () => {
   try {
-    // still call your API the same way
-    const res = await getallBookingsinBookings(pageSize, (currentPage - 1));
+    setLoading(true);
 
-    // ✅ backend returns an array (not object)
+    // dynamically map the selected filter to a status_id
+    const status_id = STATUS_ID_MAP[filter] ?? -1;
+
+    // ⚡ Call your updated API with dynamic status_id
+    const res = await getallBookingsinTickets(pageSize, currentPage - 1, status_id);
+
+    // ensure it's an array
     const response = Array.isArray(res) ? res : [];
 
+    // sort newest first
     response.sort((a: any, b: any) => b.id - a.id);
 
+    // normalize status values for display
     const normalized = response.map((b: any) => ({
       ...b,
       normalizedStatus:
         typeof b.status === "string" ? b.status : b.status?.status || "Unknown",
     }));
 
-    const finalTickets = normalized.filter((b: any) => b.normalizedStatus !== "Open");
-    setAllTickets(finalTickets);
+    console.log("Fetched Bookings:", normalized);
 
-    // ✅ temporary: use response.length until backend provides total
-    setTotalTickets(1000);
+    // set data
+    setAllTickets(normalized);
+   // setFilteredTickets(normalized); // optional now
+    setTotalTickets(1000); // adjust if backend provides total
   } catch (err) {
     console.error("Error fetching bookings:", err);
+    message.error("Failed to load tickets");
+  } finally {
+    setLoading(false);
   }
 };
+
+
 
 
 
@@ -129,6 +153,7 @@ useEffect(() => {
         ...b,
         normalizedStatus:
           typeof b.status === "string" ? b.status : b.status?.status || "Unknown",
+          
       }));
       setAllTickets(normalized.filter((b: any) => b.normalizedStatus !== "Open"));
     } catch (err) {
@@ -160,13 +185,13 @@ useEffect(() => {
     if (initialFilterFromState) window.history.replaceState({}, document.title);
   }, []);
 
-  useEffect(() => {
-    if (filter === "all") setFilteredTickets(allTickets);
-    else
-      setFilteredTickets(
-        allTickets.filter((ticket) => ticket.normalizedStatus === filter)
-      );
-  }, [filter, allTickets]);
+  // useEffect(() => {
+  //   if (filter === "all") setFilteredTickets(allTickets);
+  //   else
+  //     setFilteredTickets(
+  //       allTickets.filter((ticket) => ticket.normalizedStatus === filter)
+  //     );
+  // }, [filter, allTickets]);
 
   const handleOpenOtpModal = (ticketId: number) => {
     setSelectedTicketId(ticketId);
@@ -244,10 +269,11 @@ useEffect(() => {
       </div>
 
       <div className="tickets-list">
-        {filteredTickets.length === 0 ? (
-          <Empty description="No tickets found for this filter" />
-        ) : (
-          filteredTickets.map((ticket) => (
+        {allTickets.length === 0 ? (
+  <Empty description="No tickets found for this filter" />
+) : (
+  allTickets.map((ticket) => (
+
             <Card key={ticket.id} className="ticket-card">
               <Row justify="space-between" align="middle">
                 <Col>
@@ -273,16 +299,13 @@ useEffect(() => {
                 <UserOutlined /> {ticket.full_name}
               </Text>
               <br />
-              <Text>
-                🧑 Assigned to:{" "}
-                <span className="employee-name">
-                  {getEmployeeName(
-                    ticket.employee_id ||
-                      ticket.assign_to ||
-                      ticket.assigned_to
-                  )}
-                </span>
-              </Text>
+             <Text>
+  🧑 Assigned to:{" "}
+  <span className="employee-name">
+    {ticket.employee_name || getEmployeeName(ticket.assign_to) || "Not Assigned"}
+  </span>
+</Text>
+
               <br />
               <Text>
                 <EnvironmentOutlined /> {ticket.address}

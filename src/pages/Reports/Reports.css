@@ -265,3 +265,39 @@
 .ant-btn:has(.anticon-download) {
   margin-bottom: 8px !important;
 }
+.booking-card {
+  overflow: visible !important; 
+}
+
+.filters-section {
+  overflow: visible !important;
+}
+
+
+@media (max-width: 768px) {
+  .filters-section .ant-row {
+    flex-direction: column !important;
+  }
+
+  .filters-section .ant-col {
+    width: 100% !important;
+    margin-bottom: 10px;
+  }
+
+  .filters-section .ant-picker,
+  .filters-section .ant-select,
+  .filters-section button {
+    width: 100% !important;
+  }
+
+  .table-section {
+    overflow-x: auto !important;
+  }
+}
+
+
+.ant-picker-dropdown {
+  width: 55vw !important;
+  left: 2.5vw !important;
+}
+

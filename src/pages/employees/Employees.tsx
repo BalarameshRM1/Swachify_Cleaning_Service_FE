@@ -251,13 +251,27 @@ const Employees: React.FC = () => {
     form.resetFields();
   };
 
-  const createEmployeeApi = async(data:any) =>{
-    try {
-      await createEmployee(data);      
-    } catch (error) {
-      console.log('err',error) 
+  const createEmployeeApi = async (data: any) => {
+  try {
+    const res = await createEmployee(data);
+    return res;
+  } catch (error: any) {
+    console.error("Error creating employee:", error);
+
+    
+    if (error.response?.data?.errors) {
+      const errs = error.response.data.errors;
+      const messages = Object.values(errs).flat().join(", ");
+      message.error(messages);
+    } else {
+      message.error("Failed to create employee. Please check input fields.");
     }
+
+    
+    throw error;
   }
+};
+
 
   const updateEmployeeApi = async(data:any) =>{
     try {
@@ -267,7 +281,7 @@ const Employees: React.FC = () => {
     }
   }
 
-  const handleSubmitEmployee = (values: any) => {
+  const handleSubmitEmployee = async(values: any) => {
     if (editingEmployee) {
       // Edit employee
       const updatedEmp: Employee = {
@@ -318,7 +332,7 @@ const Employees: React.FC = () => {
         dept_id: values.services,
         role_id: values.role_id,
       };
-      createEmployeeApi(payload)
+     await createEmployeeApi(payload)
       setEmployees(prev => [newEmp, ...prev]);
       message.success("Employee added successfully!");
     }
