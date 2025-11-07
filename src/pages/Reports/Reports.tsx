@@ -60,8 +60,8 @@ interface DepartmentInfo {
   is_active: boolean;
 }
 interface User {
-  id: number;
-  first_name: string;
+  user_id: number;
+  user_name: string;
   last_name: string;
   email?: string;
   phone?: string;
@@ -145,17 +145,20 @@ const Reports: React.FC = () => {
                 is_active: true,
               },
 
-        department: b.services?.[0]
+        department: b.serviceslist?.[0]
           ? {
-              id: b.services[0].dept_id,
-              department_name: b.services[0].department_name,
+              id: b.serviceslist[0].dept_id,
+              department_name: b.serviceslist[0].department_name,
               is_active: true,
             }
           : { id: 0, department_name: "N/A", is_active: false },
         preferred_date: b.preferred_date || b.created_date,
       }));
 
-      setUsers(usersData || []);
+     setUsers(
+  Array.from(new Map((usersData || []).map((u: any) => [u.user_id, u])).values())
+);
+
       setDepartments(deptData || []);
       setBookings(normalizedBookings);
       setFilteredBookings(normalizedBookings);
@@ -516,6 +519,9 @@ const Reports: React.FC = () => {
                 value={dateRange}
                 format="MMM DD, YYYY"
                 inputReadOnly
+                getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
+
+                
               />
             </Col>
 
@@ -527,6 +533,7 @@ const Reports: React.FC = () => {
                 style={{ width: "100%" }}
                 value={selectedCustomerName}
                 onChange={setSelectedCustomerName}
+                 getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
                 filterOption={(input, option) =>
                   String(option?.children || "")
                     .toLowerCase()
@@ -534,14 +541,12 @@ const Reports: React.FC = () => {
                 }
               >
                 {users.map((user) => (
-                  <Option
-                    key={user.id}
-                    value={
-                      user.full_name || `${user.first_name} ${user.last_name}`
-                    }
-                  >
-                    {user.full_name || `${user.first_name} ${user.last_name}`}
-                  </Option>
+                 <Option
+  key={user.user_id}
+  value={user.user_name.trim()}
+>
+  {user.user_name.trim()}
+</Option>
                 ))}
               </Select>
             </Col>
@@ -553,6 +558,7 @@ const Reports: React.FC = () => {
                 style={{ width: "100%", marginBottom: "5%" }}
                 value={selectedStatus}
                 onChange={setSelectedStatus}
+                 getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
               >
                 {[
                   ...new Set(
