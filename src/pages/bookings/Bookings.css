@@ -665,3 +665,9 @@
 }
 
 
+@media (max-width: 480px) {
+    .ant-tag {
+        font-size: 10px !important;
+        min-width: 80px !important;
+    }
+}
