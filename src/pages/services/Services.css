@@ -85,3 +85,11 @@
 }
 
 .sv-master-select { justify-content: center; }
+@media (max-width: 425px) {
+  .ant-picker-dropdown {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+}
