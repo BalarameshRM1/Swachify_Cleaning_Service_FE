@@ -54,7 +54,7 @@ const Dashboard: React.FC = () => {
             b?.status === "In Progress" ||
             b?.status === "In-Progress"
         );
-        const recentTsk = bookingsWithServiceName.slice(0, 5);
+        const recentTsk = bookingsWithServiceName.slice(0, 10);
 
         setDashboardTasks({
           pending: pendingTsk,
@@ -268,9 +268,12 @@ const Dashboard: React.FC = () => {
                       <div className="dashboard-style-29">
                         <Text strong className="dashboard-color-30">
                           {booking.department?.department_name
-                            || (Array.isArray(booking.services) && booking.services.length > 0
-                              ? booking.services.map((s: any) => `${s.service_name}-${s.department_name}`).join("/ ") +" - "+booking.services[0].service_type
-                              : `Booking #${String(booking.id ?? "").toString().slice(-6)}`)}
+  || (Array.isArray(booking.serviceslist) && booking.serviceslist.length > 0
+    ? booking.serviceslist
+        .map((s: any) => `${s.service_name}-${s.department_name}`)
+        .join(" / ") + " - " + booking.serviceslist[0]?.service_type
+    : `Booking #${String(booking.id ?? "").toString().slice(-6)}`)}
+
                         </Text>
 
                         <div
@@ -356,10 +359,14 @@ const Dashboard: React.FC = () => {
                       <div className="dashboard-style-44">
                         <Text strong className="dashboard-color-45">
                           {/* {booking.department?.department_name || `Booking #${booking.id.toString().slice(-6)}`} */}
-                          {booking.department?.department_name
-                            || (Array.isArray(booking.services) && booking.services.length > 0
-                              ? booking.services.map((s: any) => `${s.service_name}-${s.department_name}`).join("/ ") +" - "+booking.services[0].service_type
-                              : `Booking #${String(booking.id ?? "").toString().slice(-6)}`)}
+                         {booking.department?.department_name
+  || (Array.isArray(booking.serviceslist) && booking.serviceslist.length > 0
+    ? booking.serviceslist
+        .map((s: any) => `${s.service_name}-${s.department_name}`)
+        .join(" / ") + " - " + booking.serviceslist[0]?.service_type
+    : `Booking #${String(booking.id ?? "").toString().slice(-6)}`)}
+
+
                         </Text>
                         <div className="dashboard-layout-46">
                           <Text className="dashboard-color-47">
