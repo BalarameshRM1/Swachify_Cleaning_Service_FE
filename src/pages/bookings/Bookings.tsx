@@ -248,8 +248,11 @@ const [totalBookings, setTotalBookings] = useState(0);
         return;
       }
       const employeesList = data.filter(
-        (user: any) => user.role_id === 3 && user.is_active === true && user.is_assigned === false
-      );
+  (user: any) =>
+    Number(user.role_id) === 3 &&
+    (user.is_assigned === false || user.is_assigned == null)
+);
+
       if (employeesList.length === 0) {
         setEmployees([]);
         message.warning("No available employees. All employees are currently assigned.");
@@ -257,8 +260,8 @@ const [totalBookings, setTotalBookings] = useState(0);
         return;
       }
       const employeesWithStatus: Employee[] = employeesList.map((emp: any) => ({
-        id: emp.id,
-        first_name: emp.first_name,
+        id: emp.user_id,
+        first_name: emp.user_name,
         last_name: emp.last_name,
         email: emp.email,
         role_id: emp.role_id,
