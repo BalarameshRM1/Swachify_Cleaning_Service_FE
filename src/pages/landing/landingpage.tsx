@@ -966,24 +966,24 @@ const Landing = () => {
                 <Input.Password size="large" placeholder="Enter password" />
               </Form.Item>
 
-              <div className="auth-form-actions">
-                <Form.Item
-                  name="remember"
-                  valuePropName="checked"
-                  initialValue={false}
-                  className="auth-form-item"
-                >
-                  <Checkbox className="remember-checkbox">Remember me</Checkbox>
-                </Form.Item>
+               <div className="login-options">
+  <Form.Item
+    name="remember"
+    valuePropName="checked"
+    initialValue={false}
+    className="remember-item"
+  >
+    <Checkbox className="remember-checkbox">Remember me</Checkbox>
+  </Form.Item>
 
-                <Button
-                  type="link"
-                  onClick={handleForgotPassword}
-                  className="forgot-password-link"
-                >
-                  Forgot password?
-                </Button>
-              </div>
+  <Button
+    type="link"
+    onClick={handleForgotPassword}
+    className="forgot-password-btn"
+  >
+    Forgot password?
+  </Button>
+</div>
 
               <Button
                 type="primary"
