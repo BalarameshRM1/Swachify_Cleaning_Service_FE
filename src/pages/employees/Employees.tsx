@@ -41,9 +41,9 @@ import LoaderGif from "../../assets/SWACHIFY_gif.gif";
 const { Title, Text, Paragraph } = Typography;
 
 interface Employee {
-  id: number;
+  user_id: number;
   code?: string;
-  name: string;
+  user_name: string;
   email: string;
   services?: string[];
   status: "Available" | "Assigned";
@@ -86,7 +86,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit 
             flexShrink: 0
           }}
         >
-          {employee.name.charAt(0)}
+          {employee.user_name.charAt(0)}
         </Avatar>
         <div style={{ overflow: 'hidden' }}>
           <Title
@@ -99,7 +99,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit 
               maxWidth: 120, // This matches your image's truncated names
             }}
           >
-            {employee.name}
+            {employee.user_name}
           </Title>
           <Tag
             color={employee.status === 'Available' ? 'success' : 'warning'}
@@ -120,7 +120,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit 
         />
         <Popconfirm
           title="Are you sure you want to delete this employee?"
-          onConfirm={() => onDelete(employee.id)}
+          onConfirm={() => onDelete(employee.user_id)}
           okText="Yes"
           cancelText="No"
         >
@@ -208,9 +208,9 @@ const Employees: React.FC = () => {
 
         const mappedUsers = users.map((u: any) => ({
           ...u,
-          id: u.id,
-          code: u.code || `EMP${u.id}`,
-          name: `${u.first_name} ${u.last_name}`,
+          id: u.user_id,
+          code: u.code || `EMP${u.user_id}`,
+          name: `${u.user_name}`,
           status: u.is_assigned ? "Assigned" : "Available",
           phone: u.mobile || "N/A",
           email: u.email || "N/A",
@@ -272,7 +272,7 @@ const Employees: React.FC = () => {
       // Edit employee
       const updatedEmp: Employee = {
         ...editingEmployee,
-        name: values.name,
+        user_name: values.name,
         email: values.email,
         phone: values.phone,
         location: locationsData.find((l:any) => l.value === values.location)?.label || "Unknown",
@@ -281,7 +281,7 @@ const Employees: React.FC = () => {
         role_id: values.role_id,
       };
       const payload = {
-        id: updatedEmp.id,
+        id: updatedEmp.user_id,
         first_name: values.name?.split(' ')[0],
         last_name: values.name?.split(' ')[1],
         email: values.email,
@@ -291,14 +291,14 @@ const Employees: React.FC = () => {
         role_id: values.role_id,
       };
       updateEmployeeApi(payload)
-      setEmployees(prev => prev.map(emp => emp.id === editingEmployee.id ? updatedEmp : emp));
+      setEmployees(prev => prev.map(emp => emp.user_id === editingEmployee.user_id ? updatedEmp : emp));
       message.success("Employee updated successfully!");
     } else {
       // Add new employee
       const newEmp: Employee = {
-        id: Date.now(),
+        user_id: Date.now(),
         code: `EMP${Date.now()}`,
-        name: values.name,
+        user_name: values.name,
         email: values.email,
         phone: values.phone,
         location: locationsData.find((l:any) => l.value === values.location)?.label || "Unknown",
@@ -328,7 +328,7 @@ const Employees: React.FC = () => {
   const handleDeleteEmployee = async (id: number) => {
     try {
       await deleteEmployeeById(id);
-      setEmployees(prev => prev.filter(emp => emp.id !== id));
+      setEmployees(prev => prev.filter(emp => emp.user_id !== id));
       message.success("Employee deleted successfully!");
     } catch (err) {
       message.error("Failed to delete employee!");
@@ -368,7 +368,7 @@ const Employees: React.FC = () => {
     { title: "Action", key: "action", render: (_: any, record: Employee) => (
       <Space>
         <Button type="text" icon={<EditOutlined />} onClick={() => handleEditEmployee(record)} />
-        <Popconfirm title="Delete?" onConfirm={() => handleDeleteEmployee(record.id)} okText="Yes" cancelText="No">
+        <Popconfirm title="Delete?" onConfirm={() => handleDeleteEmployee(record.user_id)} okText="Yes" cancelText="No">
           <Button type="text" danger icon={<DeleteOutlined />} />
         </Popconfirm>
       </Space>
@@ -400,7 +400,7 @@ const Employees: React.FC = () => {
         ) : (
           <Row gutter={[24, 24]} className="content-grid">
             {filteredEmployees.map(emp => (
-              <Col xs={24} sm={12} lg={8} xl={6} key={emp.id}>
+              <Col xs={24} sm={12} lg={8} xl={6} key={emp.user_id}>
                 <EmployeeCard employee={emp} onDelete={handleDeleteEmployee} onEdit={handleEditEmployee} />
               </Col>
             ))}

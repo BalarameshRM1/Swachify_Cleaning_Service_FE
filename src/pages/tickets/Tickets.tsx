@@ -260,13 +260,13 @@ useEffect(() => {
               </Row>
 
               <div className="ticket-services">
-                {ticket.services.map((s: any, index: number) => (
+                {ticket.serviceslist.map((s: any, index: number) => (
                 
                   <Text className="service-title">
                     {s.service_name}-{s.department_name} {index === ticket.services.length - 1? "-" : "/"}
                   </Text>
               ))}
-                  <Tag className="service-tag">{ticket.services[0].service_type || "Standard Plan"}</Tag>
+                  <Tag className="service-tag">{ticket.serviceslist.map((s:any)=>s.service_type)[0] || "Standard Plan"}</Tag>
               </div>
 
               <Text>
