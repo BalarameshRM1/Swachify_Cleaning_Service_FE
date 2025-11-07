@@ -167,3 +167,7 @@ ease;
     overflow: visible;
     min-height: 160px;
 }
+.ant-btn.ant-btn-icon-only {
+    padding-inline: 7px;
+    padding: 7px;
+}
