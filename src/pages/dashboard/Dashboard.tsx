@@ -90,7 +90,7 @@ const Dashboard: React.FC = () => {
         level={2}
         className="dashboard-margin-2"
       >
-        WELCOME SWACHIFY!
+        WELCOME TO SWACHIFY!
       </Title>
 
       <Row gutter={[24, 24]}>

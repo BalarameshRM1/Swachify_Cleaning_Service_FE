@@ -1123,42 +1123,49 @@ useEffect(() => {
                 <div className="sv-req-wrap">
                   <div className="sv-flex-between sv-mb-6">
                     <Text strong>Customer Requested Amount</Text>
-                    <InputNumber
-  className="sv-money-input"
-  min={0}
-  value={customerRequest}
- onChange={(v) => {
-  const next = v ?? 0;
-  if (next > subtotal) {
-    setCustomerError('Please enter amount less than total'); 
-    setCustomerRequest(subtotal);
-  } else {
-    setCustomerError(null); // clear error when valid
-    setCustomerRequest(next);
-  }
-}}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+  <InputNumber
+    className="sv-money-input"
+    min={0}
+    value={customerRequest}
+    onChange={(v) => {
+      const next = v ?? 0;
+      if (next > subtotal) {
+        setCustomerError("Please enter amount less than total");
+        //setCustomerRequest(subtotal);
+      } else {
+        setCustomerError(null);
+        setCustomerRequest(next);
+      }
+    }}
+    formatter={(value) => `$ ${value ?? 0}`}
+    parser={(value) => {
+      const numericValue = value?.replace(/[^\d]/g, "") || "0";
+      return Number(numericValue);
+    }}
+    controls={false}
+    inputMode="numeric"
+    onKeyPress={(e) => {
+      if (!/[0-9]/.test(e.key)) e.preventDefault();
+    }}
+    onPaste={(e) => {
+      const paste = e.clipboardData.getData("text");
+      if (!/^\d+$/.test(paste)) e.preventDefault();
+    }}
+    
+  />
 
-  formatter={(value) => `$ ${value ?? 0}`}
-  parser={(value) => {
-    const numericValue = value?.replace(/[^\d]/g, '') || '0';
-    return Number(numericValue);
-  }}
-  controls={false}
-  inputMode="numeric"
-  onKeyPress={(e) => {
-    if (!/[0-9]/.test(e.key)) e.preventDefault();
-  }}
-  onPaste={(e) => {
-    const paste = e.clipboardData.getData('text');
-    if (!/^\d+$/.test(paste)) e.preventDefault();
-  }}
-  placeholder="$ 0"
-/>
-{customerError && (
-  <Text type="danger" style={{ fontSize: 12, marginTop: 6 }}>
-    {customerError}
-  </Text>
-)}
+  <div style={{ minHeight: 16, marginTop: 4 }}>
+    {customerError && (
+      <Text type="danger" style={{ fontSize: 12 }}>
+        {customerError}
+      </Text>
+    )}
+  </div>
+</div>
+
+
+
 
 
                   </div>
