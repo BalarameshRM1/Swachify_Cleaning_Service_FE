@@ -520,6 +520,8 @@ const Reports: React.FC = () => {
                 format="MMM DD, YYYY"
                 inputReadOnly
                 getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
+                 popupAlign={{ points: ["tl", "bl"], offset: [0, 8] }}
+  dropdownClassName="custom-range-picker-dropdown" // 👈 Add custom class
 
                 
               />
