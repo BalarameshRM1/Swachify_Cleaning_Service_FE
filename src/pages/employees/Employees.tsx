@@ -438,9 +438,19 @@ const Employees: React.FC = () => {
         <Form form={form} layout="vertical" onFinish={handleSubmitEmployee} className="employee-form">
           <Row gutter={24}>
             <Col xs={24} sm={12}>
-              <Form.Item name="name" label="Full Name" rules={[{ required: true, message: "Please enter full name" }]}>
-                <Input placeholder="Enter full name" />
-              </Form.Item>
+             <Form.Item
+  name="name"
+  label="Full Name"
+  rules={[
+    { required: true, message: "Please enter full name" },
+    {
+      pattern: /^[A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+$/,
+      message: "Enter valid name: FirstName LastName (Both start with capital letter)",
+    },
+  ]}
+>
+  <Input placeholder="Enter full name" />
+</Form.Item>
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item name="email" label="Email" rules={[{ required: true, type: "email", message: "Enter valid email" }]}>
