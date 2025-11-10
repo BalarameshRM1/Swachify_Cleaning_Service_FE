@@ -266,7 +266,7 @@ const Employees: React.FC = () => {
       const messages = Object.values(errs).flat().join(", ");
       message.error(messages);
     } else {
-      message.error("Failed to create employee. Please check input fields.");
+      message.error("Email Already Exists.");
     }
 
     
@@ -409,7 +409,7 @@ const Employees: React.FC = () => {
               type={viewType === "grid" ? "primary" : "default"}
               style={{ backgroundColor: "#14B8A6", borderColor: "#14B8A6", color: "white" }}
             >
-              {viewType === "grid" ? "Grid View" : "Card View"}
+              {viewType === "grid" ? "Card View" : "Grid View"}
             </Button>
             <Select value={locationFilter} style={{ width: 180 }} onChange={setLocationFilter} options={locationOptions} />
             <Button icon={<PlusOutlined />} onClick={() => { setEditingEmployee(null); setIsModalVisible(true); }}>Add User</Button>
