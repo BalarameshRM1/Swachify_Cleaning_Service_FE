@@ -374,7 +374,7 @@ const Employees: React.FC = () => {
   const columns = [
     { title: "S.NO", key: "sno", render: (_: any, __: any, idx: number) => idx + 1, width: 60 },
     { title: "Emp No", dataIndex: "code", key: "code", width: 150, render: (code:any) => <span style={{ fontWeight: "bold", color: "#0d9488" }}>{code}</span> },
-    { title: "Emp Name", dataIndex: "name", key: "name", width: 200 },
+{ title: "Emp Name", dataIndex: "user_name", key: "user_name", width: 200 },
     { title: "Mobile", dataIndex: "phone", key: "phone", render: (phone:any) => <><PhoneFilled style={{ color: "#ef4444" }} /> {phone}</> },
     { title: "Location", dataIndex: "location", key: "location", render: (loc:any) => <><EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}</> },
     { title: "Email ID", dataIndex: "email", key: "email", render: (email:any) => <><MailOutlined style={{ color: "#ef4444" }} /> {email}</> },
