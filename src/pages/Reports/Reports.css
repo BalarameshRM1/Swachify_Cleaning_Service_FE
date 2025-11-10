@@ -1,4 +1,4 @@
-/* Common Loader Centering — applies to all screens */
+
 .loader-container {
   display: flex;
   flex-direction: column;
@@ -20,7 +20,6 @@
   margin-top: 8px;
 }
 
-/* Small Mobile: 320px to 374px */
 @media screen and (min-width: 320px) and (max-width: 374px) {
   .loader-image {
     width: 180px;
@@ -45,7 +44,6 @@
   .filter-buttons .ant-space {
     width: 100%;
   }
-  /* Stack export buttons vertically in mobile */
   .filter-buttons .ant-space {
     display: flex;
     flex-direction: column;
@@ -63,7 +61,7 @@
   }
 }
 
-/* Medium Mobile: 375px to 424px */
+
 @media screen and (min-width: 375px) and (max-width: 424px) {
   .loader-image {
     width: 180px;
@@ -88,7 +86,7 @@
   .filter-buttons .ant-space {
     width: 100%;
   }
-  /* Stack export buttons vertically in mobile */
+ 
   .filter-buttons .ant-space {
     display: flex;
     flex-direction: column;
@@ -106,7 +104,7 @@
   }
 }
 
-/* Large Mobile: 425px to 767px */
+
 @media screen and (min-width: 425px) and (max-width: 767px) {
   .loader-image {
     width: 180px;
@@ -150,7 +148,6 @@
   }
 }
 
-/* Tablet: 768px to 1024px */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
   .loader-image {
     width: 180px;
@@ -201,7 +198,7 @@
     flex-wrap: nowrap !important;
     white-space: nowrap !important;
     text-align: center !important;
-    gap: 8px !important; /* ← adds space between texts */
+    gap: 8px !important; 
   }
 
   .summary-card strong {
@@ -275,6 +272,7 @@
 
 
 @media (max-width: 768px) {
+  
   .filters-section .ant-row {
     flex-direction: column !important;
   }
@@ -293,11 +291,92 @@
   .table-section {
     overflow-x: auto !important;
   }
+
+ 
+  .custom-range-picker-dropdown {
+    width: 95vw !important;
+    left: 0 !important;
+    right: auto !important;
+    transform: none !important;
+    overflow: visible !important;
+    margin-left: 0 !important;
+  }
+
+  
+  .custom-range-picker-dropdown .ant-picker-panel-container {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    min-width: 580px !important; 
+    overflow-x: auto !important; 
+  }
+
+  
+  .custom-range-picker-dropdown .ant-picker-panel {
+    flex: 1 1 48% !important;
+    min-width: 260px !important;
+    max-width: 48% !important;
+    border: none !important;
+  }
+
+  
+  .custom-range-picker-dropdown .ant-picker-header {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    padding: 4px 0 !important;
+    order: -1 !important; /* move header ABOVE grid */
+    background: #fff !important;
+  }
+
+  /* ✅ Compact date grid */
+  .custom-range-picker-dropdown .ant-picker-content th,
+  .custom-range-picker-dropdown .ant-picker-content td {
+    width: 28px !important;
+    height: 26px !important;
+  }
+
+  .custom-range-picker-dropdown .ant-picker-cell-inner {
+    font-size: 11px !important;
+    padding: 2px 4px !important;
+  }
+
+  .custom-range-picker-dropdown .ant-picker-month-btn,
+  .custom-range-picker-dropdown .ant-picker-year-btn {
+    font-size: 12px !important;
+  }
+
+
+  .ant-picker-dropdown-placement-bottomLeft {
+    left: 0 !important;
+    right: auto !important;
+  }
+
+ 
+
+  
+  @media (max-width: 400px) {
+    .custom-range-picker-dropdown .ant-picker-panel-container {
+      flex-direction: column !important;
+      min-width: auto !important;
+    }
+
+    .custom-range-picker-dropdown .ant-picker-panel {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  }
 }
 
 
-.ant-picker-dropdown {
+
+
+/* .ant-picker-dropdown {
   width: 55vw !important;
   left: 2.5vw !important;
-}
+} */
 

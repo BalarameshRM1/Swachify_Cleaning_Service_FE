@@ -1129,15 +1129,15 @@ useEffect(() => {
     min={0}
     value={customerRequest}
     onChange={(v) => {
-      const next = v ?? 0;
-      if (next > subtotal) {
-        setCustomerError("Please enter amount less than total");
-        //setCustomerRequest(subtotal);
-      } else {
-        setCustomerError(null);
-        setCustomerRequest(next);
-      }
-    }}
+  const numericValue = Number(v) || 0;
+  if (numericValue > subtotal) {
+    setCustomerError("Please enter amount less than total");
+  } else {
+    setCustomerError(null);
+  }
+  setCustomerRequest(numericValue);
+}}
+
     formatter={(value) => `$ ${value ?? 0}`}
     parser={(value) => {
       const numericValue = value?.replace(/[^\d]/g, "") || "0";
