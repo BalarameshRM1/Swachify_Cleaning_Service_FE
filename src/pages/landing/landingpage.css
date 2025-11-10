@@ -1494,3 +1494,88 @@
     left: 6px;
   }
 }
+.login-options {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  flex-wrap: nowrap;
+}
+
+
+.remember-item {
+  margin-bottom: 0 !important;
+}
+
+.remember-checkbox {
+  font-size: 14px !important;
+  color: #1f2937 !important;
+  white-space: nowrap !important;
+  display: flex;
+  align-items: center;
+}
+
+
+.forgot-password-btn {
+  color: rgb(20, 184, 166) !important;
+  font-size: 14px !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
+  text-align: right !important;
+  margin-top: 4px;
+  /* margin-right: 0 !important; */
+}
+
+
+@media (max-width: 576px) {
+  .login-options {
+    justify-content: space-between;
+  }
+  .forgot-password-btn {
+    margin-left: 120px; /
+  }
+
+  .remember-checkbox,
+  .forgot-password-btn {
+    font-size: 13px !important;
+    
+  }
+}
+@media (max-width: 992px) {
+  .login-options {
+    padding-right: 18px; 
+  }
+  .forgot-password-btn {
+    margin-left: 10px; 
+  }
+}
+
+@media (max-width: 768px) {
+  .login-options {
+    padding-right: 10px;
+  }
+  .forgot-password-btn {
+    margin-left: 50px;
+  }
+}
+
+@media (max-width: 576px) {
+  .login-options {
+    padding-right: 12px; 
+  }
+  .forgot-password-btn {
+    margin-left: 80px;
+    font-size: 13px !important;
+  }
+  .remember-checkbox {
+    font-size: 13px !important;
+  }
+}
+@media (max-width: 375px) {
+  .forgot-password-btn {
+    margin-left: 25px;
+   
+  }
+}
