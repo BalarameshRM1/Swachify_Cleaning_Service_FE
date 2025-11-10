@@ -527,7 +527,7 @@ const Employees: React.FC = () => {
         >
           <img src={LoaderGif} style={{ width: 150 }} alt="Loading..." />
           <Text strong style={{ marginTop: 15, color: "#0D9488", fontSize: 18 }}>
-            Adding User...
+            Please Wait...
           </Text>
         </div>
       )}
