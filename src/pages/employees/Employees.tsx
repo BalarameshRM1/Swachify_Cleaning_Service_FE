@@ -183,6 +183,7 @@ const Employees: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const [form] = Form.useForm();
   const [viewType, setViewType] = useState<'grid' | 'card'>('grid');
@@ -252,6 +253,7 @@ const Employees: React.FC = () => {
   };
 
   const createEmployeeApi = async (data: any) => {
+     setActionLoading(true)
   try {
     const res = await createEmployee(data);
     return res;
@@ -270,14 +272,21 @@ const Employees: React.FC = () => {
     
     throw error;
   }
+  finally {
+      setActionLoading(false); 
+    }
 };
 
 
   const updateEmployeeApi = async(data:any) =>{
+     setActionLoading(true);
     try {
       await editEmployee(data)      
     } catch (error) {
       console.log('err',error) 
+    }
+    finally {
+      setActionLoading(false); 
     }
   }
 
@@ -374,7 +383,7 @@ const Employees: React.FC = () => {
   const columns = [
     { title: "S.NO", key: "sno", render: (_: any, __: any, idx: number) => idx + 1, width: 60 },
     { title: "Emp No", dataIndex: "code", key: "code", width: 150, render: (code:any) => <span style={{ fontWeight: "bold", color: "#0d9488" }}>{code}</span> },
-    { title: "Emp Name", dataIndex: "name", key: "name", width: 200 },
+{ title: "Emp Name", dataIndex: "user_name", key: "user_name", width: 200 },
     { title: "Mobile", dataIndex: "phone", key: "phone", render: (phone:any) => <><PhoneFilled style={{ color: "#ef4444" }} /> {phone}</> },
     { title: "Location", dataIndex: "location", key: "location", render: (loc:any) => <><EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}</> },
     { title: "Email ID", dataIndex: "email", key: "email", render: (email:any) => <><MailOutlined style={{ color: "#ef4444" }} /> {email}</> },
@@ -500,6 +509,28 @@ const Employees: React.FC = () => {
           </Row>
         </Form>
       </Modal>
+          {actionLoading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            height: "100vh",
+            width: "100vw",
+            background: "rgba(255,255,255,0.7)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <img src={LoaderGif} style={{ width: 150 }} alt="Loading..." />
+          <Text strong style={{ marginTop: 15, color: "#0D9488", fontSize: 18 }}>
+            Please Wait...
+          </Text>
+        </div>
+      )}
     </div>
   );
 };

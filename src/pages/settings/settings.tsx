@@ -6,7 +6,6 @@ import {
   Input,
   Button,
   message,
-  Switch,
   Row,
   Col,
   Avatar,
@@ -25,10 +24,12 @@ import {
   EnvironmentOutlined,
 } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
+import './settings.css'; 
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
+
 
 
 const CustomSwitch: React.FC<{ 
@@ -36,16 +37,34 @@ const CustomSwitch: React.FC<{
   onChange?: (checked: boolean) => void;
   defaultChecked?: boolean;
 }> = ({ checked, onChange, defaultChecked }) => {
+  
+  const [internalChecked, setInternalChecked] = useState(defaultChecked || false);
+  
+  const isControlled = checked !== undefined;
+  const displayChecked = isControlled ? checked : internalChecked;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newChecked = e.target.checked;
+    if (!isControlled) {
+      setInternalChecked(newChecked);
+    }
+    if (onChange) {
+      onChange(newChecked);
+    }
+  };
+
   return (
-    <Switch
-      size="small" // <-- This makes the switch smaller
-      checked={checked}
-      defaultChecked={defaultChecked}
-      onChange={onChange}
-      style={{
-        backgroundColor: (checked || defaultChecked) ? '#14b8a6' : '#e5e7eb',
-      }}
-    />
+    <label className="custom-switch">
+      <input
+        type="checkbox"
+        className="custom-switch-input"
+        checked={displayChecked}
+        onChange={handleChange}
+      />
+      <span className="custom-switch-track">
+        <span className="custom-switch-thumb"></span>
+      </span>
+    </label>
   );
 };
 
@@ -72,36 +91,14 @@ const NotificationSettings: React.FC = () => {
     description: string,
     checked: boolean
   ) => (
-    <div
-      className="notification-row" // <-- ADDED CLASS
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '16px 0',
-        borderBottom: '1px solid #f0f0f0',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div
-          className="notification-icon" // <-- ADDED CLASS
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            background: '#14b8a6',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: 18,
-          }}
-        >
+    <div className="notification-row">
+      <div className="notification-icon-wrapper">
+        <div className="notification-icon">
           {icon}
         </div>
         <div>
-          <div className="notification-label" style={{ fontWeight: 600, fontSize: 15, color: '#1f2937' }}>{label}</div> {/* <-- ADDED CLASS */}
-          <div className="notification-description" style={{ color: '#6b7280', fontSize: 13, marginTop: 2 }}>{description}</div> {/* <-- ADDED CLASS */}
+          <div className="notification-label">{label}</div>
+          <div className="notification-description">{description}</div>
         </div>
       </div>
       <CustomSwitch
@@ -112,42 +109,22 @@ const NotificationSettings: React.FC = () => {
   );
 
   return (
-    <Card
-      className="settings-card" // <-- ADDED CLASS
-      style={{
-        marginBottom: 24,
-        borderRadius: 12,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-        border: '1px solid #e5e7eb',
-      }}
-      bodyStyle={{ padding: '24px' }} // This will be overridden by CSS
-    >
-      <div className="settings-card-header" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}> {/* <-- ADDED CLASS */}
-        <div
-          className="settings-card-icon" // <-- ADDED CLASS
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 12,
-            background: '#14b8a6',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <BellOutlined style={{ fontSize: 24, color: 'white' }} />
+    <Card className="settings-card">
+      <div className="settings-card-header">
+        <div className="settings-card-icon">
+          <BellOutlined />
         </div>
         <div>
-          <Title level={4} className="settings-card-title" style={{ margin: 0, fontSize: 18, color: '#1f2937' }}> {/* <-- ADDED CLASS */}
+          <Title level={4} className="settings-card-title">
             Notification Preferences
           </Title>
-          <Text className="settings-card-description" style={{ color: '#6b7280', fontSize: 13 }}> {/* <-- ADDED CLASS */}
+          <Text className="settings-card-description">
             Manage how you receive notifications
           </Text>
         </div>
       </div>
 
-      <div style={{ marginTop: 20 }}>
+      <div>
         {renderNotificationRow(
           'newBookings',
           <BellOutlined />,
@@ -231,76 +208,37 @@ const BusinessProfile: React.FC = () => {
   };
 
   return (
-    <Card
-      className="settings-card" // <-- ADDED CLASS
-      style={{
-        marginBottom: 24,
-        borderRadius: 12,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-        border: '1px solid #e5e7eb',
-      }}
-      bodyStyle={{ padding: '24px' }} // This will be overridden by CSS
-    >
-      <div className="settings-card-header" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}> {/* <-- ADDED CLASS */}
-        <div
-          className="settings-card-icon" // <-- ADDED CLASS
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 12,
-            background: '#14b8a6',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <ShopOutlined style={{ fontSize: 24, color: 'white' }} />
+    <Card className="settings-card">
+      <div className="settings-card-header">
+        <div className="settings-card-icon">
+          <ShopOutlined />
         </div>
         <div>
-          <Title level={4} className="settings-card-title" style={{ margin: 0, fontSize: 18, color: '#1f2937' }}> {/* <-- ADDED CLASS */}
+          <Title level={4} className="settings-card-title">
             Business Information
           </Title>
-          <Text className="settings-card-description" style={{ color: '#6b7280', fontSize: 13 }}> {/* <-- ADDED CLASS */}
+          <Text className="settings-card-description">
             Update your business details and branding
           </Text>
         </div>
       </div>
 
       {/* Logo Upload */}
-      <div style={{ marginBottom: 24, textAlign: 'center' }}>
+      <div className="avatar-upload-section">
         <Upload {...uploadProps}>
-          <div style={{ position: 'relative', display: 'inline-block', cursor: 'pointer' }}>
+          <div className="avatar-upload-wrapper">
             <Avatar
               size={100}
               icon={<ShopOutlined />}
-              style={{
-                background: '#14b8a6',
-              }}
+              style={{ background: '#14b8a6' }}
             />
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                width: 32,
-                height: 32,
-                borderRadius: '50%',
-                background: '#0d9488',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                border: '3px solid white',
-              }}
-            >
-              <CameraOutlined style={{ color: 'white', fontSize: 14 }} />
+            <div className="avatar-upload-icon">
+              <CameraOutlined />
             </div>
           </div>
         </Upload>
-        <div style={{ marginTop: 8 }}>
-          <Text style={{ color: '#6b7280', fontSize: 13 }}>
-            Click to upload business logo
-          </Text>
+        <div className="avatar-upload-text">
+          Click to upload business logo
         </div>
       </div>
 
@@ -322,7 +260,7 @@ const BusinessProfile: React.FC = () => {
           <Col xs={24} md={12}>
             <Form.Item
               name="businessName"
-              label={<span style={{ fontWeight: 600, color: '#374151' }}>Business Name</span>}
+              label={<span className="settings-form-label">Business Name</span>}
               rules={[{ required: true, message: 'Please enter business name' }]}
             >
               <Input
@@ -335,7 +273,7 @@ const BusinessProfile: React.FC = () => {
           <Col xs={24} md={12}>
             <Form.Item
               name="businessType"
-              label={<span style={{ fontWeight: 600, color: '#374151' }}>Business Type</span>}
+              label={<span className="settings-form-label">Business Type</span>}
               rules={[{ required: true }]}
             >
               <Select size="large" placeholder="Select business type">
@@ -351,7 +289,7 @@ const BusinessProfile: React.FC = () => {
           <Col xs={24} md={12}>
             <Form.Item
               name="supportEmail"
-              label={<span style={{ fontWeight: 600, color: '#374151' }}>Support Email</span>}
+              label={<span className="settings-form-label">Support Email</span>}
               rules={[
                 { required: true, message: 'Please enter email' },
                 { type: 'email', message: 'Please enter valid email' },
@@ -367,7 +305,7 @@ const BusinessProfile: React.FC = () => {
           <Col xs={24} md={12}>
             <Form.Item
               name="phone"
-              label={<span style={{ fontWeight: 600, color: '#374151' }}>Phone Number</span>}
+              label={<span className="settings-form-label">Phone Number</span>}
               rules={[{ required: true, message: 'Please enter phone number' }]}
             >
               <Input
@@ -383,7 +321,7 @@ const BusinessProfile: React.FC = () => {
           <Col xs={24} md={12}>
             <Form.Item
               name="website"
-              label={<span style={{ fontWeight: 600, color: '#374151' }}>Website</span>}
+              label={<span className="settings-form-label">Website</span>}
             >
               <Input
                 size="large"
@@ -395,7 +333,7 @@ const BusinessProfile: React.FC = () => {
           <Col xs={24} md={12}>
             <Form.Item
               name="address"
-              label={<span style={{ fontWeight: 600, color: '#374151' }}>Business Address</span>}
+              label={<span className="settings-form-label">Business Address</span>}
             >
               <Input
                 size="large"
@@ -408,7 +346,7 @@ const BusinessProfile: React.FC = () => {
 
         <Form.Item
           name="description"
-          label={<span style={{ fontWeight: 600, color: '#374151' }}>Business Description</span>}
+          label={<span className="settings-form-label">Business Description</span>}
         >
           <TextArea
             rows={4}
@@ -425,20 +363,7 @@ const BusinessProfile: React.FC = () => {
             loading={loading}
             icon={<SaveOutlined />}
             block
-            style={{
-              background: '#14b8a6',
-              border: 'none',
-              height: 48,
-              fontSize: 16,
-              fontWeight: 600,
-              borderRadius: 8,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#0d9488';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#14b8a6';
-            }}
+            className="settings-save-button"
           >
             Save Business Information
           </Button>
@@ -468,36 +393,16 @@ const AccountSecurity: React.FC = () => {
   };
 
   return (
-    <Card
-      className="settings-card" // <-- ADDED CLASS
-      style={{
-        marginBottom: 24,
-        borderRadius: 12,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-        border: '1px solid #e5e7eb',
-      }}
-      bodyStyle={{ padding: '24px' }} // This will be overridden by CSS
-    >
-      <div className="settings-card-header" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}> {/* <-- ADDED CLASS */}
-        <div
-          className="settings-card-icon" // <-- ADDED CLASS
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 12,
-            background: '#14b8a6',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <LockOutlined style={{ fontSize: 24, color: 'white' }} />
+    <Card className="settings-card">
+      <div className="settings-card-header">
+        <div className="settings-card-icon">
+          <LockOutlined />
         </div>
         <div>
-          <Title level={4} className="settings-card-title" style={{ margin: 0, fontSize: 18, color: '#1f2937' }}> {/* <-- ADDED CLASS */}
+          <Title level={4} className="settings-card-title">
             Account Security
           </Title>
-          <Text className="settings-card-description" style={{ color: '#6b7280', fontSize: 13 }}> {/* <-- ADDED CLASS */}
+          <Text className="settings-card-description">
             Update your password and security settings
           </Text>
         </div>
@@ -509,33 +414,33 @@ const AccountSecurity: React.FC = () => {
         onFinish={onFinish}
       >
         <Form.Item
-                name="currentPassword"
-                label={<span style={{ fontWeight: 600, color: '#374151' }}>Current Password</span>}
-                rules={[ { required: true, message: 'Please enter your current password' },
-                {
-                pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
-                message:
-        'Password must contain at least 8 characters, including letters and numbers',
-              },]}
+          name="currentPassword"
+          label={<span className="settings-form-label">Current Password</span>}
+          rules={[ { required: true, message: 'Please enter your current password' },
+          {
+          pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
+          message:
+  'Password must contain at least 8 characters, including letters and numbers',
+        },]}
         >
-           <Input.Password
-           size="large"
-           prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
-           placeholder="Enter current password"
+          <Input.Password
+          size="large"
+          prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
+          placeholder="Enter current password"
           />
-       </Form.Item>
+        </Form.Item>
 
-       <Form.Item
-           name="newPassword"
-           label={<span style={{ fontWeight: 600, color: '#374151' }}>New Password</span>}
-           dependencies={['currentPassword']}
-           rules={[ { required: true, message: 'Please enter a new password' },
+        <Form.Item
+          name="newPassword"
+          label={<span className="settings-form-label">New Password</span>}
+          dependencies={['currentPassword']}
+          rules={[ { required: true, message: 'Please enter a new password' },
           {pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
           message:
-         'Password must contain at least 8 characters, including letters and numbers',
+          'Password must contain at least 8 characters, including letters and numbers',
           },
-         ({ getFieldValue }) => ({
-         validator(_, value) {
+          ({ getFieldValue }) => ({
+          validator(_, value) {
         if (!value || getFieldValue('currentPassword') !== value) {
           return Promise.resolve();
         }
@@ -544,33 +449,33 @@ const AccountSecurity: React.FC = () => {
         }),
         ]}
         >
-           <Input.Password
+          <Input.Password
             size="large"
             prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
             placeholder="Enter new password (min 8 chars, letters + numbers)"
           />
-       </Form.Item>
+        </Form.Item>
 
-       <Form.Item
+        <Form.Item
           name="confirmPassword"
-          label={<span style={{ fontWeight: 600, color: '#374151' }}>Confirm New Password</span>}
+          label={<span className="settings-form-label">Confirm New Password</span>}
           dependencies={['newPassword']}
           rules={[ { required: true, message: 'Please confirm password' },
           ({ getFieldValue }) => ({
-           validator(_, value) {
+          validator(_, value) {
           if (!value || getFieldValue('newPassword') === value) {
           return Promise.resolve();
         }
         return Promise.reject(new Error('Passwords do not match!')); },
         }),
-       ]}
+        ]}
         >
-        <Input.Password
-          size="large"
-          prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
-          placeholder="Confirm new password"
-         />
-       </Form.Item>
+          <Input.Password
+            size="large"
+            prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
+            placeholder="Confirm new password"
+          />
+        </Form.Item>
 
 
         <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
@@ -581,20 +486,7 @@ const AccountSecurity: React.FC = () => {
             loading={loading}
             icon={<SaveOutlined />}
             block
-            style={{
-              background: '#14b8a6',
-              border: 'none',
-              height: 48,
-              fontSize: 16,
-              fontWeight: 600,
-              borderRadius: 8,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#0d9488';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#14b8a6';
-            }}
+            className="settings-save-button"
           >
             Update Password
           </Button>
@@ -607,38 +499,14 @@ const AccountSecurity: React.FC = () => {
 
 const Settings: React.FC = () => {
   return (
-    <div
-      className="settings-page-container" // <-- ADDED CLASS
-      style={{
-        height: 'calc(100vh - 64px)', 
-        overflow: 'auto',
-        background: '#f5f5f5',
-        padding: '24px',
-      }}
-    >
-      <div
-        className="settings-content-wrapper" // <-- ADDED CLASS
-        style={{
-          maxWidth: 1000,
-          margin: '0 auto',
-        }}
-      >
+    <div className="settings-page-container">
+      <div className="settings-content-wrapper">
         {/* Header */}
-        <div
-          className="settings-header" // <-- ADDED CLASS
-          style={{
-            background: 'white',
-            borderRadius: 12,
-            padding: '24px',
-            marginBottom: 24,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-            border: '1px solid #e5e7eb',
-          }}
-        >
-          <Title level={2} className="settings-page-title" style={{ fontWeight: "bold", color: "#0a0b0bff",margin: 0, fontSize: 28,  }}> {/* <-- ADDED CLASS */}
+        <div className="settings-header">
+          <Title level={2} className="settings-page-title">
             SETTINGS
           </Title>
-          <Text style={{ color: '#6b7280', fontSize: 14 }}>
+          <Text className="settings-page-description">
             Manage your account settings and preferences
           </Text>
         </div>
@@ -652,162 +520,7 @@ const Settings: React.FC = () => {
         <div style={{ height: 24 }} />
       </div>
 
-      
-      <style>{`
-        .ant-input:hover,
-        .ant-input:focus,
-        .ant-input-affix-wrapper:hover,
-        .ant-input-affix-wrapper:focus,
-        .ant-input-password:hover,
-        .ant-input-password:focus,
-        .ant-select:hover .ant-select-selector,
-        .ant-select-focused .ant-select-selector {
-          border-color: #14b8a6 !important;
-          box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.1) !important;
-        }
-
-        .ant-switch:not(.ant-switch-checked) {
-          background-color: #e5e7eb !important;
-        }
-
-        .ant-switch-checked {
-          background-color: #14b8a6 !important;
-        }
-
-        .ant-form-item-label > label {
-          color: #374151;
-          font-size: 14px;
-        }
-
-        .ant-card {
-          transition: all 0.2s ease;
-        }
-
-        .ant-card:hover {
-          box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
-        }
-
-        /* Custom scrollbar */
-        div::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-
-        div::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-
-        div::-webkit-scrollbar-thumb {
-          background: #14b8a6;
-          border-radius: 4px;
-        }
-
-        div::-webkit-scrollbar-thumb:hover {
-          background: #0d9488;
-        }
-        
-        /* =================================
-         * RESPONSIVE STYLES (Mobile First)
-         * ================================= */
-
-        /* Small mobile (320px) */
-        @media (max-width: 480px) {
-          .settings-page-container {
-            padding: 8px !important;
-            height: auto !important; /* Allow page to grow */
-          }
-          
-          .settings-header {
-            padding: 16px !important;
-            margin-bottom: 16px !important;
-          }
-
-          .settings-page-title {
-            font-size: 22px !important; /* Smaller main title */
-          }
-
-          .settings-card .ant-card-body {
-            padding: 16px !important; /* Smaller card padding */
-          }
-
-          .settings-card-header {
-            gap: 8px !important;
-            margin-bottom: 16px !important;
-            align-items: flex-start !important;
-          }
-          
-          .settings-card-icon {
-            width: 36px !important;
-            height: 36px !important;
-            font-size: 18px !important;
-          }
-          
-          .settings-card-icon .anticon {
-             font-size: 18px !important;
-          }
-
-          .settings-card-title {
-            font-size: 16px !important; /* Smaller card titles */
-          }
-
-          .settings-card-description {
-            font-size: 12px !important;
-          }
-          
-          .notification-row {
-            flex-direction: column; /* Stack notification row */
-            align-items: flex-start !important;
-            gap: 12px;
-            padding: 12px 0 !important;
-          }
-          
-          .notification-icon {
-             width: 32px !important;
-             height: 32px !important;
-          }
-          
-          .notification-icon .anticon {
-             font-size: 16px !important;
-          }
-          
-          .notification-label {
-             font-size: 14px !important;
-          }
-          
-          .notification-description {
-             font-size: 12px !important;
-          }
-          
-          .notification-row .ant-switch {
-            margin-left: auto; /* Push switch to the right */
-          }
-
-          .ant-form-item-label > label {
-            font-size: 13px !important; /* Smaller form labels */
-          }
-          
-          /* Target large inputs/selects */
-          .ant-input-lg,
-          .ant-input-affix-wrapper-lg,
-          .ant-select-lg .ant-select-selector,
-          .ant-input-password-lg {
-            height: 40px !important;
-            font-size: 14px !important;
-            padding: 4px 11px !important;
-          }
-          
-          .ant-btn-lg {
-             height: 44px !important;
-             font-size: 15px !important;
-          }
-          
-          /* Fix for input prefix icons */
-          .ant-input-affix-wrapper-lg .ant-input-prefix {
-            font-size: 14px !important;
-          }
-        }
-      `}</style>
+  
     </div>
   );
 };
