@@ -414,9 +414,21 @@
 
 .avatar-available {
   background-color: #14b8a6 !important;
-  vertical-align: middle;
   color: #fff;
+
+  
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  
+  padding: 4px 8px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 100;
 }
+
 
 .avatar-unavailable {
   background-color: #9ca3af !important;
