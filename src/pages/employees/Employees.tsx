@@ -514,12 +514,18 @@ const Employees: React.FC = () => {
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item name="services" label="Departments">
+              <Form.Item name="services" label="Departments" rules={[
+                  { required: true, message: "Please select departments" },
+                  
+                ]}>
                 <Select mode="multiple" options={departmentsdata} placeholder="Select departments" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item name="role_id" label="Role">
+              <Form.Item name="role_id" label="Role" rules={[
+                  { required: true, message: "Please select role" },
+                  
+                ]}>
                 <Select options={rolesData} placeholder="Select role" />
               </Form.Item>
             </Col>
