@@ -13,7 +13,7 @@ export const getAllUsers = async() => {
   "userid": 0,
   "roleid": 3,
   "limit": 100,
-  "offset": 0
+  "offset": 1
 }
             ),
             
