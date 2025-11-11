@@ -142,6 +142,7 @@ const Dashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={userData?.role_id !== 3 ? 6 : 8}>
           <Card
             className="stat-card-hover dashboard-style-8"
+            onClick={() => navigate("../tickets", { state: { initialFilter: "Pending" } })}
             bodyStyle={{ padding: '28px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
           >
             <div
@@ -150,6 +151,7 @@ const Dashboard: React.FC = () => {
               <Text className="dashboard-color-10">
                 Pending Active Bookings
               </Text>
+
               <ClockCircleOutlined
                 className="icon-bounce dashboard-color-11"
               />
@@ -169,6 +171,7 @@ const Dashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={userData?.role_id !== 3 ? 6 : 8}>
           <Card
             className="stat-card-hover dashboard-style-13"
+            onClick={() => navigate("../tickets", { state: { initialFilter: "In-Progress" } })}
             bodyStyle={{
               padding: "28px",
               height: "100%",
@@ -203,6 +206,7 @@ const Dashboard: React.FC = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card
               className="stat-card-hover dashboard-style-18"
+              onClick={() => navigate("../employees")}
               bodyStyle={{
                 padding: "28px",
                 height: "100%",
