@@ -215,7 +215,9 @@ const Employees: React.FC = () => {
           status: u.is_assigned ? "Assigned" : "Available",
           phone: u.mobile || "N/A",
           email: u.email || "N/A",
-          depts: u.depts || [],
+           depts: u.department_name
+    ? u.department_name.split(",").map((d: string) => d.trim())
+    : [],
           location_id: u.location_id,
         }));
 
