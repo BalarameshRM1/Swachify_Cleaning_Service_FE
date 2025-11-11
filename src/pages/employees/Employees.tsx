@@ -282,9 +282,21 @@ const Employees: React.FC = () => {
      setActionLoading(true);
     try {
       await editEmployee(data)      
-    } catch (error) {
-      console.log('err',error) 
+    } catch (error: any) {
+    console.error("Error creating employee:", error);
+
+    
+    if (error.response?.data?.errors) {
+      const errs = error.response.data.errors;
+      const messages = Object.values(errs).flat().join(", ");
+      message.error(messages);
+    } else {
+      message.error("Email Already Exists.");
     }
+
+    
+    throw error;
+  }
     finally {
       setActionLoading(false); 
     }
@@ -313,8 +325,9 @@ const Employees: React.FC = () => {
         dept_id: values.services,
         role_id: values.role_id,
       };
-      updateEmployeeApi(payload)
+     // updateEmployeeApi(payload)
       setEmployees(prev => prev.map(emp => emp.user_id === editingEmployee.user_id ? updatedEmp : emp));
+      await updateEmployeeApi(payload);
       message.success("Employee updated successfully!");
     } else {
       // Add new employee
