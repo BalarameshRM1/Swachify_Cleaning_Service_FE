@@ -75,6 +75,7 @@
 .sv-page { padding: 0 8px 8px 8px; }
 .sv-steps-wrap { padding: 6px 0; border-radius: 0; }
 .sv-form div[style*="gridTemplateColumns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+
 }
 
 @media (max-width: 480px) {
@@ -82,7 +83,11 @@
 .sv-sticky-footer { position: static; height: auto; padding: 12px; }
 .sv-right-card { border-radius: 0; }
 .sv-summary-items { max-height: 40vh; }
+
 }
+@media (max-width:320px){
+}
+
 
 .sv-master-select { justify-content: center; }
 @media (max-width: 425px) {
@@ -92,4 +97,6 @@
     width: 95vw !important;
     max-width: 95vw !important;
   }
+  .sv-w-full .ant-picker-input { width: 100%; font-size: 14px; } /* Expand popup to fit smaller screens */ .ant-picker-dropdown { left: -25px !important; width: 100vw !important; max-width: none !important; transform: none !important; } /* Center align calendar header */ .ant-picker-header { justify-content: center; } /* Make month and year dropdowns clearly visible */ .ant-picker-header-view button { font-size: 16px; font-weight: 600; color: #000; } /* Increase tap area of month/year selectors */ .ant-picker-header-view { gap: 8px; } /* Adjust calendar grid for mobile readability */ .ant-picker-content th, .ant-picker-content td { font-size: 13px; padding: 6px 4px; } /* Prevent clipping at bottom of viewport */ .ant-picker-dropdown .ant-picker-panel-container { max-height: 80vh; overflow-y: auto; }
+
 }
