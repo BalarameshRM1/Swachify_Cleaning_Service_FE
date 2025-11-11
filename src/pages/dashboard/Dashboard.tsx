@@ -395,7 +395,7 @@ const Dashboard: React.FC = () => {
                                 : "green"
                           }
                           className="dashboard-style-51"
-                          onClick={() => navigate("../tickets")}
+                          onClick={() => navigate("../tickets", { state: { initialFilter: "Pending" } })}
                         >
                           {booking.normalizedStatus}
                         </Tag>
