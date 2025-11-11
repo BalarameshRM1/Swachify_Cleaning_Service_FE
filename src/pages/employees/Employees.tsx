@@ -436,6 +436,7 @@ const Employees: React.FC = () => {
         {viewType === "grid" ? (
           <Table dataSource={filteredEmployees} columns={columns} pagination={false} rowKey="id" scroll={{ x: 800, y: 520 }} />
         ) : (
+          <div style={{ maxHeight: 520, overflowY: 'auto',overflowX: 'hidden', paddingRight: 8 }}>
           <Row gutter={[24, 24]} className="content-grid">
             {filteredEmployees.map(emp => (
               <Col xs={24} sm={12} lg={8} xl={6} key={emp.user_id}>
@@ -443,6 +444,7 @@ const Employees: React.FC = () => {
               </Col>
             ))}
           </Row>
+          </div>
         )}
       </div>
 
