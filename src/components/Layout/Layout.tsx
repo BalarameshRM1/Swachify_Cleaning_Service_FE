@@ -104,7 +104,7 @@ const handleLogout = () => {
   const menuItems = userDetails?.role_id === 3 ? empMenus : allMenus;
 
   return (
-    <Layout className="layout-main">
+    <Layout className="layout-main" id="main-layout-content">
       <HeaderBar />
 
       {/* Mobile Menu Button */}

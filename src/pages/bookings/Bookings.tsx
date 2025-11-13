@@ -510,6 +510,8 @@ const [totalBookings, setTotalBookings] = useState(0);
         ]}
         width={650}
         className="assign-modal"
+        getContainer={() => document.getElementById('main-layout-content') || document.body}
+        
       >
          {assigningEmployee && (
   <div className="assigning-overlay">

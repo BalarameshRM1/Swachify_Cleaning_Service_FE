@@ -119,7 +119,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit 
           onClick={() => onEdit(employee)}
         />
         <Popconfirm
-          title="Are you sure you want to delete this employee?"
+          title=" delete?"
           onConfirm={() => onDelete(employee.user_id)}
           okText="Yes"
           cancelText="No"
@@ -468,15 +468,22 @@ const Employees: React.FC = () => {
   name="name"
   label="Full Name"
   rules={[
-    { required: true, message: "Please enter full name" },
-    {
-      pattern: /^[A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+$/,
-      message: "Enter valid name: FirstName LastName (Both start with capital letter)",
-    },
-  ]}
+    { required: true, message: "Please enter full name" }]}
+  //   {
+  //     pattern: /^[A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+$/,
+  //     message: "Enter valid name: FirstName LastName (Both start with capital letter)",
+  //   },
+  // ]}
 >
-  <Input placeholder="Enter full name" />
-</Form.Item>
+<Input
+                      placeholder="Enter full name"
+                      maxLength={40}
+                      onChange={(e) => {
+                        const clean = e.target.value.replace(/[^A-Za-z\s]/g, "").slice(0, 40);
+                        form.setFieldsValue({ fullName: clean });
+                      }}
+                    />
+                    </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item name="email" label="Email" rules={[{ required: true, type: "email", message: "Enter valid email" }]}>
@@ -490,8 +497,8 @@ const Employees: React.FC = () => {
                 rules={[
                   { required: true, message: "Please enter your phone number" },
                   {
-                    pattern: /^[6-9][0-9]{9}$/,
-                    message: "Enter a valid 10-digit phone number starting with 6–9",
+                    pattern: /^[0-9][0-9]{9}$/,
+                    message: "Enter a valid 10-digit phone number",
                   },
                 ]}
               >

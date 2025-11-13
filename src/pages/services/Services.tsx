@@ -140,7 +140,7 @@ const usdFormatter = (value?: string | number) => {
 
 const Services: React.FC = () => {
   const [form] = Form.useForm();
-  const [isContinueDisabled, setIsContinueDisabled] = useState(true);
+  // const [isContinueDisabled, setIsContinueDisabled] = useState(true);
 
   const anchors = {
     bedroom: useRef<HTMLDivElement>(null),
@@ -160,7 +160,7 @@ const Services: React.FC = () => {
         const data = await getAllDepartments();
         setDepartments(data);
         if (data && data.length > 0) {
-          setMaster(data[0].departmentId);
+          setMaster(null);
         }
       } catch (err) {
         console.error("Failed to load departments:", err);
@@ -325,14 +325,14 @@ const Services: React.FC = () => {
     return subtotal;
   }, [hasService, subtotal, willingToPay]);
 
-  const changeStep = async (idx: StepKey) => {
-    if (!customerData) {
-      message.warning("Please fill customer details first.");
-      setCurrentStep(currentStep as StepKey);
-    } else {
-      setCurrentStep(idx as StepKey);
-    }
-  };
+  // const changeStep = async (idx: StepKey) => {
+  //   if (!customerData) {
+  //     message.warning("Please fill customer details first.");
+  //     setCurrentStep(currentStep as StepKey);
+  //   } else {
+  //     setCurrentStep(idx as StepKey);
+  //   }
+  // };
 
   const handleSubmit = async () => {
     try {
@@ -505,7 +505,7 @@ const Services: React.FC = () => {
       <div className="sv-steps-wrap">
         <Steps
           current={currentStep}
-          onChange={(idx) => changeStep(idx as StepKey)}
+          // onChange={(idx) => changeStep(idx as StepKey)}
           items={[
             {
               title: (
@@ -548,20 +548,20 @@ const Services: React.FC = () => {
           layout="vertical"
           form={form}
           className="sv-form"
-          onValuesChange={() => {
-            const values = form.getFieldsValue();
-            const allFilled =
-              values.fullName &&
-              /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/.test(values.fullName) &&
-              values.date &&
-              /^[6-9][0-9]{9}$/.test(values.phone || "") &&
-              values.email &&
-              /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(values.email) &&
-              values.address &&
-              /\b\d+[A-Za-z]?\b/.test(values.address) &&
-              /\b\d{6}\b/.test(values.address);
-            setIsContinueDisabled(!allFilled);
-          }}
+          // onValuesChange={() => {
+          //   const values = form.getFieldsValue();
+          //   const allFilled =
+          //     values.fullName &&
+          //     /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/.test(values.fullName) &&
+          //     values.date &&
+          //     /^[6-9][0-9]{9}$/.test(values.phone || "") &&
+          //     values.email &&
+          //     /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(values.email) &&
+          //     values.address &&
+          //     /\b\d+[A-Za-z]?\b/.test(values.address) &&
+          //     /\b\d{6}\b/.test(values.address);
+          //   // setIsContinueDisabled(!allFilled);
+          // }}
         >
           <Row gutter={[8, 0]}>
             <Col xs={24} md={12}>
@@ -572,18 +572,19 @@ const Services: React.FC = () => {
                   { required: true, message: "Please enter your name" },
                   {
                     pattern: /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/,
-                    message: "Enter valid full name (First and Last name)",
+                    // message: "Enter valid full name (First and Last name)",
                   },
                 ]}
               >
-                <Input
-                  prefix={<UserOutlined />}
-                  placeholder="Enter full name"
-                  onChange={(e) => {
-                    const clean = e.target.value.replace(/[^A-Za-z\s]/g, "");
-                    form.setFieldsValue({ fullName: clean });
-                  }}
-                />
+                 <Input
+                      prefix={<UserOutlined />}
+                      placeholder="Enter full name"
+                      maxLength={40}
+                      onChange={(e) => {
+                        const clean = e.target.value.replace(/[^A-Za-z\s]/g, "").slice(0, 40);
+                        form.setFieldsValue({ fullName: clean });
+                      }}
+                    />
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -609,8 +610,8 @@ const Services: React.FC = () => {
                 rules={[
                   { required: true, message: "Please enter your phone number" },
                   {
-                    pattern: /^[6-9][0-9]{9}$/,
-                    message: "Enter a valid 10-digit phone number starting with 6–9",
+                    pattern: /^[0-9][0-9]{9}$/,
+                    message: "Enter a valid 10-digit phone number",
                   },
                 ]}
               >
@@ -654,29 +655,29 @@ const Services: React.FC = () => {
               <Form.Item
                 label="Address"
                 name="address"
-                rules={[
+                // rules={[
                  
-                  {
-                    validator: (_, value) => {
-                      if (!value || value.trim() === "")
-                        return Promise.reject(new Error("Please enter your address"));
+                //   {
+                //     validator: (_, value) => {
+                //       if (!value || value.trim() === "")
+                //         return Promise.reject(new Error("Please enter your address"));
 
-                      const hasDoorNumber = /\b\d+[A-Za-z]?\b/.test(value);
-                      const hasPincode = /\b\d{6}\b/.test(value);
+                //       const hasDoorNumber = /\b\d+[A-Za-z]?\b/.test(value);
+                //       const hasPincode = /\b\d{6}\b/.test(value);
 
-                      if (!hasDoorNumber)
-                        return Promise.reject(
-                          new Error("Address must include a door or flat number")
-                        );
-                      if (!hasPincode)
-                        return Promise.reject(
-                          new Error("Address must include a valid 6-digit pincode")
-                        );
+                //       if (!hasDoorNumber)
+                //         return Promise.reject(
+                //           new Error("Address must include a door or flat number")
+                //         );
+                //       if (!hasPincode)
+                //         return Promise.reject(
+                //           new Error("Address must include a valid 6-digit pincode")
+                //         );
 
-                      return Promise.resolve();
-                    },
-                  },
-                ]}
+                //       return Promise.resolve();
+                //     },
+                //   },
+                // ]}
               >
                 <Input.TextArea
                   rows={3}
@@ -708,7 +709,7 @@ const Services: React.FC = () => {
                 }}
                 block
                 className="sv-btn-primary"
-                disabled={isContinueDisabled}
+                // disabled={isContinueDisabled}
               >
                 Continue
               </Button>
@@ -1154,6 +1155,9 @@ useEffect(() => {
     }}
     
   />
+  {customerError && (
+    <span className="sv-money-error">{customerError}</span>
+  )}
 
   <div style={{ minHeight: 16, marginTop: 4 }}>
     {customerError && (
