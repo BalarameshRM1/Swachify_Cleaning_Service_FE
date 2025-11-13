@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { Checkbox } from "antd";
 import { useNavigate } from "react-router-dom";
+
 import {
   Card,
   Row,
@@ -106,6 +107,7 @@ type ServicePlan = {
   serviceId?: number | null; // Store selected service ID
   serviceTypeId?: number | null; // Store selected service type ID
   roomSize?: string | null; // Store room size for this service
+  isEmpty?: boolean
 };
 type FormState = Record<SectionKey, ServicePlan>;
 
@@ -118,18 +120,24 @@ const SECTION_META: Record<SectionKey, { icon: React.ReactNode; title: string }>
 
 const isActivePlan = (plan: ServicePlan) =>
   Boolean(plan?.serviceId || (plan?.addOnHours?.length ?? 0) > 0);
+console.log(isActivePlan);
 
 const calcSectionTotal = (section: SectionKey, plan: ServicePlan) => {
-  if (!isActivePlan(plan)) return 0;
-  
-  // Use actual price from API if available, otherwise use base pricing
-  const basePrice = plan.actualPrice || PRICING.base[section] || 0;
-  
-  // Add add-on hours cost
-  const addOnSum = (plan.addOnHours?.reduce((a, b) => a + b, 0) ?? 0) * PRICING.addOnPerHour;
-  
-  return basePrice + addOnSum;
+  if (!plan.serviceId) return 0;
+
+  const base = PRICING.base[section];
+const typeExtra = plan.actualPrice || 0;
+
+
+  const addonHours = plan.addOnHours?.reduce((sum, h) => sum + h, 0) ?? 0;
+  const addonCost = addonHours * PRICING.addOnPerHour;
+
+  return base + typeExtra + addonCost;
 };
+
+
+
+
 
 const usdFormatter = (value?: string | number) => {
   if (value === undefined || value === null) return "";
@@ -153,6 +161,8 @@ const Services: React.FC = () => {
   const [master, setMaster] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [departments, setDepartments] = useState<Department[]>([]);
+ const formValues = Form.useWatch([], form);
+const [isContinueDisabled, setIsContinueDisabled] = useState(true);
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -168,6 +178,19 @@ const Services: React.FC = () => {
     };
     fetchDepartments();
   }, []);
+
+  useEffect(() => {
+  const values = form.getFieldsValue();
+
+  const allFilled =
+    values.fullName &&
+    values.phone &&
+    values.email &&
+    values.date &&
+    values.address;
+
+  setIsContinueDisabled(!allFilled);
+}, [formValues]);
 
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [selectedService, setSelectedService] = useState<number | null>(null);
@@ -216,11 +239,20 @@ const Services: React.FC = () => {
       
     }));
 
-  const resetSection = (section: SectionKey) =>
-    setServiceForm((prev) => ({
-      ...prev,
-      [section]: { subService: null, type: null, addOnHours: [], actualPrice: 0, serviceId: null, serviceTypeId: null, roomSize: null },
-    }));
+ const resetSection = (section: SectionKey) =>
+  setServiceForm((prev) => ({
+    ...prev,
+    [section]: {
+      subService: null,
+      type: null,
+      addOnHours: [],
+      actualPrice: 0,
+      serviceId: null,
+      serviceTypeId: null,
+      roomSize: null,
+      isEmpty: true,   
+    },
+  }));
 
   const toggleAddOn = (section: SectionKey, hours: number) =>
     setServiceForm((prev) => {
@@ -615,17 +647,21 @@ const Services: React.FC = () => {
                   },
                 ]}
               >
-                <Input
-                  prefix={<PhoneOutlined />}
-                  placeholder="9876543210"
-                  maxLength={10}
-                  inputMode="numeric"
-                  onChange={(e) => {
-                    const onlyNums = e.target.value.replace(/[^0-9]/g, "");
-                    if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
-                    form.setFieldsValue({ phone: onlyNums });
-                  }}
-                />
+               <Input
+  prefix={<PhoneOutlined />}
+  placeholder="9876543210"
+  maxLength={10}
+  inputMode="numeric"
+  onKeyPress={(e) => {
+    if (!/[0-9]/.test(e.key)) e.preventDefault();  
+  }}
+  onChange={(e) => {
+    const onlyNums = e.target.value.replace(/[^0-9]/g, "");
+    if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
+    form.setFieldsValue({ phone: onlyNums });
+  }}
+/>
+
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -655,38 +691,21 @@ const Services: React.FC = () => {
               <Form.Item
                 label="Address"
                 name="address"
-                // rules={[
-                 
-                //   {
-                //     validator: (_, value) => {
-                //       if (!value || value.trim() === "")
-                //         return Promise.reject(new Error("Please enter your address"));
-
-                //       const hasDoorNumber = /\b\d+[A-Za-z]?\b/.test(value);
-                //       const hasPincode = /\b\d{6}\b/.test(value);
-
-                //       if (!hasDoorNumber)
-                //         return Promise.reject(
-                //           new Error("Address must include a door or flat number")
-                //         );
-                //       if (!hasPincode)
-                //         return Promise.reject(
-                //           new Error("Address must include a valid 6-digit pincode")
-                //         );
-
-                //       return Promise.resolve();
-                //     },
-                //   },
-                // ]}
+                rules={[
+                  {required:true, message:"please enter the adress"}
+                ]}
               >
                 <Input.TextArea
                   rows={3}
                   placeholder="Flat, street, landmark, city, postal code"
                   maxLength={200}
                   style={{ resize: "none" }}
+                  
+                  
                   onChange={(e) => {
                     const clean = e.target.value.replace(/[^\w\s,/#-]/g, "");
                     form.setFieldsValue({ address: clean });
+                    
                   }}
                 />
               </Form.Item>
@@ -709,7 +728,7 @@ const Services: React.FC = () => {
                 }}
                 block
                 className="sv-btn-primary"
-                // disabled={isContinueDisabled}
+                disabled={isContinueDisabled}
               >
                 Continue
               </Button>
@@ -807,14 +826,17 @@ useEffect(() => {
         bordered
         className="sv-section-card"
         bodyStyle={{ padding: 16 }}
-        title={
-          <Space size="small">
-            {meta.icon}
-            <Text strong className="sv-title-16">
-              {meta.title}
-            </Text>
-          </Space>
-        }
+       title={
+  <Space size="small">
+    {meta.icon}
+    <Text strong className="sv-title-16">
+      {serviceForm[section].serviceId ? meta.title : "Select Service"}
+      
+    </Text>
+    
+  </Space>
+}
+
         extra={
           <Button
             size="small"
@@ -915,18 +937,30 @@ useEffect(() => {
               placeholder="Select Service"
               suffixIcon={<AppstoreAddOutlined />}
               style={{ width: 220 }}
-              onChange={(v) => {
-                if (!customerData) {
-                  message.warning("Please fill customer details first.");
-                  return;
-                }
+             onChange={(v) => {
+  if (!customerData) {
+    message.warning("Please fill customer details first.");
+    return;
+  }
 
-                const selectedDept = departments.find((d) => d.departmentId === Number(v));
-                setSelectedDepartment(selectedDept || null);
-                setSelectedService(null);
-                setSelectedServiceType(null);
-                setMaster(v);
-              }}
+  const selectedDept = departments.find((d) => d.departmentId === Number(v));
+  setSelectedDepartment(selectedDept || null);
+  setMaster(v);
+
+  const section = getSectionKeyFromDeptId(v);
+  const firstService = selectedDept?.services?.[0];
+
+  if (firstService) {
+    setServiceForm((prev) => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        serviceId: firstService,
+      },
+    }));
+  }
+}}
+
             />
           </div>
         </Col>
@@ -996,24 +1030,26 @@ useEffect(() => {
                           .find(st => st.serviceTypeID === value);
                         
                         if (allServiceTypes) {
-                          setServiceForm((prev) => {
-                            const updated = { ...prev };
-                            (Object.keys(updated) as SectionKey[]).forEach((key) => {
-                              if (updated[key].serviceId) {
-                                updated[key] = {
-                                  ...updated[key],
-                                  serviceTypeId: value,
-                                  type: allServiceTypes.serviceType as CleanType,
-                                 actualPrice:
-  (updated[key].actualPrice && updated[key].actualPrice > 0
-    ? updated[key].actualPrice
-    : PRICING.base[key]) + allServiceTypes.price,
+                        setServiceForm(prev => {
+  const updated: FormState = JSON.parse(JSON.stringify(prev));
 
-                                };
-                              }
-                            });
-                            return updated;
-                          });
+  Object.keys(updated).forEach((key) => {
+    const section = key as SectionKey;
+
+    if (updated[section].serviceId) {
+      updated[section].serviceTypeId = value;
+      updated[section].type = allServiceTypes.serviceType as CleanType;
+
+      
+     updated[section].actualPrice = allServiceTypes.price;
+
+    }
+  });
+
+  return updated;
+});
+
+
                         }
                       }}
                       options={
@@ -1155,25 +1191,20 @@ useEffect(() => {
     }}
     
   />
-  {customerError && (
-    <span className="sv-money-error">{customerError}</span>
-  )}
+ 
 
-  <div style={{ minHeight: 16, marginTop: 4 }}>
+  
+</div>
+
+                  </div>
+                </div>
+                <div style={{ minHeight: 16, marginTop: 4 }}>
     {customerError && (
       <Text type="danger" style={{ fontSize: 12 }}>
         {customerError}
       </Text>
     )}
   </div>
-</div>
-
-
-
-
-
-                  </div>
-                </div>
 
                 {discountAmount > 0 && (
                   <>

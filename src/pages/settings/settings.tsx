@@ -6,29 +6,29 @@ import {
   Input,
   Button,
   message,
-  Row,
-  Col,
-  Avatar,
-  Upload,
-  Select,
+  // Row,
+  // Col,
+  // Avatar,
+  // Upload,
+  //Select,
 } from 'antd';
 import {
   BellOutlined,
-  ShopOutlined,
+  //ShopOutlined,
   LockOutlined,
-  CameraOutlined,
+  //CameraOutlined,
   SaveOutlined,
   MailOutlined,
   PhoneOutlined,
-  GlobalOutlined,
-  EnvironmentOutlined,
+  //GlobalOutlined,
+  //EnvironmentOutlined,
 } from '@ant-design/icons';
-import type { UploadProps } from 'antd';
+//import type { UploadProps } from 'antd';
 import './settings.css'; 
 
 const { Title, Text } = Typography;
-const { TextArea } = Input;
-const { Option } = Select;
+// const { TextArea } = Input;
+// const { Option } = Select;
 
 
 
@@ -125,20 +125,7 @@ const NotificationSettings: React.FC = () => {
       </div>
 
       <div>
-        {renderNotificationRow(
-          'newBookings',
-          <BellOutlined />,
-          'New Booking Alerts',
-          'Get notified when new bookings arrive',
-          notifications.newBookings
-        )}
-        {renderNotificationRow(
-          'ticketUpdates',
-          <MailOutlined />,
-          'Ticket Updates',
-          'Notifications for ticket status changes',
-          notifications.ticketUpdates
-        )}
+       
         {renderNotificationRow(
           'emailNotifications',
           <MailOutlined />,
@@ -153,225 +140,14 @@ const NotificationSettings: React.FC = () => {
           'Receive updates via text message',
           notifications.smsNotifications
         )}
-        {renderNotificationRow(
-          'appointmentReminders',
-          <BellOutlined />,
-          'Appointment Reminders',
-          'Get reminders before scheduled appointments',
-          notifications.appointmentReminders
-        )}
-        {renderNotificationRow(
-          'paymentAlerts',
-          <BellOutlined />,
-          'Payment Alerts',
-          'Notifications for payment confirmations',
-          notifications.paymentAlerts
-        )}
+        
       </div>
     </Card>
   );
 };
 
 
-const BusinessProfile: React.FC = () => {
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
 
-  const onFinish = async (values: any) => {
-    setLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Business profile updated:', values);
-      message.success('Business profile updated successfully!');
-    } catch (error) {
-      message.error('Failed to update business profile');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const uploadProps: UploadProps = {
-    name: 'logo',
-    showUploadList: false,
-    beforeUpload: (file) => {
-      const isImage = file.type.startsWith('image/');
-      if (!isImage) {
-        message.error('You can only upload image files!');
-      }
-      return isImage || Upload.LIST_IGNORE;
-    },
-    onChange: (info) => {
-      if (info.file.status === 'done') {
-        message.success('Logo uploaded successfully');
-      }
-    },
-  };
-
-  return (
-    <Card className="settings-card">
-      <div className="settings-card-header">
-        <div className="settings-card-icon">
-          <ShopOutlined />
-        </div>
-        <div>
-          <Title level={4} className="settings-card-title">
-            Business Information
-          </Title>
-          <Text className="settings-card-description">
-            Update your business details and branding
-          </Text>
-        </div>
-      </div>
-
-      {/* Logo Upload */}
-      <div className="avatar-upload-section">
-        <Upload {...uploadProps}>
-          <div className="avatar-upload-wrapper">
-            <Avatar
-              size={100}
-              icon={<ShopOutlined />}
-              style={{ background: '#14b8a6' }}
-            />
-            <div className="avatar-upload-icon">
-              <CameraOutlined />
-            </div>
-          </div>
-        </Upload>
-        <div className="avatar-upload-text">
-          Click to upload business logo
-        </div>
-      </div>
-
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          businessName: 'Swachify Cleaning Services',
-          supportEmail: 'info@swachify.com',
-          phone: '+1 (905) 588 2122',
-          website: 'www.swachify.com',
-          address: '76 King St W,Oshawa,ON L1H 1A6,Canada',
-          businessType: 'cleaning',
-          description: 'Professional cleaning services for homes and offices',
-        }}
-      >
-        <Row gutter={16}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="businessName"
-              label={<span className="settings-form-label">Business Name</span>}
-              rules={[{ required: true, message: 'Please enter business name' }]}
-            >
-              <Input
-                size="large"
-                prefix={<ShopOutlined style={{ color: '#9ca3af' }} />}
-                placeholder="Enter business name"
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="businessType"
-              label={<span className="settings-form-label">Business Type</span>}
-              rules={[{ required: true }]}
-            >
-              <Select size="large" placeholder="Select business type">
-                <Option value="cleaning">Cleaning Services</Option>
-                <Option value="maintenance">Maintenance</Option>
-                <Option value="repair">Repair Services</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="supportEmail"
-              label={<span className="settings-form-label">Support Email</span>}
-              rules={[
-                { required: true, message: 'Please enter email' },
-                { type: 'email', message: 'Please enter valid email' },
-              ]}
-            >
-              <Input
-                size="large"
-                prefix={<MailOutlined style={{ color: '#9ca3af' }} />}
-                placeholder="support@example.com"
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="phone"
-              label={<span className="settings-form-label">Phone Number</span>}
-              rules={[{ required: true, message: 'Please enter phone number' }]}
-            >
-              <Input
-                size="large"
-                prefix={<PhoneOutlined style={{ color: '#9ca3af' }} />}
-                placeholder="+91 XXXXXXXXXX"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="website"
-              label={<span className="settings-form-label">Website</span>}
-            >
-              <Input
-                size="large"
-                prefix={<GlobalOutlined style={{ color: '#9ca3af' }} />}
-                placeholder="www.example.com"
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="address"
-              label={<span className="settings-form-label">Business Address</span>}
-            >
-              <Input
-                size="large"
-                prefix={<EnvironmentOutlined style={{ color: '#9ca3af' }} />}
-                placeholder="City, State, Country"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item
-          name="description"
-          label={<span className="settings-form-label">Business Description</span>}
-        >
-          <TextArea
-            rows={4}
-            placeholder="Describe your business and services"
-            style={{ resize: 'none' }}
-          />
-        </Form.Item>
-
-        <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
-          <Button
-            type="primary"
-            htmlType="submit"
-            size="large"
-            loading={loading}
-            icon={<SaveOutlined />}
-            block
-            className="settings-save-button"
-          >
-            Save Business Information
-          </Button>
-        </Form.Item>
-      </Form>
-    </Card>
-  );
-};
 
 
 const AccountSecurity: React.FC = () => {
@@ -513,7 +289,7 @@ const Settings: React.FC = () => {
 
       
         <NotificationSettings />
-        <BusinessProfile />
+        {/* <BusinessProfile /> */}
         <AccountSecurity />
 
         
