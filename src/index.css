@@ -188,3 +188,27 @@ ease;
     box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
     padding: 8px;
 }
+.ant-modal-root .ant-modal-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    overflow: hidden;
+    outline: 0;
+    -webkit-overflow-scrolling: touch;
+}
+.dashboard-padding-1 {
+    padding: 2px;
+    background: #f0f2f5;
+    min-height: 93vh;
+}
+/* .dashboard-padding-25 {
+    border-radius: 20px;
+    height: 480px;
+    border: none;
+    box-shadow: 0 2px 16px rgba(0);
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding-bottom: 30px;
+} */
+

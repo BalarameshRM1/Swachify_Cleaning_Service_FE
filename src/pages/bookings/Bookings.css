@@ -327,9 +327,9 @@
 
 
 .assign-modal-body {
-  max-height: 400px;
+  max-height: 260px;
   overflow-y: auto;
-  margin-top: 16px;
+  margin-top: 12px;
   padding-right: 8px;
 }
 
@@ -364,14 +364,14 @@
 
 
 .employee-card {
-  margin-bottom: 12px;
+  margin-bottom: 1px;
   border-radius: 12px;
   transition: all 0.2s;
   border: 1px solid #e8e8e8;
   cursor: pointer;
   user-select: none;
   background: #ffffff;
-  padding: 16px;
+  padding: 12px;
 }
 
 .employee-card.employee-unavailable {
