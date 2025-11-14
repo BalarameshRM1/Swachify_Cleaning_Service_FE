@@ -971,7 +971,7 @@ useEffect(() => {
       ...prev,
       [section]: {
         ...prev[section],
-        serviceId: firstService.serviceName,
+        serviceId: firstService.serviceID,
       },
     }));
   }
