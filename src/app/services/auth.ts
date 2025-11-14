@@ -751,17 +751,30 @@ export const getBookingsByStatus = async(status: string) => {
     }
 }
 
-export const getallBookingsByUserId = async(id:any) =>{
-    try {
-        const response = await fetch(`${baseUrl}/Booking/getallbookingsbyuserID?user_id=0&emp_id=${id}`);
-        if (!response.ok) throw new Error("Failed to fetch bookings");
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Error fetching getBookings:", error);
-        throw error;
-    }
-}
+export const getallBookingsByUserId = async (empId: any) => {
+  try {
+    const response = await fetch(`${baseUrl}/Booking/getallbookingsbyuserID`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: 0,
+        emp_id: empId,
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch bookings");
+
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error("Error fetching getBookings:", error);
+    throw error;
+  }
+};
+
 
 // Helper to safely parse JSON or return text/null if empty
 async function safeParseResponse(res: Response) {
