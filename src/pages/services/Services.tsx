@@ -1038,6 +1038,7 @@ useEffect(() => {
                     <Select
                       placeholder="Select Service Type"
                       style={{ width: "100%" }}
+                       disabled={!master}
                       value={globalServiceType}
                       onChange={(value) => {
                         setGlobalServiceType(value);
@@ -1176,13 +1177,13 @@ useEffect(() => {
 
                 <div className="sv-req-wrap">
                   <div className="sv-flex-between sv-mb-6">
-                    <Text strong>Customer Requested Amount</Text>
+                    <Text strong>Customer Requested Amount $</Text>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
 <InputNumber
   className="sv-money-input"
   min={0}
-  value={customerRequest ?? 0}      // show 0 by default
-  placeholder="0"
+  value={customerRequest}      // show 0 by default
+  placeholder="$0"
   onChange={(v) => {
     if (v === null || isNaN(v)) {
       setCustomerRequest(0);
@@ -1200,7 +1201,7 @@ useEffect(() => {
 
     setCustomerRequest(numericValue);
   }}
-  formatter={(value) => `$ ${value}`}
+  formatter={(value) => `${value}`}
   parser={(value) => {
     if (!value) return 0;
     const numeric = value.replace(/[^\d]/g, "");
