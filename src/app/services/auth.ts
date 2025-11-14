@@ -376,24 +376,45 @@ export const otpVerify = async(mobileNumber:any,otp:any) =>{
     }
 }
 
-export const createEmployee = async (empData:any) => {
+export const createEmployee = async (empData: any) => {
   try {
     const response = await fetch(`${baseUrl}/User/createemployee`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(empData)
+      body: JSON.stringify(empData),
     });
 
-    if (!response.ok) {
-      const err = await response.json();
-      console.error("❌ Server validation error:", err);
-      throw new Error("Failed to createEmployee");
+    // Read raw text always (works for both JSON and plain text)
+    const bodyText = await response.text();
+
+    // Try to parse JSON, otherwise fallback to raw text
+    let body: any = {};
+    try {
+      body = JSON.parse(bodyText);
+    } catch {
+      body = { message: bodyText }; // backend plain text goes here
     }
 
-    const data = await response.json();
-    return data;
+    // For ANY non-success status → throw error
+    if (!response.ok) {
+      const errMessage =
+        body.message?.trim() ||
+        body.error?.trim() ||
+        body.errors?.trim() ||
+        bodyText.trim() ||  // raw backend text
+        "Request failed.";
+
+      throw {
+        response: {
+          status: response.status,
+          data: body,
+          message: errMessage,
+        },
+      };
+    }
+
+    return body;
   } catch (error) {
-    console.error("Error createEmployee:", error);
     throw error;
   }
 };

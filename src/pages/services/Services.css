@@ -6,7 +6,15 @@
 
 .sv-card { border-radius: 12px; }
 .sv-section-card { border-radius: 12px; }
-.sv-right-card { border-radius: 12px; height: 100%; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.sv-right-card {
+  border-radius: 12px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: visible !important;  
+  min-height: 0;
+}
+
 
 .sv-toolbar { margin-bottom: 8px; }
 .sv-toolbar.ant-row[justify="space-between"] { justify-content: flex-start !important; }
@@ -100,3 +108,4 @@
   .sv-w-full .ant-picker-input { width: 100%; font-size: 14px; } /* Expand popup to fit smaller screens */ .ant-picker-dropdown { left: -25px !important; width: 100vw !important; max-width: none !important; transform: none !important; } /* Center align calendar header */ .ant-picker-header { justify-content: center; } /* Make month and year dropdowns clearly visible */ .ant-picker-header-view button { font-size: 16px; font-weight: 600; color: #000; } /* Increase tap area of month/year selectors */ .ant-picker-header-view { gap: 8px; } /* Adjust calendar grid for mobile readability */ .ant-picker-content th, .ant-picker-content td { font-size: 13px; padding: 6px 4px; } /* Prevent clipping at bottom of viewport */ .ant-picker-dropdown .ant-picker-panel-container { max-height: 80vh; overflow-y: auto; }
 
 }
+

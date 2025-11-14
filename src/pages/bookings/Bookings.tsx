@@ -577,7 +577,7 @@ const [totalBookings, setTotalBookings] = useState(0);
                             <CloseCircleOutlined className="status-icon unavailable" />
                           )
                         }
-                        offset={[-5, 5]}
+                        offset={[-40, 5]}
                         className="employee-badge"
                       >
                         <Avatar className={avatarClass} size="large">
