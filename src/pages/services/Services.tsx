@@ -602,10 +602,10 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
                 name="fullName"
                 rules={[
                   { required: true, message: "Please enter your name" },
-                  {
-                    pattern: /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/,
-                    // message: "Enter valid full name (First and Last name)",
-                  },
+                  // {
+                  //   pattern: /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/,
+                  //   // message: "Enter valid full name (First and Last name)",
+                  // },
                 ]}
               >
                  <Input
@@ -1237,6 +1237,7 @@ useEffect(() => {
                 onClick={handleSubmit}
                 block
                 loading={loading}
+                disabled={!!customerError}
                 size="large"
                 className="sv-btn-primary"
               >
