@@ -192,7 +192,7 @@ ease;
     position: fixed;
     inset: 0;
     z-index: 1000;
-    overflow: hidden;
+    overflow: auto;
     outline: 0;
     -webkit-overflow-scrolling: touch;
 }
@@ -200,6 +200,11 @@ ease;
     padding: 2px;
     background: #f0f2f5;
     min-height: 93vh;
+}
+.ant-otp .ant-otp-input {
+    text-align: center;
+    padding-inline: 3px;
+    margin-bottom: 54px;
 }
 /* .dashboard-padding-25 {
     border-radius: 20px;

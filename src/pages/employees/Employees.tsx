@@ -184,6 +184,8 @@ const Employees: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
+
 
   const [form] = Form.useForm();
   const [viewType, setViewType] = useState<'grid' | 'card'>('grid');
@@ -254,30 +256,28 @@ const Employees: React.FC = () => {
     form.resetFields();
   };
 
-  const createEmployeeApi = async (data: any) => {
-     setActionLoading(true)
+ const createEmployeeApi = async (data: any) => {
+  setActionLoading(true);
+
   try {
     const res = await createEmployee(data);
     return res;
   } catch (error: any) {
-    console.error("Error creating employee:", error);
 
-    
-    if (error.response?.data?.errors) {
-      const errs = error.response.data.errors;
-      const messages = Object.values(errs).flat().join(", ");
-      message.error(messages);
-    } else {
-      message.error("Email Already Exists.");
-    }
+    const backendMsg =
+      error?.response?.message ||
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      "Failed to create employee";
 
-    
+    message.error(backendMsg);
+
     throw error;
+  } finally {
+    setActionLoading(false);
   }
-  finally {
-      setActionLoading(false); 
-    }
 };
+
 
 
   const updateEmployeeApi = async(data:any) =>{
@@ -334,7 +334,7 @@ const Employees: React.FC = () => {
     } else {
       // Add new employee
       const newEmp: Employee = {
-        user_id: Date.now(),
+        user_id: values.id,
         code: `EMP${Date.now()}`,
         user_name: values.name,
         email: values.email,
@@ -456,12 +456,49 @@ const Employees: React.FC = () => {
         className="employee-modal"
         footer={[
           <Button key="back" className="cancel-btn" onClick={handleCancel}>Cancel</Button>,
-          <Button key="submit" className="submit-btn" onClick={() => form.submit()}>
-            {editingEmployee ? "Update User" : "Add User"}
-          </Button>
+          <Button
+  key="submit"
+  className="submit-btn"
+  disabled={!isFormValid}     // ⭐ DISABLE UNTIL FORM VALID
+  onClick={() => form.submit()}
+>
+  {editingEmployee ? "Update User" : "Add User"}
+</Button>
+
         ]}
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmitEmployee} className="employee-form">
+        <Form
+  form={form}
+  layout="vertical"
+  onFinish={handleSubmitEmployee}
+  onFieldsChange={() => {
+    const hasErrors = form
+      .getFieldsError()
+      .some((field) => field.errors.length > 0);
+
+    const allFilled = form
+      .getFieldsValue([
+        "name",
+        "email",
+        "phone",
+        "location",
+        "services",
+        "role_id"
+      ]);
+
+    const isFilled =
+      allFilled.name &&
+      allFilled.email &&
+      allFilled.phone &&
+      allFilled.location &&
+      allFilled.services?.length > 0 &&
+      allFilled.role_id;
+
+    setIsFormValid(!hasErrors && isFilled);
+  }}
+  className="employee-form"
+>
+
           <Row gutter={24}>
             <Col xs={24} sm={12}>
              <Form.Item
@@ -480,7 +517,8 @@ const Employees: React.FC = () => {
                       maxLength={40}
                       onChange={(e) => {
                         const clean = e.target.value.replace(/[^A-Za-z\s]/g, "").slice(0, 40);
-                        form.setFieldsValue({ fullName: clean });
+                        form.setFieldsValue({ name: clean });
+
                       }}
                     />
                     </Form.Item>
@@ -521,11 +559,20 @@ const Employees: React.FC = () => {
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item name="services" label="Departments" rules={[
+             <Form.Item
+                name="services"
+                label="Departments"
+                rules={[
                   { required: true, message: "Please select departments" },
-                  
-                ]}>
-                <Select mode="multiple" options={departmentsdata} placeholder="Select departments" />
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  options={departmentsdata}
+                  placeholder="Select departments"
+                  showSearch={false}      
+                  filterOption={false}    
+                />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>

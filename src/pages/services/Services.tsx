@@ -213,7 +213,7 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
     living: false,
   });
 
-  const [customerRequest, setCustomerRequest] = useState<number>(0);
+  const [customerRequest, setCustomerRequest] = useState<number|null>(null);
   const [customerData, setCustomerData] = useState<any>(null);
   const [customerError, setCustomerError] = useState<string | null>(null);
   
@@ -625,14 +625,30 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
                 name="date"
                 rules={[{ required: true, message: "Please select a date" }]}
               >
-                <DatePicker
-                  className="sv-w-full"
-                  suffixIcon={<CalendarOutlined />}
-                  disabledDate={(d) => d && d < dayjs().startOf("day")}
-                  format="DD-MM-YYYY"
-                  inputReadOnly
-                  getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
-                />
+            <DatePicker
+  className="sv-w-full"
+  suffixIcon={<CalendarOutlined />}
+  disabledDate={(d) => d && d < dayjs().startOf("day")}
+  format="DD-MM-YYYY"
+  allowClear={false}
+  getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
+  onKeyDown={(e) => {
+    // Allow navigation and modifier combos
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // If key is a single printable character (typing), prevent it.
+    // e.key.length === 1 is true for printable characters like "a", "1", "/" etc.
+    if (e.key.length === 1) {
+      e.preventDefault();
+    }
+    // Otherwise (ArrowLeft, ArrowRight, Enter, Escape, Tab, PageUp/PageDown, Home/End) — allow
+  }}
+/>
+
+
+
+
+
               </Form.Item>
             </Col>
             <Col xs={24} md={12}>
@@ -692,7 +708,7 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
                 label="Address"
                 name="address"
                 rules={[
-                  {required:true, message:"please enter the adress"}
+                  {required:true, message:"please enter the address"}
                 ]}
               >
                 <Input.TextArea
@@ -955,7 +971,7 @@ useEffect(() => {
       ...prev,
       [section]: {
         ...prev[section],
-        serviceId: firstService,
+        serviceId: firstService.serviceName,
       },
     }));
   }
@@ -1002,6 +1018,7 @@ useEffect(() => {
                   setSelectedDepartment(null);
                   setMaster(null);
                   setGlobalServiceType(null);
+                  setCustomerError(null);
                   message.success("Selections cleared");
                 }}
                 className="sv-reset-btn"
@@ -1161,36 +1178,52 @@ useEffect(() => {
                   <div className="sv-flex-between sv-mb-6">
                     <Text strong>Customer Requested Amount</Text>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-  <InputNumber
-    className="sv-money-input"
-    min={0}
-    value={customerRequest}
-    onChange={(v) => {
-  const numericValue = Number(v) || 0;
-  if (numericValue > subtotal) {
-    setCustomerError("Please enter amount less than total");
-  } else {
-    setCustomerError(null);
-  }
-  setCustomerRequest(numericValue);
-}}
+<InputNumber
+  className="sv-money-input"
+  min={0}
+  value={customerRequest ?? 0}      // show 0 by default
+  placeholder="0"
+  onChange={(v) => {
+    if (v === null || isNaN(v)) {
+      setCustomerRequest(0);
+      setCustomerError(null);
+      return;
+    }
 
-    formatter={(value) => `$ ${value ?? 0}`}
-    parser={(value) => {
-      const numericValue = value?.replace(/[^\d]/g, "") || "0";
-      return Number(numericValue);
-    }}
-    controls={false}
-    inputMode="numeric"
-    onKeyPress={(e) => {
-      if (!/[0-9]/.test(e.key)) e.preventDefault();
-    }}
-    onPaste={(e) => {
-      const paste = e.clipboardData.getData("text");
-      if (!/^\d+$/.test(paste)) e.preventDefault();
-    }}
-    
-  />
+    const numericValue = Number(v);
+
+    if (numericValue > subtotal) {
+      setCustomerError("Please enter amount less than total");
+    } else {
+      setCustomerError(null);
+    }
+
+    setCustomerRequest(numericValue);
+  }}
+  formatter={(value) => `$ ${value}`}
+  parser={(value) => {
+    if (!value) return 0;
+    const numeric = value.replace(/[^\d]/g, "");
+    return numeric ? Number(numeric) : 0;
+  }}
+  controls={false}
+  inputMode="numeric"
+  onKeyPress={(e) => {
+    if (!/[0-9]/.test(e.key)) e.preventDefault();
+  }}
+  onPaste={(e) => {
+    const paste = e.clipboardData.getData("text");
+    if (!/^\d+$/.test(paste)) e.preventDefault();
+  }}
+
+  // ⭐ RESET TO $0 ON BLUR
+  // onBlur={() => {
+  //   setCustomerRequest(0);
+  //   setCustomerError(null);
+  // }}
+/>
+
+
  
 
   
