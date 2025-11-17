@@ -303,18 +303,33 @@ const Dashboard: React.FC = () => {
                       {/* CLICKABLE TAG */}
                       <div className="dashboard-style-36">
                         <Tag
-                          color={
-                            booking.normalizedStatus === "Pending"
-                              ? "orange"
-                              : booking.normalizedStatus === "In-Progress"
-                                ? "blue"
-                                : "green"
-                          }
-                          className="dashboard-style-37"
-                          onClick={() => navigate("../bookings")}
-                        >
-                          {booking.normalizedStatus}
-                        </Tag>
+  color={
+    booking.normalizedStatus === "Pending"
+      ? "orange"
+      : booking.normalizedStatus === "In-Progress"
+      ? "blue"
+      : "green"
+  }
+  className="dashboard-style-37"
+  onClick={() => {
+    const user = getUserDetails("user");
+
+    if (user?.role_id === 3) {
+    
+      navigate("../tickets", { 
+        state: { initialFilter: booking.normalizedStatus } 
+      });
+    } else {
+      
+      navigate("../bookings", { 
+        state: { initialFilter: booking.normalizedStatus } 
+      });
+    }
+  }}
+>
+  {booking.normalizedStatus}
+</Tag>
+
                       </div>
                     </div>
                   ))}
