@@ -761,6 +761,8 @@ export const getallBookingsByUserId = async (empId: any) => {
       body: JSON.stringify({
         user_id: 0,
         emp_id: empId,
+        limit:10,
+        offset:1,
       }),
     });
 
