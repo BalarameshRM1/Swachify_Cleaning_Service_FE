@@ -192,6 +192,7 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
   setIsContinueDisabled(!allFilled);
 }, [formValues]);
 
+
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [selectedService, setSelectedService] = useState<number | null>(null);
   const [selectedServiceType, setSelectedServiceType] = useState<number | null>(null);
@@ -344,6 +345,16 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
 
     fetchMasterData();
   }, []);
+  useEffect(() => {
+  if (customerRequest !== null) {
+    if (customerRequest > subtotal) {
+      setCustomerError("Please enter amount less than total");
+    } else {
+      setCustomerError(null);
+    }
+  }
+}, [subtotal]);
+
 
   // Final total is what customer requested to pay (after discount)
   // If no customer request, show full subtotal
