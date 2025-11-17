@@ -1084,7 +1084,7 @@ useEffect(() => {
                       options={
                         departments.length > 0 && departments[0].services.length > 0
                           ? departments[0].services[0].serviceTypes.map((stype) => ({
-                              label: `${stype.serviceType} - ₹${stype.price}`,
+                              label: `${stype.serviceType} - $${stype.price}`,
                               value: stype.serviceTypeID,
                             }))
                           : []
