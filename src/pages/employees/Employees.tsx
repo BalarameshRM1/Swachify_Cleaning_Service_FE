@@ -60,6 +60,9 @@ interface EmployeeCardProps {
   onEdit: (emp: Employee) => void;
 }
 
+// const [inputValue, setInputValue] = React.useState("");
+const [isDisabled, setIsDisabled] = React.useState(false);
+
 const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit }) => (
  <Card
     hoverable
@@ -543,28 +546,49 @@ const Employees: React.FC = () => {
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item
-                label="Phone"
-                name="phone"
-                rules={[
-                  { required: true, message: "Please enter your phone number" },
-                  {
-                    pattern: /^[0-9][0-9]{9}$/,
-                    message: "Enter a valid 10-digit phone number",
-                  },
-                ]}
-              >
-                <Input
-                  prefix={<PhoneOutlined />}
-                  placeholder="9876543210"
-                  maxLength={10}
-                  inputMode="numeric"
-                  onChange={(e) => {
-                    const onlyNums = e.target.value.replace(/[^0-9]/g, "");
-                    if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
-                    form.setFieldsValue({ phone: onlyNums });
-                  }}
-                />
-              </Form.Item>
+                             label="Phone"
+                             name="phone"
+                             rules={[
+                               { required: true, message: "Please enter your phone number" },
+                               {
+                                 pattern: /^[0-9][0-9]{9}$/,
+                                 message: "Enter a valid 10-digit phone number",
+                               },
+                             ]}
+                           >
+                 const [inputValue, setInputValue] = React.useState("");
+const [isDisabled, setIsDisabled] = React.useState(false);
+
+<Input
+  prefix={<PhoneOutlined />}
+  placeholder="9876543210"
+  maxLength={10}
+  type="number"
+  inputMode="numeric"
+  disabled={isDisabled}
+  onKeyPress={(e) => {
+    if (!/[0-9]/.test(e.key)) e.preventDefault();
+  }}
+  onChange={(e) => {
+    let onlyNums = e.target.value.replace(/[^0-9]/g, "");
+    if (onlyNums.length > 10) {
+      onlyNums = onlyNums.slice(0, 10);
+    }
+    if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
+
+    // setInputValue(onlyNums);
+    form.setFieldsValue({ phone: onlyNums });
+
+    if (onlyNums.length === 10) {
+      setIsDisabled(true);
+    } else {
+      setIsDisabled(false);
+    }
+  }}
+/>
+
+             
+                           </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item name="location" label="Location" rules={[{ required: true, message: "Select location" }]}>
