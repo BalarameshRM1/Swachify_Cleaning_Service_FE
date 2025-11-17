@@ -161,7 +161,7 @@ const Services: React.FC = () => {
   const [master, setMaster] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [departments, setDepartments] = useState<Department[]>([]);
- const formValues = Form.useWatch([], form);
+//  const formValues = Form.useWatch([], form);
 const [isContinueDisabled, setIsContinueDisabled] = useState(true);
 
   useEffect(() => {
