@@ -197,7 +197,7 @@
 /* Mobile Small */
 @media (max-width: 375px) {
   .employees-container {
-    padding: 8px;
+    padding: -5px;
   }
   .employee-card {
     width: 100%;

@@ -501,27 +501,40 @@ const Employees: React.FC = () => {
 
           <Row gutter={24}>
             <Col xs={24} sm={12}>
-             <Form.Item
+ <Form.Item
   name="name"
   label="Full Name"
   rules={[
-    { required: true, message: "Please enter full name" }]}
-  //   {
-  //     pattern: /^[A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+$/,
-  //     message: "Enter valid name: FirstName LastName (Both start with capital letter)",
-  //   },
-  // ]}
+    { required: true, message: "Please enter full name" },
+    {
+      validator: (_, value) => {
+        if (value && value.startsWith(" ")) {
+          return Promise.reject("Name cannot start with a space");
+        }
+        return Promise.resolve();
+      },
+    },
+  ]}
 >
-<Input
-                      placeholder="Enter full name"
-                      maxLength={40}
-                      onChange={(e) => {
-                        const clean = e.target.value.replace(/[^A-Za-z\s]/g, "").slice(0, 40);
-                        form.setFieldsValue({ name: clean });
+  <Input
+    placeholder="Enter full name"
+    maxLength={40}
+    onChange={(e) => {
+      const val = e.target.value;
+      // Prevent setting value if it starts with spaces
+      if (val.length > 0 && val[0] === " ") return;
+      // Allow spaces internally and only letters + spaces
+      const clean = val.replace(/[^A-Za-z\s]/g, "").slice(0, 40);
+      form.setFieldsValue({ name: clean });
+    }}
+    onBlur={(e) => {
+      const trimmed = e.target.value.trimEnd();
+      form.setFieldsValue({ name: trimmed });
+    }}
+  />
+</Form.Item>
 
-                      }}
-                    />
-                    </Form.Item>
+
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item name="email" label="Email" rules={[{ required: true, type: "email", message: "Enter valid email" }]}>
