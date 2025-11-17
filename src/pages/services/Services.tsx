@@ -179,18 +179,8 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
     fetchDepartments();
   }, []);
 
-  useEffect(() => {
-  const values = form.getFieldsValue();
+ 
 
-  const allFilled =
-    values.fullName &&
-    values.phone &&
-    values.email &&
-    values.date &&
-    values.address;
-
-  setIsContinueDisabled(!allFilled);
-}, [formValues]);
 
 
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
@@ -587,25 +577,25 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
             Booking Details
           </Title>
         </Space>
-        <Form
-          layout="vertical"
-          form={form}
-          className="sv-form"
-          // onValuesChange={() => {
-          //   const values = form.getFieldsValue();
-          //   const allFilled =
-          //     values.fullName &&
-          //     /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/.test(values.fullName) &&
-          //     values.date &&
-          //     /^[6-9][0-9]{9}$/.test(values.phone || "") &&
-          //     values.email &&
-          //     /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(values.email) &&
-          //     values.address &&
-          //     /\b\d+[A-Za-z]?\b/.test(values.address) &&
-          //     /\b\d{6}\b/.test(values.address);
-          //   // setIsContinueDisabled(!allFilled);
-          // }}
-        >
+      <Form
+  layout="vertical"
+  form={form}
+  className="sv-form"
+  onFieldsChange={() => {
+    const values = form.getFieldsValue();
+    const hasErrors = form.getFieldsError().some(f => f.errors.length > 0);
+
+    const allFilled =
+      values.fullName &&
+      values.phone &&
+      values.email &&
+      values.date &&
+      values.address;
+
+    setIsContinueDisabled(!(allFilled && !hasErrors));
+  }}
+>
+
           <Row gutter={[8, 0]}>
             <Col xs={24} md={12}>
               <Form.Item
@@ -632,35 +622,21 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
-                label="Preferred date"
-                name="date"
-                rules={[{ required: true, message: "Please select a date" }]}
-              >
-            <DatePicker
-  className="sv-w-full"
-  suffixIcon={<CalendarOutlined />}
-  disabledDate={(d) => d && d < dayjs().startOf("day")}
-  format="DD-MM-YYYY"
-  allowClear={false}
-  getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
-  onKeyDown={(e) => {
-    // Allow navigation and modifier combos
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
+  label="Preferred date"
+  name="date"
+  rules={[{ required: true, message: "Please select a date" }]}
+>
+  <DatePicker
+    className="sv-w-full"
+    suffixIcon={<CalendarOutlined />}
+    disabledDate={(d) => d && d < dayjs().startOf("day")}
+    format="DD-MM-YYYY"
+    allowClear={false}
+    inputReadOnly   // ⭐ THIS FIXES THE ISSUE
+    getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
+  />
+</Form.Item>
 
-    // If key is a single printable character (typing), prevent it.
-    // e.key.length === 1 is true for printable characters like "a", "1", "/" etc.
-    if (e.key.length === 1) {
-      e.preventDefault();
-    }
-    // Otherwise (ArrowLeft, ArrowRight, Enter, Escape, Tab, PageUp/PageDown, Home/End) — allow
-  }}
-/>
-
-
-
-
-
-              </Form.Item>
             </Col>
             <Col xs={24} md={12}>
               <Form.Item

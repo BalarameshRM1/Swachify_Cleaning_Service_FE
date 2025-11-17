@@ -87,11 +87,22 @@ const [totalTickets, setTotalTickets] = useState(0);
 useEffect(() => {
   const loadPagedData = async () => {
     setLoading(true);
-    await getallBookingsApi();
+    const user = getUserDetails("user");
+
+    if (user?.role_id === 3) {
+      // employee should see only assigned bookings
+      await getallBookingsByUserApi(user.id);
+    } else {
+      // admin sees all bookings with filters
+      await getallBookingsApi();
+    }
+
     setLoading(false);
   };
+
   loadPagedData();
-}, [currentPage, pageSize,filter]);
+}, [currentPage, pageSize, filter]);
+
 // Maps filter values to backend status_id
 const STATUS_ID_MAP: Record<string, number> = {
   all: -1,
