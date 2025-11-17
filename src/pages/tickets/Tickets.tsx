@@ -156,21 +156,33 @@ const STATUS_ID_MAP: Record<string, number> = {
 
 
   const getallBookingsByUserApi = async (id: any) => {
-    try {
-      const response = await getallBookingsByUserId(id);
-      if (!response) return;
-      response.sort((a: any, b: any) => b.id - a.id);
-      const normalized = response.map((b: any) => ({
-        ...b,
-        normalizedStatus:
-          typeof b.status === "string" ? b.status : b.status?.status || "Unknown",
-          
-      }));
-      setAllTickets(normalized.filter((b: any) => b.normalizedStatus !== "Open"));
-    } catch (err) {
-      console.error("Error fetching bookings:", err);
+  try {
+    const response = await getallBookingsByUserId(id);
+    if (!response) return;
+
+    response.sort((a: any, b: any) => b.id - a.id);
+
+    const normalized = response.map((b: any) => ({
+      ...b,
+      normalizedStatus:
+        typeof b.status === "string" ? b.status : b.status?.status || "Unknown",
+    }));
+
+    
+    let filtered = normalized.filter((b:any) => b.normalizedStatus !== "Open");
+
+   
+    if (filter !== "all") {
+      filtered = filtered.filter((b:any) => b.normalizedStatus === filter);
     }
-  };
+
+    setAllTickets(filtered);
+
+  } catch (err) {
+    console.error("Error fetching employee bookings:", err);
+  }
+};
+
 
   useEffect(() => {
     document.title = "Service Tickets - Swachify Admin Panel";
