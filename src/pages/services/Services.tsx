@@ -763,14 +763,32 @@ useEffect(() => {
               disabled={!selectedDepartment}
               value={sectionState.serviceId}
               onChange={(value) => {
-                setServiceForm((prev) => ({
-                  ...prev,
-                  [section]: {
-                    ...prev[section],
-                    serviceId: value,
-                  },
-                }));
-              }}
+  const service = selectedDepartment?.services.find(s => s.serviceID === value);
+
+  // find global service type details
+  const selectedType = globalServiceType
+    ? service?.serviceTypes.find(st => st.serviceTypeID === globalServiceType)
+    : null;
+
+  setServiceForm((prev) => ({
+    ...prev,
+    [section]: {
+      ...prev[section],
+      serviceId: value,
+
+      // RESET old values
+      subService: null,
+      roomSize: null,
+      addOnHours: [],
+
+      // APPLY global service type (if selected)
+      serviceTypeId: globalServiceType || null,
+      type: selectedType?.serviceType || null,
+      actualPrice: selectedType?.price || 0,
+    },
+  }));
+}}
+
               options={
                 selectedDepartment?.services.map((srv) => ({
                   label: srv.serviceName,
@@ -807,12 +825,6 @@ useEffect(() => {
   }}
   maxLength={6}
 />
-
-
-
-
-
-
           </Col>
         </Row>
       </div>
@@ -954,14 +966,29 @@ useEffect(() => {
   const firstService = selectedDept?.services?.[0];
 
   if (firstService) {
-    setServiceForm((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        serviceId: firstService.serviceID,
-      },
-    }));
-  }
+  const selectedType = globalServiceType
+    ? firstService.serviceTypes.find(st => st.serviceTypeID === globalServiceType)
+    : null;
+
+  setServiceForm((prev) => ({
+    ...prev,
+    [section]: {
+      ...prev[section],
+      serviceId: firstService.serviceID,
+
+      // Reset old values
+      subService: null,
+      roomSize: null,
+      addOnHours: [],
+
+      // Apply global service type (if any)
+      serviceTypeId: globalServiceType || null,
+      type: selectedType?.serviceType || null,
+      actualPrice: selectedType?.price || 0,
+    },
+  }));
+}
+
 }}
 
             />
