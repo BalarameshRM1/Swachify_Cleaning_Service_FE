@@ -177,6 +177,8 @@ const Employees: React.FC = () => {
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [initialFormValues, setInitialFormValues] = useState<any>({});
+
 
   const [form] = Form.useForm();
   const [viewType, setViewType] = useState<'grid' | 'card'>('grid');
@@ -349,26 +351,31 @@ const Employees: React.FC = () => {
     }
   };
 
-  const handleEditEmployee = (emp: any) => {
-    setEditingEmployee(emp);
-    form.setFieldsValue({
-      name: emp.user_name,
-      email: emp.email,
-      phone: emp.phone,
-      location: emp.location_id,
-      services: emp.depts?.map((d: any) => departmentsdata.find((dep: any) => dep.label === d)?.value).filter(Boolean),
-      role_id: emp.role_id,
-    });
-    setIsModalVisible(true);
-    
-    // Trigger validation check after setting values
-    setTimeout(() => {
-      const hasErrors = form.getFieldsError().some((field) => field.errors.length > 0);
-      const allFilled = form.getFieldsValue(["name", "email", "phone", "location", "services", "role_id"]);
-      const isFilled = allFilled.name && allFilled.email && allFilled.phone && allFilled.location && allFilled.services?.length > 0 && allFilled.role_id;
-      setIsFormValid(!hasErrors && isFilled);
-    }, 100);
+ const handleEditEmployee = (emp: any) => {
+  const initialValues = {
+    name: emp.user_name,
+    email: emp.email,
+    phone: emp.phone,
+    location: emp.location_id,
+    services: emp.depts?.map((d: any) =>
+      departmentsdata.find((dep: any) => dep.label === d)?.value
+    ).filter(Boolean),
+    role_id: emp.role_id,
   };
+
+  setInitialFormValues(initialValues);
+  setEditingEmployee(emp);
+
+  form.setFieldsValue(initialValues);
+
+  setIsModalVisible(true);
+  
+  // Trigger valid state
+  setTimeout(() => {
+    setIsFormValid(false); // Disable update by default
+  }, 100);
+};
+
 
   if (loading) {
     return (
@@ -511,12 +518,32 @@ const Employees: React.FC = () => {
           form={form}
           layout="vertical"
           onFinish={handleSubmitEmployee}
-          onFieldsChange={() => {
-            const hasErrors = form.getFieldsError().some((field) => field.errors.length > 0);
-            const allFilled = form.getFieldsValue(["name", "email", "phone", "location", "services", "role_id"]);
-            const isFilled = allFilled.name && allFilled.email && allFilled.phone && allFilled.location && allFilled.services?.length > 0 && allFilled.role_id;
-            setIsFormValid(!hasErrors && isFilled);
-          }}
+         onFieldsChange={() => {
+  const values = form.getFieldsValue();
+  const hasErrors = form.getFieldsError().some((field) => field.errors.length > 0);
+
+  // Check if any field is different from its original state
+  const isChanged = Object.keys(initialFormValues).some((key) => {
+    const oldVal = initialFormValues[key];
+    const newVal = values[key];
+
+    if (Array.isArray(oldVal) && Array.isArray(newVal)) {
+      return oldVal.sort().join(',') !== newVal.sort().join(',');
+    }
+    return oldVal !== newVal;
+  });
+
+  const allFilled =
+    values.name &&
+    values.email &&
+    values.phone &&
+    values.location &&
+    values.services?.length > 0 &&
+    values.role_id;
+
+  setIsFormValid(!hasErrors && allFilled && isChanged);
+}}
+
           className="employee-form"
         >
           <Row gutter={24}>
