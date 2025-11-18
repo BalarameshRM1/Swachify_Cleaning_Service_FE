@@ -10,10 +10,10 @@ export const getAllUsers = async() => {
             },
             body:JSON.stringify(
              {
-  "userid": 0,
+  "userid": -1,
   "roleid": 3,
   "limit": 100,
-  "offset": 1
+  "offset": 0
 }
             ),
             

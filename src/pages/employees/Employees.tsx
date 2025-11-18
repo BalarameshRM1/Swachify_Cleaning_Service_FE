@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// import type { SelectProps } from "antd";
 import {
   Card,
   Col,
@@ -60,25 +59,17 @@ interface EmployeeCardProps {
   onEdit: (emp: Employee) => void;
 }
 
-// const [inputValue, setInputValue] = React.useState("");
-// const [isDisabled, setIsDisabled] = React.useState(false);
-
 const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit }) => (
- <Card
+  <Card
     hoverable
     style={{
       borderRadius: '10px',
       border: '1px solid #dcfce7',
-      // maxHeight: '280px',
       transition: 'all 0.3s ease',
-      // position: 'relative', // <-- REMOVED
     }}
-    bodyStyle={{ padding: '16px' }} // <-- UPDATED PADDING
+    bodyStyle={{ padding: '16px' }}
   >
-    {/* NEW FLEX HEADER WRAPPER */}
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-
-      {/* LEFT SIDE: Avatar, Name, Status */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 5, overflow: 'hidden' }}>
         <Avatar
           size={30}
@@ -99,7 +90,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit 
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              maxWidth: 120, // This matches your image's truncated names
+              maxWidth: 120,
             }}
           >
             {employee.user_name}
@@ -113,7 +104,6 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit 
         </div>
       </div>
 
-      {/* RIGHT SIDE: Icons (Moved from .card-actions) */}
       <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
         <Button
           type="text"
@@ -122,7 +112,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit 
           onClick={() => onEdit(employee)}
         />
         <Popconfirm
-          title=" delete?"
+          title="Delete employee?"
           onConfirm={() => onDelete(employee.user_id)}
           okText="Yes"
           cancelText="No"
@@ -137,7 +127,6 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete, onEdit 
       </div>
     </div>
 
-    {/* The rest of the card content remains the same */}
     <Divider style={{ margin: '12px 0' }} />
 
     <div style={{ marginBottom: 12 }}>
@@ -189,7 +178,6 @@ const Employees: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
 
-
   const [form] = Form.useForm();
   const [viewType, setViewType] = useState<'grid' | 'card'>('grid');
 
@@ -198,222 +186,250 @@ const Employees: React.FC = () => {
     ...locationsData,
   ];
 
+  // Fetch all data function - reusable
+  const fetchAllData = async () => {
+    try {
+      setLoading(true);
+      const [users, locations, departments, roles] = await Promise.all([
+        getAllUsers(),
+        getAllLocations(),
+        getAllDepartments(),
+        getAllRoles(),
+      ]);
+
+      setLocationsData(locations.map((l: any) => ({ label: l.locationName, value: l.locationId })));
+      setdepartmentsdata(Array.from(new Map(departments.map((d: any) => [d.departmentId, { label: d.departmentName, value: d.departmentId }])).values()));
+      setRolesData(roles.map((r: any) => ({ label: r.roleName, value: r.roleId })));
+
+      const mappedUsers = users.map((u: any) => ({
+        ...u,
+        id: u.user_id,
+        code: u.code || `EMP${u.user_id}`,
+        name: `${u.user_name}`,
+        status: u.is_assigned ? "Assigned" : "Available",
+        phone: u.mobile || "N/A",
+        email: u.email || "N/A",
+        depts: u.department_name
+          ? u.department_name.split(",").map((d: string) => d.trim())
+          : [],
+        location_id: u.location_id,
+      }));
+
+      setEmployees(mappedUsers);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      message.error("Failed to load employees data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [users, locations, departments, roles] = await Promise.all([
-          getAllUsers(),
-          getAllLocations(),
-          getAllDepartments(),
-          getAllRoles(),
-        ]);
-
-        setLocationsData(locations.map((l: any) => ({ label: l.locationName, value: l.locationId })));
-        setdepartmentsdata(Array.from(new Map(departments.map((d: any) => [d.departmentId, { label: d.departmentName, value: d.departmentId }])).values()));
-        setRolesData(roles.map((r: any) => ({ label: r.roleName, value: r.roleId })));
-
-        const mappedUsers = users.map((u: any) => ({
-          ...u,
-          id: u.user_id,
-          code: u.code || `EMP${u.user_id}`,
-          name: `${u.user_name}`,
-          status: u.is_assigned ? "Assigned" : "Available",
-          phone: u.mobile || "N/A",
-          email: u.email || "N/A",
-           depts: u.department_name
-    ? u.department_name.split(",").map((d: string) => d.trim())
-    : [],
-          location_id: u.location_id,
-        }));
-
-        setEmployees(mappedUsers);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    fetchAllData();
   }, []);
 
- useEffect(() => {
-  const mappedEmployees = employees.map(emp => {
-    const loc = locationsData.find((l: any) => Number(l.value) === Number(emp.location_id));
-    return { ...emp, location: loc?.label || emp.location || "Unknown" };
-  });
+  useEffect(() => {
+    const mappedEmployees = employees.map(emp => {
+      const loc = locationsData.find((l: any) => Number(l.value) === Number(emp.location_id));
+      return { ...emp, location: loc?.label || emp.location || "Unknown" };
+    });
 
-  if (locationFilter === "All Locations") {
-    setFilteredEmployees(mappedEmployees);
-  } else {
-    // compare by ID instead of label
-    setFilteredEmployees(
-      mappedEmployees.filter(emp => Number(emp.location_id) === Number(locationFilter))
-    );
-  }
-}, [employees, locationsData, locationFilter]);
-
+    if (locationFilter === "All Locations") {
+      setFilteredEmployees(mappedEmployees);
+    } else {
+      setFilteredEmployees(
+        mappedEmployees.filter(emp => Number(emp.location_id) === Number(locationFilter))
+      );
+    }
+  }, [employees, locationsData, locationFilter]);
 
   const handleCancel = () => {
     setIsModalVisible(false);
     setEditingEmployee(null);
     form.resetFields();
+    setIsFormValid(false);
   };
 
- const createEmployeeApi = async (data: any) => {
-  setActionLoading(true);
-
-  try {
-    const res = await createEmployee(data);
-    return res;
-  } catch (error: any) {
-
-    const backendMsg =
-      error?.response?.message ||
-      error?.response?.data?.message ||
-      error?.response?.data ||
-      "Failed to create employee";
-
-    message.error(backendMsg);
-
-    throw error;
-  } finally {
-    setActionLoading(false);
-  }
-};
-
-
-
-  const updateEmployeeApi = async(data:any) =>{
-     setActionLoading(true);
+  const createEmployeeApi = async (data: any) => {
+    setActionLoading(true);
     try {
-      await editEmployee(data)      
+      const res = await createEmployee(data);
+      return res;
     } catch (error: any) {
-    console.error("Error creating employee:", error);
-
-    
-    if (error.response?.data?.errors) {
-      const errs = error.response.data.errors;
-      const messages = Object.values(errs).flat().join(", ");
-      message.error(messages);
-    } else {
-      message.error("Email Already Exists.");
+      const backendMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to create employee";
+      message.error(backendMsg);
+      throw error;
+    } finally {
+      setActionLoading(false);
     }
+  };
 
-    
-    throw error;
-  }
-    finally {
-      setActionLoading(false); 
+  const updateEmployeeApi = async (data: any) => {
+    setActionLoading(true);
+    try {
+      const res = await editEmployee(data);
+      return res;
+    } catch (error: any) {
+      console.error("Error updating employee:", error);
+      
+      const backendMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update employee";
+      message.error(backendMsg);
+      
+      throw error;
+    } finally {
+      setActionLoading(false);
     }
-  }
+  };
 
-  const handleSubmitEmployee = async(values: any) => {
-    if (editingEmployee) {
-      // Edit employee
-      const updatedEmp: Employee = {
-        ...editingEmployee,
-        user_name: values.name,
-        email: values.email,
-        phone: values.phone,
-        location: locationsData.find((l:any) => l.value === values.location)?.label || "Unknown",
-        location_id: values.location,
-        depts: values.services.map((v: any) => departmentsdata.find((d:any) => d.value === v)?.label || ""),
-        role_id: values.role_id,
-      };
-      const payload = {
-        id: updatedEmp.user_id,
-        first_name: values.name?.split(' ')[0],
-        last_name: values.name?.split(' ')[1],
-        email: values.email,
-        mobile: values.phone,
-        location_id: values.location,   
-        dept_id: values.services,
-        role_id: values.role_id,
-      };
-     // updateEmployeeApi(payload)
-      setEmployees(prev => prev.map(emp => emp.user_id === editingEmployee.user_id ? updatedEmp : emp));
-      await updateEmployeeApi(payload);
-      message.success("Employee updated successfully!");
-    } else {
-      // Add new employee
-      const newEmp: Employee = {
-        user_id: values.id,
-        code: `EMP${Date.now()}`,
-        user_name: values.name,
-        email: values.email,
-        phone: values.phone,
-        location: locationsData.find((l:any) => l.value === values.location)?.label || "Unknown",
-        location_id: values.location,
-        depts: values.services.map((v: any) => departmentsdata.find((d:any) => d.value === v)?.label || ""),
-        status: "Available",
-        services: [],
-        role_id: values.role_id,
-      };
+  const handleSubmitEmployee = async (values: any) => {
+    try {
+      if (editingEmployee) {
+        // Edit employee - API call first
+        const payload = {
+          id: editingEmployee.user_id,
+          first_name: values.name?.split(' ')[0] || values.name,
+          last_name: values.name?.split(' ').slice(1).join(' ') || '',
+          email: values.email,
+          mobile: values.phone,
+          location_id: values.location,
+          dept_id: values.services,
+          role_id: values.role_id,
+        };
 
-      const payload = {
-        first_name: values.name?.split(' ')[0],
-        last_name: values.name?.split(' ')[1],
-        email: values.email,
-        mobile: values.phone,
-        location_id: values.location,   
-        dept_id: values.services,
-        role_id: values.role_id,
-      };
-     await createEmployeeApi(payload)
-      setEmployees(prev => [newEmp, ...prev]);
-      message.success("Employee added successfully!");
+        await updateEmployeeApi(payload);
+        message.success("Employee updated successfully!");
+        
+        // Refetch all data to ensure UI is in sync with backend
+        await fetchAllData();
+      } else {
+        // Add new employee - API call first
+        const payload = {
+          first_name: values.name?.split(' ')[0] || values.name,
+          last_name: values.name?.split(' ').slice(1).join(' ') || '',
+          email: values.email,
+          mobile: values.phone,
+          location_id: values.location,
+          dept_id: values.services,
+          role_id: values.role_id,
+        };
+
+        await createEmployeeApi(payload);
+        message.success("Employee added successfully!");
+        
+        // Refetch all data to get the newly created employee with correct ID
+        await fetchAllData();
+      }
+      
+      handleCancel();
+    } catch (err) {
+      console.error("Error submitting employee:", err);
+      // Error message already shown in API functions
     }
-    handleCancel();
   };
 
   const handleDeleteEmployee = async (id: number) => {
     try {
+      setActionLoading(true);
       await deleteEmployeeById(id);
-      setEmployees(prev => prev.filter(emp => emp.user_id !== id));
+      
+      // Refetch data after deletion
+      await fetchAllData();
       message.success("Employee deleted successfully!");
     } catch (err) {
+      console.error("Error deleting employee:", err);
       message.error("Failed to delete employee!");
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleEditEmployee = (emp: any) => {
     setEditingEmployee(emp);
     form.setFieldsValue({
-      name: emp.name,
+      name: emp.user_name,
       email: emp.email,
       phone: emp.phone,
       location: emp.location_id,
-      services: emp.depts.map((d:any) => departmentsdata.find((dep:any) => dep.label === d)?.value),
+      services: emp.depts?.map((d: any) => departmentsdata.find((dep: any) => dep.label === d)?.value).filter(Boolean),
       role_id: emp.role_id,
     });
     setIsModalVisible(true);
+    
+    // Trigger validation check after setting values
+    setTimeout(() => {
+      const hasErrors = form.getFieldsError().some((field) => field.errors.length > 0);
+      const allFilled = form.getFieldsValue(["name", "email", "phone", "location", "services", "role_id"]);
+      const isFilled = allFilled.name && allFilled.email && allFilled.phone && allFilled.location && allFilled.services?.length > 0 && allFilled.role_id;
+      setIsFormValid(!hasErrors && isFilled);
+    }, 100);
   };
 
   if (loading) {
     return (
       <div className="loader-container">
         <img src={LoaderGif} alt="Loading..." className="loader-image" />
-         <Text className="loader-text">Loading employees...</Text>
+        <Text className="loader-text">Loading employees...</Text>
       </div>
     );
   }
 
   const columns = [
     { title: "S.NO", key: "sno", render: (_: any, __: any, idx: number) => idx + 1, width: 60 },
-    { title: "Emp No", dataIndex: "code", key: "code", width: 150, render: (code:any) => <span style={{ fontWeight: "bold", color: "#0d9488" }}>{code}</span> },
-{ title: "Emp Name", dataIndex: "user_name", key: "user_name", width: 200 },
-    { title: "Mobile", dataIndex: "phone", key: "phone", render: (phone:any) => <><PhoneFilled style={{ color: "#ef4444" }} /> {phone}</> },
-    { title: "Location", dataIndex: "location", key: "location", render: (loc:any) => <><EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}</> },
-    { title: "Email ID", dataIndex: "email", key: "email", render: (email:any) => <><MailOutlined style={{ color: "#ef4444" }} /> {email}</> },
-    { title: "Status", dataIndex: "status", key: "status", render: (status:any) => <Tag color={status === "Available" ? "success" : "warning"}>{status}</Tag> },
-    { title: "Action", key: "action", render: (_: any, record: Employee) => (
-      <Space>
-        <Button type="text" icon={<EditOutlined />} onClick={() => handleEditEmployee(record)} />
-        <Popconfirm title="Delete?" onConfirm={() => handleDeleteEmployee(record.user_id)} okText="Yes" cancelText="No">
-          <Button type="text" danger icon={<DeleteOutlined />} />
-        </Popconfirm>
-      </Space>
-    ) }
+    { 
+      title: "Emp No", 
+      dataIndex: "code", 
+      key: "code", 
+      width: 150, 
+      render: (code: any) => <span style={{ fontWeight: "bold", color: "#0d9488" }}>{code}</span> 
+    },
+    { title: "Emp Name", dataIndex: "user_name", key: "user_name", width: 200 },
+    { 
+      title: "Mobile", 
+      dataIndex: "phone", 
+      key: "phone", 
+      render: (phone: any) => <><PhoneFilled style={{ color: "#ef4444" }} /> {phone}</> 
+    },
+    { 
+      title: "Location", 
+      dataIndex: "location", 
+      key: "location", 
+      render: (loc: any) => <><EnvironmentFilled style={{ color: "#ef4444" }} /> {loc}</> 
+    },
+    { 
+      title: "Email ID", 
+      dataIndex: "email", 
+      key: "email", 
+      render: (email: any) => <><MailOutlined style={{ color: "#ef4444" }} /> {email}</> 
+    },
+    { 
+      title: "Status", 
+      dataIndex: "status", 
+      key: "status", 
+      render: (status: any) => <Tag color={status === "Available" ? "success" : "warning"}>{status}</Tag> 
+    },
+    { 
+      title: "Action", 
+      key: "action", 
+      render: (_: any, record: Employee) => (
+        <Space>
+          <Button type="text" icon={<EditOutlined />} onClick={() => handleEditEmployee(record)} />
+          <Popconfirm 
+            title="Delete employee?" 
+            onConfirm={() => handleDeleteEmployee(record.user_id)} 
+            okText="Yes" 
+            cancelText="No"
+          >
+            <Button type="text" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ) 
+    }
   ];
 
   return (
@@ -429,24 +445,45 @@ const Employees: React.FC = () => {
             >
               {viewType === "grid" ? "Card View" : "Grid View"}
             </Button>
-            <Select value={locationFilter} style={{ width: 180 }} onChange={setLocationFilter} options={locationOptions} />
-            <Button icon={<PlusOutlined />} onClick={() => { setEditingEmployee(null); setIsModalVisible(true); }}>Add User</Button>
+            <Select 
+              value={locationFilter} 
+              style={{ width: 180 }} 
+              onChange={setLocationFilter} 
+              options={locationOptions} 
+            />
+            <Button 
+              icon={<PlusOutlined />} 
+              onClick={() => { 
+                setEditingEmployee(null); 
+                form.resetFields();
+                setIsFormValid(false);
+                setIsModalVisible(true); 
+              }}
+            >
+              Add User
+            </Button>
           </Space>
         </Col>
       </Row>
 
       <div className="scrollable-grid">
         {viewType === "grid" ? (
-          <Table dataSource={filteredEmployees} columns={columns} pagination={false} rowKey="id" scroll={{ x: 800, y: 520 }} />
+          <Table 
+            dataSource={filteredEmployees} 
+            columns={columns} 
+            pagination={false} 
+            rowKey="user_id" 
+            scroll={{ x: 800, y: 520 }} 
+          />
         ) : (
-          <div style={{ maxHeight: 520, overflowY: 'auto',overflowX: 'hidden', paddingRight: 8 }}>
-          <Row gutter={[24, 24]} className="content-grid">
-            {filteredEmployees.map(emp => (
-              <Col xs={24} sm={12} lg={8} xl={6} key={emp.user_id}>
-                <EmployeeCard employee={emp} onDelete={handleDeleteEmployee} onEdit={handleEditEmployee} />
-              </Col>
-            ))}
-          </Row>
+          <div style={{ maxHeight: 520, overflowY: 'auto', overflowX: 'hidden', paddingRight: 8 }}>
+            <Row gutter={[24, 24]} className="content-grid">
+              {filteredEmployees.map(emp => (
+                <Col xs={24} sm={12} lg={8} xl={6} key={emp.user_id}>
+                  <EmployeeCard employee={emp} onDelete={handleDeleteEmployee} onEdit={handleEditEmployee} />
+                </Col>
+              ))}
+            </Row>
           </div>
         )}
       </div>
@@ -460,153 +497,153 @@ const Employees: React.FC = () => {
         footer={[
           <Button key="back" className="cancel-btn" onClick={handleCancel}>Cancel</Button>,
           <Button
-  key="submit"
-  className="submit-btn"
-  disabled={!isFormValid}     // ⭐ DISABLE UNTIL FORM VALID
-  onClick={() => form.submit()}
->
-  {editingEmployee ? "Update User" : "Add User"}
-</Button>
-
+            key="submit"
+            className="submit-btn"
+            disabled={!isFormValid || actionLoading}
+            loading={actionLoading}
+            onClick={() => form.submit()}
+          >
+            {editingEmployee ? "Update User" : "Add User"}
+          </Button>
         ]}
       >
         <Form
-  form={form}
-  layout="vertical"
-  onFinish={handleSubmitEmployee}
-  onFieldsChange={() => {
-    const hasErrors = form
-      .getFieldsError()
-      .some((field) => field.errors.length > 0);
-
-    const allFilled = form
-      .getFieldsValue([
-        "name",
-        "email",
-        "phone",
-        "location",
-        "services",
-        "role_id"
-      ]);
-
-    const isFilled =
-      allFilled.name &&
-      allFilled.email &&
-      allFilled.phone &&
-      allFilled.location &&
-      allFilled.services?.length > 0 &&
-      allFilled.role_id;
-
-    setIsFormValid(!hasErrors && isFilled);
-  }}
-  className="employee-form"
->
-
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmitEmployee}
+          onFieldsChange={() => {
+            const hasErrors = form.getFieldsError().some((field) => field.errors.length > 0);
+            const allFilled = form.getFieldsValue(["name", "email", "phone", "location", "services", "role_id"]);
+            const isFilled = allFilled.name && allFilled.email && allFilled.phone && allFilled.location && allFilled.services?.length > 0 && allFilled.role_id;
+            setIsFormValid(!hasErrors && isFilled);
+          }}
+          className="employee-form"
+        >
           <Row gutter={24}>
             <Col xs={24} sm={12}>
- <Form.Item
-  name="name"
-  label="Full Name"
-  rules={[
-    { required: true, message: "Please enter full name" },
-    {
-      validator: (_, value) => {
-        if (value && value.startsWith(" ")) {
-          return Promise.reject("Name cannot start with a space");
-        }
-        return Promise.resolve();
-      },
-    },
-  ]}
->
-  <Input
-    placeholder="Enter full name"
-    maxLength={40}
-    onChange={(e) => {
-      const val = e.target.value;
-      // Prevent setting value if it starts with spaces
-      if (val.length > 0 && val[0] === " ") return;
-      // Allow spaces internally and only letters + spaces
-      const clean = val.replace(/[^A-Za-z\s]/g, "").slice(0, 40);
-      form.setFieldsValue({ name: clean });
-    }}
-    onBlur={(e) => {
-      const trimmed = e.target.value.trimEnd();
-      form.setFieldsValue({ name: trimmed });
-    }}
-  />
-</Form.Item>
-
-
+              <Form.Item
+                name="name"
+                label="Full Name"
+                rules={[
+                  { required: true, message: "Please enter full name" },
+                  { min: 2, message: "Name must be at least 2 characters" },
+                  {
+                    validator: (_, value) => {
+                      if (value && value.trim().length === 0) {
+                        return Promise.reject("Name cannot be only spaces");
+                      }
+                      if (value && value.startsWith(" ")) {
+                        return Promise.reject("Name cannot start with a space");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Enter full name"
+                  maxLength={40}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val.length > 0 && val[0] === " ") return;
+                    const clean = val.replace(/[^A-Za-z\s]/g, "").slice(0, 40);
+                    form.setFieldsValue({ name: clean });
+                  }}
+                  onBlur={(e) => {
+                    const trimmed = e.target.value.trimEnd();
+                    form.setFieldsValue({ name: trimmed });
+                    form.validateFields(['name']);
+                  }}
+                />
+              </Form.Item>
             </Col>
+            
             <Col xs={24} sm={12}>
-              <Form.Item name="email" label="Email" rules={[{ required: true, type: "email", message: "Enter valid email" }]}>
+              <Form.Item 
+                name="email" 
+                label="Email" 
+                rules={[
+                  { required: true, message: "Please enter email" },
+                  { type: "email", message: "Enter valid email" }
+                ]}
+              >
                 <Input placeholder="Enter email" />
               </Form.Item>
             </Col>
+            
             <Col xs={24} sm={12}>
-             <Form.Item
-                             label="Phone"
-                             name="phone"
-                             rules={[
-                               { required: true, message: "Please enter your phone number" },
-                               {
-                                 pattern: /^[0-9][0-9]{9}$/,
-                                 message: "Enter a valid 10-digit phone number",
-                               },
-                             ]}
-                           >
-                            <Input
-               prefix={<PhoneOutlined />}
-               placeholder="9876543210"
-               maxLength={10}
-               inputMode="numeric"
-               onKeyPress={(e) => {
-                 if (!/[0-9]/.test(e.key)) e.preventDefault();  
-               }}
-               onChange={(e) => {
-                 const onlyNums = e.target.value.replace(/[^0-9]/g, "");
-                 if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) return;
-                 form.setFieldsValue({ phone: onlyNums });
-               }}
-             />
-             
-                           </Form.Item>
+              <Form.Item
+                label="Phone"
+                name="phone"
+                rules={[
+                  { required: true, message: "Please enter phone number" },
+                  {
+                    pattern: /^[6-9][0-9]{9}$/,
+                    message: "Enter a valid 10-digit phone number starting with 6-9",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<PhoneOutlined />}
+                  placeholder="9876543210"
+                  maxLength={10}
+                  inputMode="numeric"
+                  onKeyPress={(e) => {
+                    if (!/[0-9]/.test(e.key)) e.preventDefault();
+                  }}
+                  onChange={(e) => {
+                    const onlyNums = e.target.value.replace(/[^0-9]/g, "");
+                    // First digit must be 6-9
+                    if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) {
+                      form.setFieldsValue({ phone: '' });
+                      return;
+                    }
+                    form.setFieldsValue({ phone: onlyNums });
+                  }}
+                />
+              </Form.Item>
             </Col>
+            
             <Col xs={24} sm={12}>
-              <Form.Item name="location" label="Location" rules={[{ required: true, message: "Select location" }]}>
+              <Form.Item 
+                name="location" 
+                label="Location" 
+                rules={[{ required: true, message: "Select location" }]}
+              >
                 <Select options={locationsData} placeholder="Select location" />
               </Form.Item>
             </Col>
+            
             <Col xs={24} sm={12}>
-             <Form.Item
+              <Form.Item
                 name="services"
                 label="Departments"
-                rules={[
-                  { required: true, message: "Please select departments" },
-                ]}
+                rules={[{ required: true, message: "Please select departments" }]}
               >
                 <Select
                   mode="multiple"
                   options={departmentsdata}
                   placeholder="Select departments"
-                  showSearch={false}      
-                  filterOption={false}    
+                  showSearch={false}
+                  filterOption={false}
                 />
               </Form.Item>
             </Col>
+            
             <Col xs={24} sm={12}>
-              <Form.Item name="role_id" label="Role" rules={[
-                  { required: true, message: "Please select role" },
-                  
-                ]}>
+              <Form.Item 
+                name="role_id" 
+                label="Role" 
+                rules={[{ required: true, message: "Please select role" }]}
+              >
                 <Select options={rolesData} placeholder="Select role" />
               </Form.Item>
             </Col>
           </Row>
         </Form>
       </Modal>
-          {actionLoading && (
+
+      {actionLoading && (
         <div
           style={{
             position: "fixed",
@@ -614,7 +651,7 @@ const Employees: React.FC = () => {
             left: 0,
             height: "100vh",
             width: "100vw",
-            background: "rgba(255,255,255,0.7)",
+            background: "rgba(255,255,255,0.8)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
