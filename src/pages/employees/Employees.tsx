@@ -577,10 +577,7 @@ const Employees: React.FC = () => {
                 name="phone"
                 rules={[
                   { required: true, message: "Please enter phone number" },
-                  {
-                    pattern: /^[6-9][0-9]{9}$/,
-                    message: "Enter a valid 10-digit phone number starting with 6-9",
-                  },
+                 
                 ]}
               >
                 <Input
@@ -591,15 +588,15 @@ const Employees: React.FC = () => {
                   onKeyPress={(e) => {
                     if (!/[0-9]/.test(e.key)) e.preventDefault();
                   }}
-                  onChange={(e) => {
-                    const onlyNums = e.target.value.replace(/[^0-9]/g, "");
-                    // First digit must be 6-9
-                    if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) {
-                      form.setFieldsValue({ phone: '' });
-                      return;
-                    }
-                    form.setFieldsValue({ phone: onlyNums });
-                  }}
+                  // onChange={(e) => {
+                  //   const onlyNums = e.target.value.replace(/[^0-9]/g, "");
+                  //   // First digit must be 6-9
+                  //   if (onlyNums.length > 0 && !/^[6-9]/.test(onlyNums[0])) {
+                  //     form.setFieldsValue({ phone: '' });
+                  //     return;
+                  //   }
+                  //   form.setFieldsValue({ phone: onlyNums });
+                  // }}
                 />
               </Form.Item>
             </Col>
