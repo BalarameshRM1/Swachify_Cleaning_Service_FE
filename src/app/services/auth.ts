@@ -759,10 +759,12 @@ export const getallBookingsByUserId = async (empId: any) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        
+  ticketid: 0,
         user_id: 0,
         emp_id: empId,
         limit:10,
-        offset:1,
+        offset:0,
       }),
     });
 
