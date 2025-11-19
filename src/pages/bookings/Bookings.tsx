@@ -357,11 +357,8 @@ const [totalBookings, setTotalBookings] = useState(0);
     try {
       await deleteBookingById(selectedBookingId);
       message.success(`Booking #${selectedBookingId} deleted successfully.`);
-      setBookings((prev) =>
-        prev
-          .filter((b: any) => b.id !== selectedBookingId)
-          .filter((b: any) => b.status == "Open")
-      );
+      await fetchBookings(currentPage, pageSize);
+
       closeDeleteModal();
     } catch (error: any) {
       console.error("Failed to delete booking:", error);
