@@ -603,20 +603,28 @@ const [isContinueDisabled, setIsContinueDisabled] = useState(true);
                 name="fullName"
                 rules={[
                   { required: true, message: "Please enter your name" },
-                  // {
-                  //   pattern: /^[A-Za-z]{2,}\s[A-Za-z\s]{2,}$/,
-                  //   // message: "Enter valid full name (First and Last name)",
-                  // },
+                  
                 ]}
               >
                  <Input
                       prefix={<UserOutlined />}
                       placeholder="Enter full name"
                       maxLength={40}
-                      onChange={(e) => {
-                        const clean = e.target.value.replace(/[^A-Za-z\s]/g, "").slice(0, 40);
-                        form.setFieldsValue({ fullName: clean });
-                      }}
+                     onChange={(e) => {
+  let value = e.target.value;
+
+  
+  value = value.replace(/^\s+/, "");
+
+ 
+  value = value.replace(/[^A-Za-z\s]/g, "");
+
+  
+  value = value.slice(0, 40);
+
+  form.setFieldsValue({ fullName: value });
+}}
+
                     />
               </Form.Item>
             </Col>
