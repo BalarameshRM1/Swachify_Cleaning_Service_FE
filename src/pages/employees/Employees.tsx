@@ -523,15 +523,19 @@ const Employees: React.FC = () => {
   const hasErrors = form.getFieldsError().some((field) => field.errors.length > 0);
 
   // Check if any field is different from its original state
-const isChanged = Object.keys(initialFormValues).some((key) => {
-    const oldVal = initialFormValues[key];
-    const newVal = values[key];
+ const isEmptyInitial = Object.keys(initialFormValues).length === 0;
 
-    if (Array.isArray(oldVal) && Array.isArray(newVal)) {
-      return oldVal.sort().join(',') !== newVal.sort().join(',');
-    }
-    return oldVal !== newVal;
-  });
+const isChanged = isEmptyInitial
+  ? true // Always true for Add User mode
+  : Object.keys(initialFormValues).some((key) => {
+      const oldVal = initialFormValues[key];
+      const newVal = values[key];
+
+      if (Array.isArray(oldVal) && Array.isArray(newVal)) {
+        return oldVal.sort().join(",") !== newVal.sort().join(",");
+      }
+      return oldVal !== newVal;
+    });
 
   const allFilled =
     values.name &&
